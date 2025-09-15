@@ -1,21 +1,28 @@
+/**
+ * @file IndexGen.cpp
+ * @brief The main entry point for the DNA codebook generator application.
+ *
+ * This file contains the `main` function that drives the entire process. It sets up
+ * the configuration parameters, initiates the codebook generation, and measures
+ * the total execution time.
+ */
+
 #include <iostream>
-#include <cassert>
 #include <iomanip>
 #include <chrono>
-#include <fstream>
-#include <random>
-#include <thread>
-#include <unordered_set>
-#include <unordered_map>
-#include <map>
-#include "Utils.hpp"
-#include "IndexGen.hpp"
-#include "LinearCodes.hpp"
+
+#include "IndexGen.hpp" // Use the new documented header
 #include "Candidates.hpp"
-#include "MaxClique.hpp"
 #include "SparseMat.hpp"
 #include "Decode.hpp"
+
 using namespace std;
+
+// The alphabet mapping used throughout the project:
+// 0 = A (Adenine)
+// 1 = C (Cytosine)
+// 2 = G (Guanine)
+// 3 = T (Thymine)
 
 /*	*** Codebook Generator Usage ***
  * 	GenerateCodebookAdj(params): Generates a set of codewords of length codeLen, s.t. the minimal edit distance between
@@ -40,31 +47,49 @@ using namespace std;
  *	threadNum: Number of threads on system (int)
  */
 
-// hereinafter 0=A, 1=C, 2=G, 3=T
-//	Params: maxRun = {0, 3, 4} , minGCCont = 0.3, maxGCCont = 0.7 or minGCCont=maxGCCont=0
-int main() {
+/**
+ * @brief The main function and entry point of the program.
+ */
+int main()
+{
 
+	// Start the master timer to measure total execution time.
 	clock_t begin = clock();
 
-//	unsigned sd = chrono::high_resolution_clock::now().time_since_epoch().count();
+	// --- Configuration ---
+	// Set all the parameters for the codebook generation.
+	int codeLen = 10;		  // The length of each DNA sequence in the codebook.
+	int minHD = 4;			  // Use a linear code to generate candidates with min Hamming distance of 4.
+	int minED = 4;			  // The target minimum edit distance for the final codebook.
+	int maxRun = 3;			  // Allow homopolymer runs of up to 3 (e.g., 'AAA'), but not 4.
+	double minGCCont = 0.3;	  // Minimum GC-content of 30%.
+	double maxGCCont = 0.7;	  // Maximum GC-content of 70%.
+	int threadNum = 8;		  // Use 8 threads for parallel processing.
+	int saveInterval = 80000; // Save progress to allow for recovery.
 
-	int codeLen = 10;
-	int minHD = 4;
-	int minED = 4;
-	int maxRun = 3;
-	double minGCCont = 0.3;
-	double maxGCCont = 0.7;
-	int threadNum = 8;
-	int saveInterval = 80000;
 	Params params(codeLen, minHD, minED, maxRun, minGCCont, maxGCCont, threadNum, saveInterval);
 
-//	GenerateCodebookAdjResumeFromFile();
-	for (int codeLen = 10; codeLen <= 16; codeLen++) {
-		params.codeLen = codeLen;
-		GenerateCodebookAdj(params);
+	// --- Execution ---
+
+	// Option 1: Start a new codebook generation process.
+	// This example demonstrates looping to generate codebooks of increasing length.
+	for (int len = 10; len <= 16; len++)
+	{
+		cout << "--- Starting Generation for Codeword Length " << len << " ---" << endl;
+		params.codeLen = len;
+		GenerateCodebookAdj(params); // This is the main call to the generation algorithm.
+		cout << "--- Finished Generation for Codeword Length " << len << " ---" << endl
+			 << endl;
 	}
 
+	// Option 2: Resume a previously interrupted generation process.
+	// Uncomment the following line to resume from saved progress files.
+	// GenerateCodebookAdjResumeFromFile();
+
+	// --- Completion ---
 	clock_t end = clock();
 	double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
-	cout << "Total Time: " << fixed << setprecision(2) << elapsed_secs << "\tseconds" << endl;
+	cout << "Total Execution Time: " << fixed << setprecision(2) << elapsed_secs << " seconds" << endl;
+
+	return 0; // Indicate successful execution
 }

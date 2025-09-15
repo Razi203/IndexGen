@@ -1,114 +1,191 @@
-#include <cassert>
-#include <iostream>
+/**
+ * @file Candidates.cpp
+ * @brief Implements the logic for generating and filtering candidate codewords.
+ */
+
 #include "Candidates.hpp"
 #include "Utils.hpp"
 #include "LinearCodes.hpp"
+#include <cassert>
+#include <iostream>
 
-// All strings over {0(A),1(C),2(G),3(T)} of length n (NO MINIMUM HAMMING DISTANCE)
-vector<string> GenAllStrings(const int n) {
+// --- Internal Generation and Filtering Functions ---
+
+/**
+ * @brief Generates all possible strings of length n over the alphabet {0, 1, 2, 3}.
+ * @param n The desired length of the strings.
+ * @return A vector containing all 4^n possible strings.
+ */
+vector<string> GenAllStrings(const int n)
+{
 	vector<string> result;
 	vector<int> start(n, 0);
-	for (vector<int> vec = start; not vec.empty(); vec = NextBase4(vec)) {
+	// Iterate through all base-4 numbers of length n
+	for (vector<int> vec = start; not vec.empty(); vec = NextBase4(vec))
+	{
 		result.push_back(VecToStr(vec));
 	}
 	return result;
 }
 
-// All strings over {0(A),1(C),2(G),3(T)} of length n with pairwise minimum Hamming distance minHammDist {3,4,5}
-//n: length of codedVecs:	minHammDist 2: n>1
-//							minHammDist 3: 4<=n<=21
-//							minHammDist 4: 6<=n<=41
-//							minHammDist 5: 8<=n<=43
-vector<string> GenAllCodeStrings(const int n, const int minHammDist) {
-	vector<vector<int> > codeVecs = CodedVecs(n, minHammDist);
+/**
+ * @brief Generates all codewords of length n with a specified minimum Hamming distance.
+ * @details This function uses the `LinearCodes` module to create a set of strings that
+ * are guaranteed to be separated by at least `minHammDist`.
+ * @param n The length of the codewords.
+ * @param minHammDist The minimum Hamming distance (from 2 to 5).
+ * @return A vector of strings representing the generated codewords.
+ */
+vector<string> GenAllCodeStrings(const int n, const int minHammDist)
+{
+	vector<vector<int>> codeVecs = CodedVecs(n, minHammDist);
 	vector<string> codeWords;
-	for (vector<int>& vec : codeVecs) {
+	for (const vector<int> &vec : codeVecs)
+	{
 		codeWords.push_back(VecToStr(vec));
 	}
 	return codeWords;
 }
 
-void NoFilter(const vector<string>& strs, vector<string>& filteredStrs, const Params& params) {
-	for (const string& str : strs) {
-		filteredStrs.push_back(str);
-	}
+/**
+ * @brief A pass-through filter that does nothing.
+ * @param strs The input strings.
+ * @param filteredStrs The output vector, which will be a copy of the input.
+ * @param params Unused.
+ */
+void NoFilter(const vector<string> &strs, vector<string> &filteredStrs, const Params &params)
+{
+	filteredStrs = strs;
 }
 
-void FilterGC(const vector<string>& strs, vector<string>& filteredStrs, const Params& params) {
-	for (const string& str : strs) {
-		if (TestGCCont(str, params.minGCCont, params.maxGCCont)) {
+/**
+ * @brief Filters strings based on GC-content.
+ * @details Keeps only the strings where the fraction of '1's (C) and '2's (G) is
+ * within the specified range.
+ * @param strs The input strings.
+ * @param filteredStrs The output vector containing only strings that pass the filter.
+ * @param params The parameter struct containing minGCCont and maxGCCont.
+ */
+void FilterGC(const vector<string> &strs, vector<string> &filteredStrs, const Params &params)
+{
+	for (const string &str : strs)
+	{
+		if (TestGCCont(str, params.minGCCont, params.maxGCCont))
+		{
 			filteredStrs.push_back(str);
 		}
 	}
 }
 
-void FilterMaxRun(const vector<string>& strs, vector<string>& filteredStrs, const Params& params) {
-	for (const string& str : strs) {
-		if ((MaxRun(str) <= params.maxRun)) {
+/**
+ * @brief Filters strings based on maximum homopolymer run length.
+ * @details Keeps only the strings where the longest sequence of identical consecutive
+ * characters is less than or equal to `params.maxRun`.
+ * @param strs The input strings.
+ * @param filteredStrs The output vector containing only strings that pass the filter.
+ * @param params The parameter struct containing `maxRun`.
+ */
+void FilterMaxRun(const vector<string> &strs, vector<string> &filteredStrs, const Params &params)
+{
+	for (const string &str : strs)
+	{
+		if ((MaxRun(str) <= params.maxRun))
+		{
 			filteredStrs.push_back(str);
 		}
 	}
 }
 
-void FilterGCMaxRun(const vector<string>& strs, vector<string>& filteredStrs, const Params& params) {
-	for (const string& str : strs) {
-		if ((MaxRun(str) <= params.maxRun) && TestGCCont(str, params.minGCCont, params.maxGCCont)) {
+/**
+ * @brief Filters strings based on both GC-content and maximum run length.
+ * @param strs The input strings.
+ * @param filteredStrs The output vector containing only strings that pass both filters.
+ * @param params The parameter struct containing all filter criteria.
+ */
+void FilterGCMaxRun(const vector<string> &strs, vector<string> &filteredStrs, const Params &params)
+{
+	for (const string &str : strs)
+	{
+		if ((MaxRun(str) <= params.maxRun) && TestGCCont(str, params.minGCCont, params.maxGCCont))
+		{
 			filteredStrs.push_back(str);
 		}
 	}
 }
 
-vector<string> Candidates(const Params& params) {
+// --- Public Function Implementations ---
+
+// See Candidates.hpp for function documentation.
+vector<string> Candidates(const Params &params)
+{
 	int minHD = params.candMinHD;
 	vector<string> unfiltered, filtered;
-	// Create candidates. Code words or All strings.
-	if (minHD == 1) { // No Hamming. All Strings
+
+	// Step 1: Generate the initial set of strings.
+	if (minHD <= 1)
+	{ // No minimum Hamming distance required, generate all possible strings.
 		unfiltered = GenAllStrings(params.codeLen);
 	}
-	else if (minHD == 2 or minHD == 3 or minHD == 4 or minHD == 5) { // Hamming Code
+	else if (minHD >= 2 && minHD <= 5)
+	{ // Use a linear code for a Hamming distance guarantee.
 		unfiltered = GenAllCodeStrings(params.codeLen, params.candMinHD);
 	}
-	else {
-		assert(0);
+	else
+	{
+		assert(0); // Invalid minHD parameter.
 	}
 
-	// Filter candidates
-	bool TestMaxRun = (params.maxRun != 0);
-	bool TestGC = (params.minGCCont != 0);
-	if (TestMaxRun and TestGC) {
+	// Step 2: Apply the specified filters.
+	bool useMaxRunFilter = (params.maxRun > 0);
+	bool useGCFilter = (params.minGCCont > 0 || params.maxGCCont > 0);
+
+	if (useMaxRunFilter && useGCFilter)
+	{
 		FilterGCMaxRun(unfiltered, filtered, params);
 	}
-	else if (TestMaxRun) {
+	else if (useMaxRunFilter)
+	{
 		FilterMaxRun(unfiltered, filtered, params);
 	}
-	else if (TestGC) {
+	else if (useGCFilter)
+	{
 		FilterGC(unfiltered, filtered, params);
 	}
-	else {
-		NoFilter(unfiltered, filtered, params);
+	else
+	{
+		NoFilter(unfiltered, filtered, params); // No filters applied.
 	}
 	return filtered;
 }
 
-// test if min Hamming distance of code is at least d
-bool TestHammDist(const vector<string>& code, const int d) {
-	for (unsigned i = 0; i < code.size(); i++) {
-		for (unsigned j = i + 1; j < code.size(); j++) {
-			if (HammingDist(code[i], code[j]) < d) {
-				return false;
-			}
-		}
-	}
-	return true;
-}
-
-void TestCandidates(const int n, const int d) {
+// See Candidates.hpp for function documentation.
+void TestCandidates(const int n, const int d)
+{
 	vector<string> cand = GenAllCodeStrings(n, d);
 	cout << "Testing code n=" << n << "\td=" << d << "\tcode size " << cand.size() << "...";
-	if (not TestHammDist(cand, d)) {
+
+	// Verify that the Hamming distance is correct for all pairs.
+	bool success = true;
+	for (size_t i = 0; i < cand.size(); i++)
+	{
+		for (size_t j = i + 1; j < cand.size(); j++)
+		{
+			if (HammingDist(cand[i], cand[j]) < d)
+			{
+				success = false;
+				break;
+			}
+		}
+		if (!success)
+			break;
+	}
+
+	if (!success)
+	{
 		cout << "FAILURE" << endl;
 	}
-	else {
+	else
+	{
 		cout << "SUCCESS" << endl;
 	}
 }

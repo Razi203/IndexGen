@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": true,
-      "cwd": "c:/Users/30raz/OneDrive - Technion/Documents/Technion/Integrative/DNA/Old Code/IndexGen",
-      "program": "c:/Users/30raz/OneDrive - Technion/Documents/Technion/Integrative/DNA/Old Code/IndexGen/build/Debug/outDebug",
+      "cwd": "c:/Users/30raz/OneDrive - Technion/Documents/Technion/Integrative/DNA/My Code/IndexGen",
+      "program": "c:/Users/30raz/OneDrive - Technion/Documents/Technion/Integrative/DNA/My Code/IndexGen/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [
