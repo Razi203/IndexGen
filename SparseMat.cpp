@@ -13,6 +13,8 @@
 #include <iomanip>
 #include <fstream>
 #include <thread>
+#include <chrono>
+
 using namespace std;
 
 // *** AdjList Member Function Implementations ***
@@ -103,17 +105,18 @@ void AdjList::DelBall(const int matRow, unordered_set<int> &remaining)
 	}
 }
 
-int AdjList::FindMinDel(unordered_set<int> &remaining, clock_t &minSumRowTime, clock_t &delBallTime)
+int AdjList::FindMinDel(unordered_set<int> &remaining, double &minSumRowTime, double &delBallTime)
 {
-	clock_t msr_start = clock();
+	auto msr_start = chrono::steady_clock::now();
 	int minSumRow = MinSumRow();
-	clock_t msr_end = clock();
-	minSumRowTime += (msr_end - msr_start);
+	auto msr_end = chrono::steady_clock::now();
+	minSumRowTime += chrono::duration<double>(msr_end - msr_start).count();
 
-	clock_t db_start = clock();
+	auto db_start = chrono::steady_clock::now();
 	DelBall(minSumRow, remaining);
-	clock_t db_end = clock();
-	delBallTime += (db_end - db_start);
+	auto db_end = chrono::steady_clock::now();
+	delBallTime += chrono::duration<double>(db_end - db_start).count();
+
 	return minSumRow;
 }
 
@@ -217,7 +220,7 @@ void FillAdjListTH(vector<pair<int, int>> &pairVec, const vector<string> &candid
 				   const vector<vector<char>> &cand0123Cont, const int minED, const int threadStart, const int threadIdx,
 				   const int threadNum, const int saveInterval)
 {
-	clock_t lastSaveTime = clock();
+	auto lastSaveTime = chrono::steady_clock::now();
 	int candNum = candidates.size();
 	for (int i = threadStart; i < candNum; i += threadNum)
 	{
@@ -230,9 +233,9 @@ void FillAdjListTH(vector<pair<int, int>> &pairVec, const vector<string> &candid
 				pairVec.push_back(make_pair(i, j));
 			}
 		}
-		clock_t currentTime = clock();
-		int secs_since_last_save = double(currentTime - lastSaveTime) / CLOCKS_PER_SEC;
-		if (secs_since_last_save > saveInterval)
+		auto currentTime = chrono::steady_clock::now();
+		chrono::duration<double> elapsed_seconds = currentTime - lastSaveTime;
+		if (saveInterval > 0 && elapsed_seconds.count() > saveInterval)
 		{
 			SaveProgressAdjListComp(i, pairVec, threadIdx);
 			lastSaveTime = currentTime;
@@ -356,7 +359,7 @@ void Codebook(AdjList &adjList, vector<string> &codebook, const vector<string> &
 			  const bool resume)
 {
 	codebook.clear();
-	clock_t lastSaveTime = clock();
+	auto lastSaveTime = chrono::steady_clock::now();
 
 	unordered_set<int> remaining;
 	if (not resume)
@@ -368,14 +371,18 @@ void Codebook(AdjList &adjList, vector<string> &codebook, const vector<string> &
 	{
 		LoadProgressCodebook(remaining, adjList, codebook);
 	}
-	clock_t minSumRowTime = 0, delBallTime = 0;
+	
+	double minSumRowTime = 0.0, delBallTime = 0.0;
+	
 	while (not adjList.empty())
 	{
 		int minEntry = adjList.FindMinDel(remaining, minSumRowTime, delBallTime);
 		codebook.push_back(candidates[minEntry]);
-		clock_t currentTime = clock();
-		int secs_since_last_save = double(currentTime - lastSaveTime) / CLOCKS_PER_SEC;
-		if (secs_since_last_save > saveInterval)
+		
+		auto currentTime = chrono::steady_clock::now();
+		chrono::duration<double> elapsed_seconds = currentTime - lastSaveTime;
+
+		if (saveInterval > 0 && elapsed_seconds.count() > saveInterval)
 		{
 			SaveProgressCodebook(remaining, adjList, codebook);
 			lastSaveTime = currentTime;
@@ -383,10 +390,8 @@ void Codebook(AdjList &adjList, vector<string> &codebook, const vector<string> &
 		}
 	}
 
-	double elapsed_secs_msr = double(minSumRowTime) / CLOCKS_PER_SEC;
-	cout << "Find Min Sum Row Time:\t" << fixed << setprecision(2) << elapsed_secs_msr << "\tseconds" << endl;
-	double elapsed_secs_db = double(delBallTime) / CLOCKS_PER_SEC;
-	cout << "Del Ball Time:\t\t" << fixed << setprecision(2) << elapsed_secs_db << "\tseconds" << endl;
+	cout << "Find Min Sum Row Time:\t" << fixed << setprecision(2) << minSumRowTime << "\tseconds" << endl;
+	cout << "Del Ball Time:\t\t" << fixed << setprecision(2) << delBallTime << "\tseconds" << endl;
 
 	for (int num : remaining)
 	{
@@ -401,20 +406,20 @@ void CodebookAdjList(const vector<string> &candidates, vector<string> &codebook,
 	AdjList adjList;
 	NumToFile(1, "progress_stage.txt");
 
-	clock_t starta = clock();
+	auto starta = chrono::steady_clock::now();
 	FillAdjList(adjList, candidates, minED, threadNum, saveInterval, false, matrixOnesNum);
-	clock_t enda = clock();
-	double elapsed_secsa = double(enda - starta) / CLOCKS_PER_SEC;
-	cout << "Fill AdjList Time:\t" << fixed << setprecision(2) << elapsed_secsa << "\tseconds" << endl;
+	auto enda = chrono::steady_clock::now();
+	chrono::duration<double> elapsed_secsa = enda - starta;
+	cout << "Fill AdjList Time:\t" << fixed << setprecision(2) << elapsed_secsa.count() << "\tseconds" << endl;
 
 	NumToFile(2, "progress_stage.txt");
 	LongLongIntToFile(matrixOnesNum, "matrix_ones_num.txt");
 
-	clock_t startc = clock();
+	auto startc = chrono::steady_clock::now();
 	Codebook(adjList, codebook, candidates, saveInterval, false);
-	clock_t endc = clock();
-	double elapsed_secs = double(endc - startc) / CLOCKS_PER_SEC;
-	cout << "Process Matrix Time:\t" << fixed << setprecision(2) << elapsed_secs << "\tseconds" << endl;
+	auto endc = chrono::steady_clock::now();
+	chrono::duration<double> elapsed_secs = endc - startc;
+	cout << "Process Matrix Time:\t" << fixed << setprecision(2) << elapsed_secs.count() << "\tseconds" << endl;
 
 	remove("progress_stage.txt");
 	remove("matrix_ones_num.txt");
@@ -446,7 +451,7 @@ void CodebookAdjListResumeFromFile(const vector<string> &candidates, vector<stri
 
 void GenerateCodebookAdj(const Params &params)
 {
-	clock_t start = clock();
+	auto start = std::chrono::steady_clock::now();
 	ParamsToFile(params, "progress_params.txt");
 	PrintTestParams(params);
 
@@ -465,9 +470,9 @@ void GenerateCodebookAdj(const Params &params)
 	remove("progress_params.txt");
 	remove("progress_cand.txt");
 
-	clock_t end = clock();
-	double elapsed_secs = double(end - start) / CLOCKS_PER_SEC;
-	cout << "Codebook Time: " << fixed << setprecision(2) << elapsed_secs << "\tseconds" << endl;
+	auto end = std::chrono::steady_clock::now();
+	std::chrono::duration<double> elapsed_secs = end - start;
+	cout << "Codebook Time: " << fixed << setprecision(2) << elapsed_secs.count() << "\tseconds" << endl;
 	cout << "=====================================================" << endl;
 }
 

@@ -17,7 +17,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <map>
-#include <ctime>
+#include <chrono> // Use modern C++ time library
 
 // Forward declaration for the Params struct defined in IndexGen.hpp
 struct Params;
@@ -125,11 +125,11 @@ public:
     /**
      * @brief Finds the minimum-degree node and then deletes its corresponding ball.
      * @param remaining A set of remaining candidate indices, updated by `DelBall`.
-     * @param minSumRowTime A timer to profile the `MinSumRow` operation.
-     * @param delBallTime A timer to profile the `DelBall` operation.
+     * @param minSumRowTime A double to accumulate the total seconds spent in `MinSumRow`.
+     * @param delBallTime A double to accumulate the total seconds spent in `DelBall`.
      * @return The index of the minimum-degree node that was chosen and removed.
      */
-    int FindMinDel(std::unordered_set<int> &remaining, clock_t &minSumRowTime, clock_t &delBallTime);
+    int FindMinDel(std::unordered_set<int> &remaining, double &minSumRowTime, double &delBallTime);
 
     /**
      * @brief Serializes the adjacency list to a file.

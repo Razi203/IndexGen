@@ -114,7 +114,7 @@ You will need a C++ compiler (like g++). Navigate to the project directory and c
 
 ```bash
 # Example compilation command on Linux/macOS
-g++ -std=c++11 -O3 -pthread *.cpp -o dna_code_generator
+g++ -std=c++11 -O3 -pthread *.cpp -o dna_code_generator.exe
 ```
 
 ### Step 3: Configuration

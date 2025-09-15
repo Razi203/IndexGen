@@ -54,7 +54,7 @@ int main()
 {
 
 	// Start the master timer to measure total execution time.
-	clock_t begin = clock();
+	auto start = std::chrono::steady_clock::now();
 
 	// --- Configuration ---
 	// Set all the parameters for the codebook generation.
@@ -73,7 +73,7 @@ int main()
 
 	// Option 1: Start a new codebook generation process.
 	// This example demonstrates looping to generate codebooks of increasing length.
-	for (int len = 10; len <= 16; len++)
+	for (int len = 10; len <= 14; len++)
 	{
 		cout << "--- Starting Generation for Codeword Length " << len << " ---" << endl;
 		params.codeLen = len;
@@ -87,9 +87,9 @@ int main()
 	// GenerateCodebookAdjResumeFromFile();
 
 	// --- Completion ---
-	clock_t end = clock();
-	double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
-	cout << "Total Execution Time: " << fixed << setprecision(2) << elapsed_secs << " seconds" << endl;
+	auto end = std::chrono::steady_clock::now();
+	std::chrono::duration<double> elapsed_secs = end - start;
+	cout << "Total Execution Time: " << fixed << setprecision(2) << elapsed_secs.count() << " seconds" << endl;
 
 	return 0; // Indicate successful execution
 }
