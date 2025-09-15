@@ -11,12 +11,13 @@
 #ifndef SPARSEMAT_HPP_
 #define SPARSEMAT_HPP_
 
+#include "IndexGen.hpp" // Assumed to contain the definition for Params struct
 #include <string>
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>
 #include <map>
-#include "IndexGen.hpp" // Assumed to contain the definition for Params struct
+#include <ctime>
 
 // Forward declaration for the Params struct defined in IndexGen.hpp
 struct Params;
