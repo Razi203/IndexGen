@@ -27,15 +27,8 @@ using namespace std;
 /*	*** Codebook Generator Usage ***
  * 	GenerateCodebookAdj(params): Generates a set of codewords of length codeLen, s.t. the minimal edit distance between
  * 	any two codewords is at least codeMinED. See algorithm details in the file - Index Generator Project.docx.
- * 	parameters:
- * 	params.codeLen: Length of code words (int)
- * 	params.candMinHD: Minimal Hamming distance between any two candidates. From {1,2,3,4,5} (int)
- * 	params.codeMinED: Minimal edit distance between any two code words. From {3,4,5} (int)
- * 	params.maxRun: Longest allowed homopolymer. For no restriction on homopolymers set maxRun=0 (int)
- * 	params.minGCCont: Minimal GC content. For no restriction on GC content set minGCCont=0 (double)
- * 	params.maxGCCont: Maximal GC content. For no restriction on GC content set minGCCont=0 (double)
- * 	params.threadNum: Number of threads on system (int)
- * 	params.saveInterval: Interval between two save points in seconds (int)
+ *
+ * 	parameter details are in the Params struct (IndexGen.hpp)
 
  * 	*** Decode (find closest codeword) Usage ***
  * 	Decode(codebook, receivedWords, decodedWords, codeLen, threadNum): For every received word in receivedWords, finds
@@ -52,39 +45,67 @@ using namespace std;
  */
 int main()
 {
+	using std::cout;
+	using std::endl;
+	using std::fixed;
+	using std::setprecision;
 
 	// Start the master timer to measure total execution time.
 	auto start = std::chrono::steady_clock::now();
 
 	// --- Configuration ---
-	// Set all the parameters for the codebook generation.
-	int codeLen = 10;		  // The length of each DNA sequence in the codebook.
-	int minHD = 4;			  // Use a linear code to generate candidates with min Hamming distance of 4.
-	int minED = 4;			  // The target minimum edit distance for the final codebook.
-	int maxRun = 3;			  // Allow homopolymer runs of up to 3 (e.g., 'AAA'), but not 4.
-	double minGCCont = 0.3;	  // Minimum GC-content of 30%.
-	double maxGCCont = 0.7;	  // Maximum GC-content of 70%.
-	int threadNum = 16;		  // Use 16 threads for parallel processing.
-	int saveInterval = 80000; // Save progress to allow for recovery.
 
-	Params params(codeLen, minHD, minED, maxRun, minGCCont, maxGCCont, threadNum, saveInterval);
+	// 1. Set the common parameters for the codebook generation.
+	int codeLen = 10;
+	int minED = 4;
+	int maxRun = 3;
+	double minGCCont = 0.3;
+	double maxGCCont = 0.7;
+	int threadNum = 16;
+	int saveInterval = 80000;
+
+	// 2. Choose the generation method and create its specific constraints.
+	// To switch methods, just uncomment the block you want to use.
+
+	// --- Option A: Use the Linear Code method (This matches your original setup) ---
+	int minHD = 4; // This is the specific parameter for the Linear Code method
+	auto constraints = std::make_unique<LinearCodeConstraints>(minHD);
+	Params params(codeLen, minED, maxRun, minGCCont, maxGCCont, threadNum, saveInterval,
+				  GenerationMethod::LINEAR_CODE, std::move(constraints));
+
+	/*
+	// --- Option B: Use the VT Code method (Example) ---
+	int remainder = 0; // The specific parameter for the VT Code method
+	auto constraints = std::make_unique<VTCodeConstraints>(remainder);
+	Params params(codeLen, minED, maxRun, minGCCont, maxGCCont, threadNum, saveInterval,
+				  GenerationMethod::VT_CODE, std::move(constraints));
+	*/
+
+	/*
+	// --- Option C: Use the All Strings method (Example) ---
+	// This method has no specific parameters, so we just create the empty object.
+	auto constraints = std::make_unique<AllStringsConstraints>();
+	Params params(codeLen, minED, maxRun, minGCCont, maxGCCont, threadNum, saveInterval,
+				  GenerationMethod::ALL_STRINGS, std::move(constraints));
+	*/
 
 	// --- Execution ---
+	// The rest of your main function remains the same!
+	// The `GenerateCodebookAdj` function now internally knows which algorithm to run.
 
 	// Option 1: Start a new codebook generation process.
-	// This example demonstrates looping to generate codebooks of increasing length.
 	for (int len = 10; len <= 14; len++)
 	{
 		cout << "--- Starting Generation for Codeword Length " << len << " ---" << endl;
 		params.codeLen = len;
-		GenerateCodebookAdj(params); // This is the main call to the generation algorithm.
+		GenerateCodebookAdj(params);
 		cout << "--- Finished Generation for Codeword Length " << len << " ---" << endl
 			 << endl;
 	}
 
 	// Option 2: Resume a previously interrupted generation process.
-	// Uncomment the following line to resume from saved progress files.
-	// GenerateCodebookAdjResumeFromFile();
+	// Note: This function would also need to be updated to use your new FileToParams function.
+	GenerateCodebookAdjResumeFromFile();
 
 	// --- Completion ---
 	auto end = std::chrono::steady_clock::now();

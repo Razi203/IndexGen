@@ -8,28 +8,35 @@
 #include "Utils.hpp"
 #include "LinearCodes.hpp"
 
-int FastEditDistance(const string& source, const string& target) {
-	if (source.size() > target.size()) {
+int FastEditDistance(const string &source, const string &target)
+{
+	if (source.size() > target.size())
+	{
 		return FastEditDistance(target, source);
 	}
 
 	const int min_size = source.size(), max_size = target.size();
 	vector<int> lev_dist(min_size + 1);
 
-	for (int i = 0; i <= min_size; ++i) {
+	for (int i = 0; i <= min_size; ++i)
+	{
 		lev_dist[i] = i;
 	}
 
-	for (int j = 1; j <= max_size; ++j) {
+	for (int j = 1; j <= max_size; ++j)
+	{
 		int previous_diagonal = lev_dist[0], previous_diagonal_save;
 		++lev_dist[0];
 
-		for (int i = 1; i <= min_size; ++i) {
+		for (int i = 1; i <= min_size; ++i)
+		{
 			previous_diagonal_save = lev_dist[i];
-			if (source[i - 1] == target[j - 1]) {
+			if (source[i - 1] == target[j - 1])
+			{
 				lev_dist[i] = previous_diagonal;
 			}
-			else {
+			else
+			{
 				lev_dist[i] = min(min(lev_dist[i - 1], lev_dist[i]), previous_diagonal) + 1;
 			}
 			previous_diagonal = previous_diagonal_save;
@@ -39,33 +46,41 @@ int FastEditDistance(const string& source, const string& target) {
 	return lev_dist[min_size];
 }
 // if ED(source,target) >= minED return true. otherwise, false.
-bool FastEditDistance(const string& source, const string& target, const int minED) {
-	if (source.size() > target.size()) {
+bool FastEditDistance(const string &source, const string &target, const int minED)
+{
+	if (source.size() > target.size())
+	{
 		return FastEditDistance(target, source, minED);
 	}
 
 	const int min_size = source.size(), max_size = target.size();
 	vector<int> lev_dist(min_size + 1);
 
-	for (int i = 0; i <= min_size; ++i) {
+	for (int i = 0; i <= min_size; ++i)
+	{
 		lev_dist[i] = i;
 	}
 
-	for (int j = 1; j <= max_size; ++j) {
+	for (int j = 1; j <= max_size; ++j)
+	{
 		int previous_diagonal = lev_dist[0], previous_diagonal_save;
 		++lev_dist[0];
 
-		for (int i = 1; i <= min_size; ++i) {
+		for (int i = 1; i <= min_size; ++i)
+		{
 			previous_diagonal_save = lev_dist[i];
-			if (source[i - 1] == target[j - 1]) {
+			if (source[i - 1] == target[j - 1])
+			{
 				lev_dist[i] = previous_diagonal;
 			}
-			else {
+			else
+			{
 				lev_dist[i] = min(min(lev_dist[i - 1], lev_dist[i]), previous_diagonal) + 1;
 			}
 			previous_diagonal = previous_diagonal_save;
 		}
-		if (lev_dist[j] >= minED) {
+		if (lev_dist[j] >= minED)
+		{
 			return true;
 		}
 	}
@@ -73,16 +88,19 @@ bool FastEditDistance(const string& source, const string& target, const int minE
 	return lev_dist[min_size] >= minED;
 }
 
-int SumAbs0123Diff(const vector<char>& acgtContx, const vector<char>& acgtConty) {
+int SumAbs0123Diff(const vector<char> &acgtContx, const vector<char> &acgtConty)
+{
 	int sum = 0;
-	for (int i = 0; i < 4; i++) {
+	for (int i = 0; i < 4; i++)
+	{
 		sum += abs(acgtContx[i] - acgtConty[i]);
 	}
 	return sum;
 }
 
-bool FastEditDistance0123(const string& X, const string& Y, const int minED, const vector<char>& contx,
-		const vector<char>& conty) {
+bool FastEditDistance0123(const string &X, const string &Y, const int minED, const vector<char> &contx,
+						  const vector<char> &conty)
+{
 	int sumAbsACGTDiff = SumAbs0123Diff(contx, conty);
 	if (sumAbsACGTDiff / 2 >= minED)
 		return true;
@@ -90,33 +108,41 @@ bool FastEditDistance0123(const string& X, const string& Y, const int minED, con
 		return FastEditDistance(X, Y, minED);
 }
 
-int FastEditDistanceForSearch(const string& source, const string& target, const int minED) {
-	if (source.size() > target.size()) {
+int FastEditDistanceForSearch(const string &source, const string &target, const int minED)
+{
+	if (source.size() > target.size())
+	{
 		return FastEditDistance(target, source, minED);
 	}
 
 	const int min_size = source.size(), max_size = target.size();
 	vector<int> lev_dist(min_size + 1);
 
-	for (int i = 0; i <= min_size; ++i) {
+	for (int i = 0; i <= min_size; ++i)
+	{
 		lev_dist[i] = i;
 	}
 
-	for (int j = 1; j <= max_size; ++j) {
+	for (int j = 1; j <= max_size; ++j)
+	{
 		int previous_diagonal = lev_dist[0], previous_diagonal_save;
 		++lev_dist[0];
 
-		for (int i = 1; i <= min_size; ++i) {
+		for (int i = 1; i <= min_size; ++i)
+		{
 			previous_diagonal_save = lev_dist[i];
-			if (source[i - 1] == target[j - 1]) {
+			if (source[i - 1] == target[j - 1])
+			{
 				lev_dist[i] = previous_diagonal;
 			}
-			else {
+			else
+			{
 				lev_dist[i] = min(min(lev_dist[i - 1], lev_dist[i]), previous_diagonal) + 1;
 			}
 			previous_diagonal = previous_diagonal_save;
 		}
-		if (lev_dist[j] >= minED) {
+		if (lev_dist[j] >= minED)
+		{
 			return -1;
 		}
 	}
@@ -129,8 +155,9 @@ int FastEditDistanceForSearch(const string& source, const string& target, const 
 
 // if ED(X,Y)>= min ED return -1. Otherwise, return ED(X,Y)
 
-int FastEditDistance0123ForSearch(const string& X, const string& Y, const int minED, const vector<char>& contx,
-		const vector<char>& conty) {
+int FastEditDistance0123ForSearch(const string &X, const string &Y, const int minED, const vector<char> &contx,
+								  const vector<char> &conty)
+{
 	int sumAbsACGTDiff = SumAbs0123Diff(contx, conty);
 	if (sumAbsACGTDiff / 2 >= minED) // TODO: how to use minED-1
 		return -1;
@@ -138,22 +165,28 @@ int FastEditDistance0123ForSearch(const string& X, const string& Y, const int mi
 		return FastEditDistanceForSearch(X, Y, minED);
 }
 
-int HammingDist(const string& str1, const string& str2) {
+int HammingDist(const string &str1, const string &str2)
+{
 	assert(str1.size() == str2.size());
 	int count = 0;
-	for (int i = 0; i < (int) str1.size(); i++) {
+	for (int i = 0; i < (int)str1.size(); i++)
+	{
 		if (str1[i] != str2[i])
 			count++;
 	}
 	return count;
 }
 
-void VerifyDistT(const vector<string>& vecs, const int minED, const int threadIdx, const int threadNum,
-		atomic<bool>& success) {
-	for (unsigned i = threadIdx; i < vecs.size(); i += threadNum) {
-		for (unsigned j = i + 1; j < vecs.size(); j++) {
+void VerifyDistT(const vector<string> &vecs, const int minED, const int threadIdx, const int threadNum,
+				 atomic<bool> &success)
+{
+	for (unsigned i = threadIdx; i < vecs.size(); i += threadNum)
+	{
+		for (unsigned j = i + 1; j < vecs.size(); j++)
+		{
 			int ED = FastEditDistance(vecs[i], vecs[j]);
-			if (ED < minED) {
+			if (ED < minED)
+			{
 				success = false;
 				return;
 			}
@@ -162,39 +195,83 @@ void VerifyDistT(const vector<string>& vecs, const int minED, const int threadId
 	success = true;
 }
 
-void VerifyDist(vector<string>& vecs, const int minED, const int threadNum) {
+void VerifyDist(vector<string> &vecs, const int minED, const int threadNum)
+{
 	atomic<bool> success(false);
 	vector<thread> threads;
-	for (int i = 0; i < threadNum; i++) {
+	for (int i = 0; i < threadNum; i++)
+	{
 		threads.push_back(thread(VerifyDistT, vecs, minED, i, threadNum, ref(success)));
 	}
-	for (thread& th : threads)
+	for (thread &th : threads)
 		th.join();
-	if (success) {
+	if (success)
+	{
 		cout << "Vector distance SUCCESS" << endl;
 	}
-	else {
+	else
+	{
 		cout << "Vector distance FAILURE" << endl;
 	}
 }
 
-void PrintParamsToFile(ofstream& out, const int candidateNum, const int codeSize, const Params& params,
-		const long long int matrixOnesNum) {
+void PrintParamsToFile(std::ofstream &out, const int candidateNum, const int codeSize, const Params &params,
+					   const long long int matrixOnesNum)
+{
+	// Using std::endl for consistency
+	out << "--- Configuration ---" << std::endl;
+	out << "Max Run:\t\t\t" << params.maxRun << std::endl;
+	out << "Min GC Content:\t\t\t" << params.minGCCont << std::endl;
+	out << "Max GC Content:\t\t\t" << params.maxGCCont << std::endl;
+	out << "Code Length:\t\t\t" << params.codeLen << std::endl;
+	out << "Min Codebook Edit Distance:\t" << params.codeMinED << std::endl;
 
-	out << "Max Run:\t\t" << params.maxRun << endl;
-	out << "Min GC Content:\t\t" << params.minGCCont << endl;
-	out << "Max GC Content:\t\t" << params.maxGCCont << endl;
-	out << "Code Length:\t\t" << params.codeLen << endl;
-	out << "Min Candidates Hamming Distance:" << params.candMinHD << endl;
-	out << "Min Codebook Edit Distance:\t" << params.codeMinED << endl;
-	out << "Number of Candidates:\t\t" << candidateNum << endl;
-	out << "Number of Ones in Matrix:\t" << matrixOnesNum << endl;
-	out << "Number of Code Words:\t\t" << codeSize << endl;
+	// --- Generation Method & Specifics ---
+	out << "Generation Method:\t\t" << GenerationMethodToString(params.method) << std::endl;
 
-	out << "=========================================== " << endl;
+	if (!params.constraints)
+	{
+		out << "Error: Generation constraints were not set." << std::endl;
+	}
+	else
+	{
+		switch (params.method)
+		{
+		case GenerationMethod::LINEAR_CODE:
+		{
+			auto *constraints = dynamic_cast<LinearCodeConstraints *>(params.constraints.get());
+			if (constraints)
+			{
+				out << "Min Candidate Hamming Distance:\t" << constraints->candMinHD << std::endl;
+			}
+			break;
+		}
+		case GenerationMethod::VT_CODE:
+		{
+			auto *constraints = dynamic_cast<VTCodeConstraints *>(params.constraints.get());
+			if (constraints)
+			{
+				out << "VT Code Remainder:\t\t" << constraints->remainder << std::endl;
+			}
+			break;
+		}
+		case GenerationMethod::ALL_STRINGS:
+		{
+			// No specific parameters to log for this method
+			break;
+		}
+		}
+	}
+
+	out << "Number of Candidates:\t\t" << candidateNum << std::endl;
+	out << "Number of Ones in Matrix:\t" << matrixOnesNum << std::endl;
+	out << "Number of Code Words:\t\t" << codeSize << std::endl;
+
+	out << "=========================================== " << std::endl;
 }
 
-string FileName(const int codeLen, const int codeSize, const int minED) {
+string FileName(const int codeLen, const int codeSize, const int minED)
+{
 	string codeLenStr = to_string(codeLen);
 	assert(codeLenStr.size() <= 2);
 	codeLenStr = string(2 - codeLenStr.size(), '0') + codeLenStr;
@@ -206,34 +283,40 @@ string FileName(const int codeLen, const int codeSize, const int minED) {
 	return fileName;
 }
 
-void ToFile(const vector<string>& codeWords, const Params& params, const int candidateNum,
-		const long long int matrixOnesNum) {
+void ToFile(const vector<string> &codeWords, const Params &params, const int candidateNum,
+			const long long int matrixOnesNum)
+{
 	int codeSize = codeWords.size();
 	ofstream output;
 	string fileName = FileName(params.codeLen, codeSize, params.codeMinED);
 	output.open(fileName.c_str());
-	if (!output.is_open()) {
+	if (!output.is_open())
+	{
 		cout << "Failed opening output file!" << endl;
 		return;
 	}
 
 	PrintParamsToFile(output, candidateNum, codeSize, params, matrixOnesNum);
 
-	for (const string& word : codeWords) {
+	for (const string &word : codeWords)
+	{
 		output << word << '\n';
 	}
 	output.close();
 }
 
-int MaxRun(const string& str) {
+int MaxRun(const string &str)
+{
 	int start = 0;
 	char runLetter = str[0];
 	int maxRun = 0;
-	for (int i = 1; i < (int) str.size(); i++) {
-		if (str[i] == runLetter) {
-
+	for (int i = 1; i < (int)str.size(); i++)
+	{
+		if (str[i] == runLetter)
+		{
 		}
-		else { // run ended
+		else
+		{ // run ended
 			int runLen = i - start;
 			if (runLen > maxRun)
 				maxRun = runLen;
@@ -241,7 +324,7 @@ int MaxRun(const string& str) {
 			runLetter = str[i];
 		}
 	}
-	int runLen = (int) str.size() - start;
+	int runLen = (int)str.size() - start;
 	if (runLen > maxRun)
 		maxRun = runLen;
 
@@ -249,27 +332,34 @@ int MaxRun(const string& str) {
 }
 
 // return fraction of number of occurrences of '1'(C) and '2'(G)
-double GCContent(const string& a) {
+double GCContent(const string &a)
+{
 	int GCNum = 0;
-	for (char letter : a) {
+	for (char letter : a)
+	{
 		if (letter == '1' or letter == '2')
 			GCNum++;
 	}
 	return double(GCNum) / double(a.size());
 }
 
-bool TestGCCont(const string& a, const double minGCCont, const double maxGCCont) {
+bool TestGCCont(const string &a, const double minGCCont, const double maxGCCont)
+{
 	double GCCont = GCContent(a);
 	return (GCCont >= minGCCont) && (GCCont <= maxGCCont);
 }
 
-bool TestAllLettersOccurence(const string& a) {
+bool TestAllLettersOccurence(const string &a)
+{
 	vector<int> occs(4);
-	for (char letter : a) {
+	for (char letter : a)
+	{
 		occs[letter - '0']++;
 	}
-	for (int occ : occs) {
-		if (occ == 0) {
+	for (int occ : occs)
+	{
+		if (occ == 0)
+		{
 			return false;
 		}
 	}
@@ -279,15 +369,19 @@ bool TestAllLettersOccurence(const string& a) {
 // str - string with a number in base 4
 // return string of next binary number
 // if str is highest number with len of string return empty string
-string NextBase4(const string& str) {
+string NextBase4(const string &str)
+{
 	string result = str;
-	for (string::reverse_iterator it = result.rbegin(); it != result.rend(); it++) {
+	for (string::reverse_iterator it = result.rbegin(); it != result.rend(); it++)
+	{
 		char currLetter = *it;
-		if (currLetter < '3') {
+		if (currLetter < '3')
+		{
 			*it = currLetter + 1;
 			return result;
 		}
-		else {
+		else
+		{
 			*it = '0';
 		}
 	}
@@ -299,15 +393,19 @@ string NextBase4(const string& str) {
 // return next base 4 number
 // if number is highest possible with give number of digits return empty vector
 
-vector<int> NextBase4(const vector<int>& vec) {
+vector<int> NextBase4(const vector<int> &vec)
+{
 	vector<int> result = vec;
-	for (vector<int>::reverse_iterator it = result.rbegin(); it != result.rend(); it++) {
+	for (vector<int>::reverse_iterator it = result.rbegin(); it != result.rend(); it++)
+	{
 		int currDigit = *it;
-		if (currDigit < 3) {
+		if (currDigit < 3)
+		{
 			(*it)++;
 			return result;
 		}
-		else {
+		else
+		{
 			*it = 0;
 		}
 	}
@@ -317,27 +415,32 @@ vector<int> NextBase4(const vector<int>& vec) {
 
 // for w root of x^2+x+1, w=2, w^2=3
 
-int AddF4(const int a, const int b) {
+int AddF4(const int a, const int b)
+{
 	assert((0 <= a) && (a < 4) && (0 <= b) && (b < 4));
-	static const int addition[4][4] = { { 0, 1, 2, 3 }, { 1, 0, 3, 2 }, { 2, 3, 0, 1 }, { 3, 2, 1, 0 } };
+	static const int addition[4][4] = {{0, 1, 2, 3}, {1, 0, 3, 2}, {2, 3, 0, 1}, {3, 2, 1, 0}};
 	return addition[a][b];
 }
 
-int MulF4(const int a, const int b) {
+int MulF4(const int a, const int b)
+{
 	assert((0 <= a) && (a < 4) && (0 <= b) && (b < 4));
-	static const int mul[4][4] = { { 0, 0, 0, 0 }, { 0, 1, 2, 3 }, { 0, 2, 3, 1 }, { 0, 3, 1, 2 } };
+	static const int mul[4][4] = {{0, 0, 0, 0}, {0, 1, 2, 3}, {0, 2, 3, 1}, {0, 3, 1, 2}};
 	return mul[a][b];
 }
 
 // GF4 multiplication v(1xk) M(kxl)
-vector<int> MatMul(const vector<int>& v, const vector<vector<int> >& M, const int k, const int l) {
+vector<int> MatMul(const vector<int> &v, const vector<vector<int>> &M, const int k, const int l)
+{
 	assert(not M.empty());
-	assert((int ) M.size() == k);
-	assert((int ) M[0].size() == l);
+	assert((int)M.size() == k);
+	assert((int)M[0].size() == l);
 	vector<int> result(l);
-	for (int j = 0; j < l; j++) {
+	for (int j = 0; j < l; j++)
+	{
 		int res = 0;
-		for (int i = 0; i < k; i++) {
+		for (int i = 0; i < k; i++)
+		{
 			res = AddF4(res, MulF4(v[i], M[i][j]));
 		}
 		result[j] = res;
@@ -347,19 +450,25 @@ vector<int> MatMul(const vector<int>& v, const vector<vector<int> >& M, const in
 
 // vec - vector of ints from { 0, 1, 2, 3}
 // return string of {'0','1', '2', '3'}
-string VecToStr(const vector<int>& vec) {
+string VecToStr(const vector<int> &vec)
+{
 	string result;
-	for (int num : vec) {
+	for (int num : vec)
+	{
 		result += num + '0';
 	}
 	return result;
 }
 
-void VerifyHammDist(const vector<string>& vecs, const int minHammDist) {
-	for (unsigned i = 0; i < vecs.size(); i++) {
-		for (unsigned j = i + 1; j < vecs.size(); j++) {
+void VerifyHammDist(const vector<string> &vecs, const int minHammDist)
+{
+	for (unsigned i = 0; i < vecs.size(); i++)
+	{
+		for (unsigned j = i + 1; j < vecs.size(); j++)
+		{
 			int dist = HammingDist(vecs[i], vecs[j]);
-			if (dist < minHammDist) {
+			if (dist < minHammDist)
+			{
 				cout << vecs[i] << endl;
 				cout << vecs[j] << endl;
 				cout << "Vector distance FAILURE" << endl;
@@ -370,23 +479,31 @@ void VerifyHammDist(const vector<string>& vecs, const int minHammDist) {
 	cout << "Vector distance SUCCESS" << endl;
 }
 
-bool IsZeroVec(const vector<int>& vec) {
-	for (int num : vec) {
-		if (num != 0) {
+bool IsZeroVec(const vector<int> &vec)
+{
+	for (int num : vec)
+	{
+		if (num != 0)
+		{
 			return false;
 		}
 	}
 	return true;
 }
 
-void FindIndexAndLambda(const vector<int>& parityVec, const vector<vector<int> >& H, int& index, int& lambda) {
-	for (int lam = 1; lam < 4; lam++) {
-		for (int i = 0; i < (int) H.size(); i++) {
+void FindIndexAndLambda(const vector<int> &parityVec, const vector<vector<int>> &H, int &index, int &lambda)
+{
+	for (int lam = 1; lam < 4; lam++)
+	{
+		for (int i = 0; i < (int)H.size(); i++)
+		{
 			vector<int> lambdaHi;
-			for (int num : H[i]) {
+			for (int num : H[i])
+			{
 				lambdaHi.push_back(MulF4(num, lam));
 			}
-			if (lambdaHi == parityVec) {
+			if (lambdaHi == parityVec)
+			{
 				index = i;
 				lambda = lam;
 				return;
@@ -395,14 +512,17 @@ void FindIndexAndLambda(const vector<int>& parityVec, const vector<vector<int> >
 	}
 }
 
-vector<int> CorrectCodeVec(const vector<int>& codeVec, const vector<vector<int>>& H, int maxCodeLen, int redundancy) {
+vector<int> CorrectCodeVec(const vector<int> &codeVec, const vector<vector<int>> &H, int maxCodeLen, int redundancy)
+{
 	int codeLen = codeVec.size();
 	vector<vector<int>> TrimmedH(H.begin() + (maxCodeLen - codeLen), H.end());
 	vector<int> parityVec = MatMul(codeVec, TrimmedH, codeLen, redundancy);
-	if (IsZeroVec(parityVec)) {
+	if (IsZeroVec(parityVec))
+	{
 		return codeVec;
 	}
-	else {
+	else
+	{
 		int index = 0, lambda = 0;
 		FindIndexAndLambda(parityVec, TrimmedH, index, lambda);
 		vector<int> result = codeVec;
@@ -411,12 +531,14 @@ vector<int> CorrectCodeVec(const vector<int>& codeVec, const vector<vector<int>>
 	}
 }
 
-void TestDecode(const int codeLen, const vector<vector<int>>& H, int maxCodeLen, int redundancy) {
+void TestDecode(const int codeLen, const vector<vector<int>> &H, int maxCodeLen, int redundancy)
+{
 	unsigned sd = chrono::high_resolution_clock::now().time_since_epoch().count();
 	mt19937 generator(sd);
-	vector<vector<int> > codeVecs = CodedVecs(codeLen, 3);
+	vector<vector<int>> codeVecs = CodedVecs(codeLen, 3);
 	cout << "Code vecs num:\t" << codeVecs.size() << endl;
-	for (const vector<int>& codeVec : codeVecs) {
+	for (const vector<int> &codeVec : codeVecs)
+	{
 		vector<int> receivedVec = codeVec;
 		uniform_int_distribution<int> idxDist(0, codeLen - 1);
 		int errorIdx = idxDist(generator);
@@ -424,7 +546,8 @@ void TestDecode(const int codeLen, const vector<vector<int>>& H, int maxCodeLen,
 		int errorNum = numDist(generator);
 		receivedVec[errorIdx] = errorNum;
 		vector<int> correctedVec = CorrectCodeVec(receivedVec, H, maxCodeLen, redundancy);
-		if (correctedVec != codeVec) {
+		if (correctedVec != codeVec)
+		{
 			cout << "Decode Test FAILURE\n";
 			return;
 		}
@@ -432,55 +555,197 @@ void TestDecode(const int codeLen, const vector<vector<int>>& H, int maxCodeLen,
 	cout << "Decode Test SUCCESS\n";
 }
 
-void PrintTestParams(const Params& params) {
-	cout << "Max Run:\t\t" << params.maxRun << endl;
-	cout << "Min GC Content:\t\t" << params.minGCCont << endl;
-	cout << "Max GC Content:\t\t" << params.maxGCCont << endl;
-	cout << "Code Length:\t\t" << params.codeLen << endl;
-	cout << "Min Candidates Hamming Distance:" << params.candMinHD << endl;
-	cout << "Min Codebook Edit Distance:\t" << params.codeMinED << endl;
+std::string GenerationMethodToString(GenerationMethod method)
+{
+	switch (method)
+	{
+	case GenerationMethod::LINEAR_CODE:
+		return "Linear Code";
+	case GenerationMethod::VT_CODE:
+		return "Varshamov-Tenengolts Code";
+	case GenerationMethod::ALL_STRINGS:
+		return "All Strings (Brute-Force)";
+	default:
+		return "Unknown";
+	}
 }
 
-void PrintTestResults(const int candidateNum, const long long int matrixOnesNum, const int codewordsNum) {
+void PrintTestParams(const Params &params)
+{
+	using std::cout;
+	using std::endl;
+
+	// --- Print Common Parameters ---
+	cout << "--- Common Parameters ---" << endl;
+	cout << "Code Length:\t\t\t" << params.codeLen << endl;
+	cout << "Min Codebook Edit Distance:\t" << params.codeMinED << endl;
+	cout << "Max Homopolymer Run:\t\t" << params.maxRun << endl;
+	cout << "Min GC Content:\t\t\t" << params.minGCCont << endl;
+	cout << "Max GC Content:\t\t\t" << params.maxGCCont << endl;
+
+	cout << "\n--- Generation Method ---" << endl;
+	cout << "Method:\t\t\t\t" << GenerationMethodToString(params.method) << endl;
+
+	// --- Print Method-Specific Parameters ---
+	if (!params.constraints)
+	{
+		cout << "Error: Generation constraints are not set." << endl;
+		return;
+	}
+
+	switch (params.method)
+	{
+	case GenerationMethod::LINEAR_CODE:
+	{
+		// Safely cast the base pointer to the specific derived type
+		auto *constraints = dynamic_cast<LinearCodeConstraints *>(params.constraints.get());
+		if (constraints)
+		{
+			cout << "Min Candidate Hamming Distance:\t" << constraints->candMinHD << endl;
+		}
+		break;
+	}
+	case GenerationMethod::VT_CODE:
+	{
+		auto *constraints = dynamic_cast<VTCodeConstraints *>(params.constraints.get());
+		if (constraints)
+		{
+			cout << "VT Code Remainder:\t\t" << constraints->remainder << endl;
+		}
+		break;
+	}
+	case GenerationMethod::ALL_STRINGS:
+	{
+		// No specific parameters to print for this method
+		cout << "No specific parameters for this method." << endl;
+		break;
+	}
+	default:
+	{
+		cout << "Cannot print parameters for unknown generation method." << endl;
+	}
+	}
+}
+
+void PrintTestResults(const int candidateNum, const long long int matrixOnesNum, const int codewordsNum)
+{
 	cout << "Number of Candidate Words:\t" << candidateNum << endl;
 	cout << "Number of Ones in Matrix:\t" << matrixOnesNum << endl;
 	cout << "Number of Code Words:\t\t" << codewordsNum << endl;
 }
 
-void ParamsToFile(const Params& params, const string& fileName) {
-	ofstream output_file;
-	output_file.exceptions(ofstream::failbit | ofstream::badbit);
+void ParamsToFile(const Params &params, const std::string &fileName)
+{
+	std::ofstream output_file;
+	output_file.exceptions(std::ofstream::failbit | std::ofstream::badbit);
 	output_file.open(fileName);
 
+	// 1. Write all common parameters from the main Params struct
 	output_file << params.codeLen << '\n';
-	output_file << params.candMinHD << '\n';
 	output_file << params.codeMinED << '\n';
 	output_file << params.maxRun << '\n';
 	output_file << params.minGCCont << '\n';
 	output_file << params.maxGCCont << '\n';
 	output_file << params.threadNum << '\n';
 	output_file << params.saveInterval << '\n';
+
+	// 2. Write the generation method type identifier (as an integer)
+	output_file << static_cast<int>(params.method) << '\n';
+
+	// 3. Write the method-specific parameters
+	if (!params.constraints)
+	{
+		throw std::runtime_error("Cannot save Params: constraints object is null.");
+	}
+
+	switch (params.method)
+	{
+	case GenerationMethod::LINEAR_CODE:
+	{
+		auto *constraints = dynamic_cast<LinearCodeConstraints *>(params.constraints.get());
+		if (constraints)
+		{
+			output_file << constraints->candMinHD << '\n';
+		}
+		break;
+	}
+	case GenerationMethod::VT_CODE:
+	{
+		auto *constraints = dynamic_cast<VTCodeConstraints *>(params.constraints.get());
+		if (constraints)
+		{
+			output_file << constraints->remainder << '\n';
+		}
+		break;
+	}
+	case GenerationMethod::ALL_STRINGS:
+	{
+		// This method has no specific parameters to save
+		break;
+	}
+	default:
+	{
+		// Handle unknown types to make your code more robust
+		throw std::runtime_error("Unknown generation method during serialization.");
+	}
+	}
+
 	output_file.close();
 }
 
-void FileToParams(Params& params, const string& fileName) {
-
-	ifstream input_file;
-	input_file.exceptions(ifstream::failbit | ifstream::badbit);
+void FileToParams(Params &params, const std::string &fileName)
+{
+	std::ifstream input_file;
+	input_file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 	input_file.open(fileName);
 
+	// 1. Read all common parameters
 	input_file >> params.codeLen;
-	input_file >> params.candMinHD;
 	input_file >> params.codeMinED;
 	input_file >> params.maxRun;
 	input_file >> params.minGCCont;
 	input_file >> params.maxGCCont;
 	input_file >> params.threadNum;
 	input_file >> params.saveInterval;
+
+	// 2. Read the integer, then cast it back to the GenerationMethod enum
+	int method_type_int;
+	input_file >> method_type_int;
+	params.method = static_cast<GenerationMethod>(method_type_int);
+
+	// 3. Based on the method, read specific data and create the correct constraints object
+	switch (params.method)
+	{
+	case GenerationMethod::LINEAR_CODE:
+	{
+		int min_hd;
+		input_file >> min_hd;
+		params.constraints = std::make_unique<LinearCodeConstraints>(min_hd);
+		break;
+	}
+	case GenerationMethod::VT_CODE:
+	{
+		int rem;
+		input_file >> rem;
+		params.constraints = std::make_unique<VTCodeConstraints>(rem);
+		break;
+	}
+	case GenerationMethod::ALL_STRINGS:
+	{
+		params.constraints = std::make_unique<AllStringsConstraints>();
+		break;
+	}
+	default:
+	{
+		throw std::runtime_error("Unknown generation method type found in file.");
+	}
+	}
+
 	input_file.close();
 }
 
-void IntVecToFile(const vector<int>& data, const string& fileName) {
+void IntVecToFile(const vector<int> &data, const string &fileName)
+{
 	ofstream output_file;
 	output_file.exceptions(ofstream::failbit | ofstream::badbit);
 	output_file.open(fileName);
@@ -490,15 +755,19 @@ void IntVecToFile(const vector<int>& data, const string& fileName) {
 	output_file.close();
 }
 
-void FileToIntVec(vector<int>& data, const string& fileName) {
+void FileToIntVec(vector<int> &data, const string &fileName)
+{
 	ifstream input_file;
 	input_file.exceptions(ifstream::failbit | ifstream::badbit);
 	input_file.open(fileName);
 
-	try {
+	try
+	{
 		istream_iterator<int> start(input_file), end;
 		data.insert(data.begin(), start, end);
-	} catch (const ifstream::failure& e) {
+	}
+	catch (const ifstream::failure &e)
+	{
 		if (!input_file.eof())
 			throw e;
 	}
@@ -506,7 +775,8 @@ void FileToIntVec(vector<int>& data, const string& fileName) {
 	input_file.close();
 }
 
-void StrVecToFile(const vector<string>& data, const string& fileName) {
+void StrVecToFile(const vector<string> &data, const string &fileName)
+{
 	ofstream output_file;
 	output_file.exceptions(ofstream::failbit | ofstream::badbit);
 	output_file.open(fileName);
@@ -516,22 +786,27 @@ void StrVecToFile(const vector<string>& data, const string& fileName) {
 	output_file.close();
 }
 
-void FileToStrVec(vector<string>& data, const string& fileName) {
+void FileToStrVec(vector<string> &data, const string &fileName)
+{
 	ifstream input_file;
 	input_file.exceptions(ifstream::failbit | ifstream::badbit);
 	input_file.open(fileName);
 
-	try {
+	try
+	{
 		istream_iterator<string> start(input_file), end;
 		data.insert(data.begin(), start, end);
-	} catch (const ifstream::failure& e) {
+	}
+	catch (const ifstream::failure &e)
+	{
 		if (!input_file.eof())
 			throw e;
 	}
 	input_file.close();
 }
 
-void NumToFile(const int num, const string& fileName) {
+void NumToFile(const int num, const string &fileName)
+{
 	ofstream output_file;
 	output_file.exceptions(ofstream::failbit | ofstream::badbit);
 	output_file.open(fileName);
@@ -541,7 +816,8 @@ void NumToFile(const int num, const string& fileName) {
 	output_file.close();
 }
 
-void LongLongIntToFile(const long long int num, const string& fileName) {
+void LongLongIntToFile(const long long int num, const string &fileName)
+{
 	ofstream output_file;
 	output_file.exceptions(ofstream::failbit | ofstream::badbit);
 	output_file.open(fileName);
@@ -551,7 +827,8 @@ void LongLongIntToFile(const long long int num, const string& fileName) {
 	output_file.close();
 }
 
-void FileToNum(int& num, const string& fileName) {
+void FileToNum(int &num, const string &fileName)
+{
 	ifstream input_file;
 	input_file.exceptions(ifstream::failbit | ifstream::badbit);
 	input_file.open(fileName);
@@ -561,7 +838,8 @@ void FileToNum(int& num, const string& fileName) {
 	input_file.close();
 }
 
-void FileToLongLongInt(long long int& num, const string& fileName) {
+void FileToLongLongInt(long long int &num, const string &fileName)
+{
 	ifstream input_file;
 	input_file.exceptions(ifstream::failbit | ifstream::badbit);
 	input_file.open(fileName);
@@ -572,26 +850,32 @@ void FileToLongLongInt(long long int& num, const string& fileName) {
 }
 
 // s - string over {0,1,2,3}
-void Cont0123(const string& s, vector<char>& cont0123) {
+void Cont0123(const string &s, vector<char> &cont0123)
+{
 	cont0123 = vector<char>(4);
-	for (char c : s) {
+	for (char c : s)
+	{
 		cont0123[c - 48]++;
 	}
 }
 
-vector<vector<char> > Cont0123(const vector<string>& vec) {
-	vector<vector<char> > result(vec.size());
-	for (int i = 0; i < (int) vec.size(); i++) {
+vector<vector<char>> Cont0123(const vector<string> &vec)
+{
+	vector<vector<char>> result(vec.size());
+	for (int i = 0; i < (int)vec.size(); i++)
+	{
 		Cont0123(vec[i], result[i]);
 	}
 	return result;
 }
 
-string MakeStrand0123(const unsigned length, mt19937& generator) {
+string MakeStrand0123(const unsigned length, mt19937 &generator)
+{
 	string strand;
 	uniform_int_distribution<int> distribution(0, 3);
 	string letters("0123");
-	for (unsigned i = 0; i < length; i++) {
+	for (unsigned i = 0; i < length; i++)
+	{
 		strand += letters[distribution(generator)];
 	}
 	return strand;

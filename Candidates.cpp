@@ -116,26 +116,53 @@ void FilterGCMaxRun(const vector<string> &strs, vector<string> &filteredStrs, co
 // --- Public Function Implementations ---
 
 // See Candidates.hpp for function documentation.
-vector<string> Candidates(const Params &params)
+std::vector<std::string> Candidates(const Params &params)
 {
-	int minHD = params.candMinHD;
-	vector<string> unfiltered, filtered;
+	std::vector<std::string> unfiltered, filtered;
 
-	// Step 1: Generate the initial set of strings.
-	if (minHD <= 1)
-	{ // No minimum Hamming distance required, generate all possible strings.
-		unfiltered = GenAllStrings(params.codeLen);
-	}
-	else if (minHD >= 2 && minHD <= 5)
-	{ // Use a linear code for a Hamming distance guarantee.
-		unfiltered = GenAllCodeStrings(params.codeLen, params.candMinHD);
-	}
-	else
+	// Step 1: Generate the initial set of strings based on the chosen method.
+	// This part is refactored to use the new polymorphic structure.
+	if (!params.constraints)
 	{
-		assert(0); // Invalid minHD parameter.
+		throw std::runtime_error("Cannot generate candidates: constraints object is null.");
+	}
+
+	switch (params.method)
+	{
+	case GenerationMethod::LINEAR_CODE:
+	{
+		auto *constraints = dynamic_cast<LinearCodeConstraints *>(params.constraints.get());
+		if (!constraints)
+		{
+			throw std::runtime_error("Invalid constraints provided for LINEAR_CODE method.");
+		}
+		unfiltered = GenAllCodeStrings(params.codeLen, constraints->candMinHD);
+		break;
+	}
+
+	case GenerationMethod::ALL_STRINGS:
+	{
+		unfiltered = GenAllStrings(params.codeLen);
+		break;
+	}
+
+	case GenerationMethod::VT_CODE:
+	{
+		// PLACEHOLDER: Add your Varshamov-Tenengolts generation logic here.
+		// auto* constraints = dynamic_cast<VTCodeConstraints*>(params.constraints.get());
+		// unfiltered = GenVTCodeStrings(params.codeLen, constraints->remainder);
+		throw std::runtime_error("Candidate generation for VT_CODE is not yet implemented.");
+		break;
+	}
+
+	default:
+	{
+		throw std::runtime_error("Unknown or unsupported candidate generation method.");
+	}
 	}
 
 	// Step 2: Apply the specified filters.
+	// This entire section remains UNCHANGED because maxRun and GCCont are still in the main Params struct.
 	bool useMaxRunFilter = (params.maxRun > 0);
 	bool useGCFilter = (params.minGCCont > 0 || params.maxGCCont > 0);
 

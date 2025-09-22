@@ -186,5 +186,182 @@ If a long-running job is interrupted, you can resume it if `saveInterval` was se
 GenerateCodebookAdjResumeFromFile();
 ```
 
+
+---
+
+
+## 5. Extending the Generator with New Methods
+
+The application is designed using a **Strategy Pattern**, which makes adding new candidate generation methods a straightforward process. To add a new method, you need to update a few key functions to make the system aware of your new logic and its specific parameters.
+
+Follow these steps to add a new method called `NEW_METHOD`.
+
+---
+
+### Step 1: Define the Method Identifier
+
+First, add a unique identifier for your new method to the `GenerationMethod` enum.
+
+* **File**: `IndexGen.hpp`
+* **Action**: Add `NEW_METHOD` to the `enum class`.
+
+```cpp
+enum class GenerationMethod
+{
+    LINEAR_CODE,
+    VT_CODE,
+    ALL_STRINGS,
+    NEW_METHOD // <-- Add your new method here
+};
+````
+
+-----
+
+### Step 2: Create a New Constraints Struct
+
+Next, create a new `struct` to hold any parameters that are specific to your new method. This struct must inherit from `GenerationConstraints`.
+
+  * **File**: `IndexGep.hpp`
+  * **Action**: Define `NewMethodConstraints`.
+
+<!-- end list -->
+
+```cpp
+struct NewMethodConstraints : public GenerationConstraints
+{
+    // Add any parameters your method needs
+    int new_parameter_1;
+    double new_parameter_2;
+
+    // Create a constructor for easy initialization
+    NewMethodConstraints(int p1, double p2)
+        : new_parameter_1(p1), new_parameter_2(p2) {}
+};
 ```
+
+-----
+
+### Step 3: Implement the Generation Logic
+
+This is the core step where you integrate your actual algorithm. Add a new `case` to the `switch` statement in the `Candidates` function to call your generation logic.
+
+  * **File**: `Candidates.cpp`
+  * **Action**: Add a `case` for `NEW_METHOD` inside the `Candidates` function.
+
+<!-- end list -->
+
+```cpp
+std::vector<std::string> Candidates(const Params &params)
+{
+    // ...
+    switch (params.method)
+    {
+        // ... (existing cases)
+
+        case GenerationMethod::NEW_METHOD: {
+            auto *constraints = dynamic_cast<NewMethodConstraints *>(params.constraints.get());
+            if (!constraints) {
+                throw std::runtime_error("Invalid constraints for NEW_METHOD.");
+            }
+            // Call your new generation function with its specific parameters
+            unfiltered = GenNewMethodStrings(params.codeLen, constraints->new_parameter_1, constraints->new_parameter_2);
+            break;
+        }
+
+        default: {
+            // ...
+        }
+    }
+    // ... (filtering logic remains the same)
+}
 ```
+
+-----
+
+### Step 4: Update Utility Functions
+
+To ensure your new method can be saved, loaded, and printed correctly, you need to update the `switch` statements in the utility functions.
+
+#### 4.1. Serialization
+
+  * **File**: `Utils.cpp`
+  * **Action**: Update both `ParamsToFile` and `FileToParams`.
+
+In `ParamsToFile`:
+
+```cpp
+// ... inside the switch statement
+case GenerationMethod::NEW_METHOD: {
+    auto* constraints = dynamic_cast<NewMethodConstraints*>(params.constraints.get());
+    if (constraints) {
+        output_file << constraints->new_parameter_1 << '\n';
+        output_file << constraints->new_parameter_2 << '\n';
+    }
+    break;
+}
+```
+
+In `FileToParams`:
+
+```cpp
+// ... inside the switch statement
+case GenerationMethod::NEW_METHOD: {
+    int p1;
+    double p2;
+    input_file >> p1;
+    input_file >> p2;
+    params.constraints = std::make_unique<NewMethodConstraints>(p1, p2);
+    break;
+}
+```
+
+#### 4.2. Printing & Logging
+
+  * **File**: `Utils.cpp`
+  * **Action**: Update the `GenerationMethodToString` helper and any printing functions (`PrintTestParams`, `PrintParamsToFile`).
+
+In `GenerationMethodToString`:
+
+```cpp
+// ... inside the switch statement
+case GenerationMethod::NEW_METHOD:
+    return "New Method Name";
+```
+
+In `PrintTestParams` (and/or `PrintParamsToFile`):
+
+```cpp
+// ... inside the switch statement
+case GenerationMethod::NEW_METHOD: {
+    auto *constraints = dynamic_cast<NewMethodConstraints *>(params.constraints.get());
+    if (constraints) {
+        cout << "New Parameter 1:\t\t" << constraints->new_parameter_1 << endl;
+        cout << "New Parameter 2:\t\t" << constraints->new_parameter_2 << endl;
+    }
+    break;
+}
+```
+
+-----
+
+### Step 5: (Optional) Add an Example to `main`
+
+To make your new method easy to test and use, add a configuration block for it in your main entry point.
+
+  * **File**: `IndexGen.cpp`
+  * **Action**: Add an example of how to instantiate `Params` with `NEW_METHOD`.
+
+<!-- end list -->
+
+```cpp
+/*
+// --- Option D: Use the New Method (Example) ---
+int p1 = 123;
+double p2 = 45.6;
+auto constraints = std::make_unique<NewMethodConstraints>(p1, p2);
+Params params(codeLen, minED, maxRun, minGCCont, maxGCCont, threadNum, saveInterval,
+              GenerationMethod::NEW_METHOD, std::move(constraints));
+*/
+```
+
+That's it\! By following these steps, you can cleanly integrate any number of new generation algorithms into the existing framework.

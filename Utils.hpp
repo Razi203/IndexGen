@@ -194,6 +194,13 @@ int MulF4(const int a, const int b);
  */
 string VecToStr(const vector<int> &vec);
 
+/**
+ * @brief Converts a GenerationMethod enum to a human-readable string.
+ * @param method The enum value to convert.
+ * @return A string representation of the method.
+ */
+std::string GenerationMethodToString(GenerationMethod method);
+
 // =================================================================================
 // SECTION: CONSOLE PRINTING
 // =================================================================================
