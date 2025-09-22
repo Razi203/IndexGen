@@ -64,7 +64,7 @@ int main()
 	int maxRun = 3;			  // Allow homopolymer runs of up to 3 (e.g., 'AAA'), but not 4.
 	double minGCCont = 0.3;	  // Minimum GC-content of 30%.
 	double maxGCCont = 0.7;	  // Maximum GC-content of 70%.
-	int threadNum = 8;		  // Use 8 threads for parallel processing.
+	int threadNum = 16;		  // Use 16 threads for parallel processing.
 	int saveInterval = 80000; // Save progress to allow for recovery.
 
 	Params params(codeLen, minHD, minED, maxRun, minGCCont, maxGCCont, threadNum, saveInterval);

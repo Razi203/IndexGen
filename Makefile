@@ -2,11 +2,11 @@
 CXX = g++
 
 # Compiler flags
-# -std=c++11: Use the C++11 standard
+# -std=c++17: Use the C++20 standard
 # -O3:        Enable high-level optimizations
 # -pthread:   Link with the pthreads library for std::thread support
 # -Wall:      Enable all compiler warnings (good practice)
-CXXFLAGS = -std=c++11 -O3 -pthread -Wall
+CXXFLAGS = -std=c++17 -O3 -pthread -Wall
 
 # Name of the final executable
 TARGET = dna_code_generator.exe

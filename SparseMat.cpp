@@ -371,14 +371,14 @@ void Codebook(AdjList &adjList, vector<string> &codebook, const vector<string> &
 	{
 		LoadProgressCodebook(remaining, adjList, codebook);
 	}
-	
+
 	double minSumRowTime = 0.0, delBallTime = 0.0;
-	
+
 	while (not adjList.empty())
 	{
 		int minEntry = adjList.FindMinDel(remaining, minSumRowTime, delBallTime);
 		codebook.push_back(candidates[minEntry]);
-		
+
 		auto currentTime = chrono::steady_clock::now();
 		chrono::duration<double> elapsed_seconds = currentTime - lastSaveTime;
 
@@ -454,9 +454,13 @@ void GenerateCodebookAdj(const Params &params)
 	auto start = std::chrono::steady_clock::now();
 	ParamsToFile(params, "progress_params.txt");
 	PrintTestParams(params);
-
+	auto start_candidates = std::chrono::steady_clock::now();
 	vector<string> candidates = Candidates(params);
 	StrVecToFile(candidates, "progress_cand.txt");
+	auto end_candidates = std::chrono::steady_clock::now();
+	std::chrono::duration<double> elapsed_secs_candidates = end_candidates - start_candidates;
+	cout << "Candidates Time: " << fixed << setprecision(2) << elapsed_secs_candidates.count() << "\tseconds" << endl;
+
 	vector<string> codebook;
 	long long int matrixOnesNum;
 
