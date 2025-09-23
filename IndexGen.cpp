@@ -61,25 +61,27 @@ int main()
 	int maxRun = 3;
 	double minGCCont = 0.3;
 	double maxGCCont = 0.7;
-	int threadNum = 16;
+	int threadNum = 32;
 	int saveInterval = 80000;
 
 	// 2. Choose the generation method and create its specific constraints.
 	// To switch methods, just uncomment the block you want to use.
 
+	/*
 	// --- Option A: Use the Linear Code method (This matches your original setup) ---
 	int minHD = 4; // This is the specific parameter for the Linear Code method
 	auto constraints = std::make_unique<LinearCodeConstraints>(minHD);
 	Params params(codeLen, minED, maxRun, minGCCont, maxGCCont, threadNum, saveInterval,
 				  GenerationMethod::LINEAR_CODE, std::move(constraints));
+	*/
 
-	/*
+	// /*
 	// --- Option B: Use the VT Code method (Example) ---
 	int remainder = 0; // The specific parameter for the VT Code method
 	auto constraints = std::make_unique<VTCodeConstraints>(remainder);
 	Params params(codeLen, minED, maxRun, minGCCont, maxGCCont, threadNum, saveInterval,
 				  GenerationMethod::VT_CODE, std::move(constraints));
-	*/
+	// */
 
 	/*
 	// --- Option C: Use the All Strings method (Example) ---

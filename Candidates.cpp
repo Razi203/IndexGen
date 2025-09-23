@@ -6,6 +6,7 @@
 #include "Candidates.hpp"
 #include "Utils.hpp"
 #include "LinearCodes.hpp"
+#include "VTCodes.hpp"
 #include <cassert>
 #include <iostream>
 
@@ -148,10 +149,8 @@ std::vector<std::string> Candidates(const Params &params)
 
 	case GenerationMethod::VT_CODE:
 	{
-		// PLACEHOLDER: Add your Varshamov-Tenengolts generation logic here.
-		// auto* constraints = dynamic_cast<VTCodeConstraints*>(params.constraints.get());
-		// unfiltered = GenVTCodeStrings(params.codeLen, constraints->remainder);
-		throw std::runtime_error("Candidate generation for VT_CODE is not yet implemented.");
+		auto *constraints = dynamic_cast<VTCodeConstraints *>(params.constraints.get());
+		unfiltered = GenerateVTCodesMT_Mem(params.codeLen, constraints->remainder, params.threadNum);
 		break;
 	}
 
