@@ -17,9 +17,9 @@
 #include <vector>
 #include <atomic>
 #include <random>
-#include "IndexGen.hpp" // Assumed to contain the definition for Params struct
+#include <chrono>
+#include "IndexGen.hpp"
 
-// Using standard namespace for convenience in this utility header.
 using namespace std;
 
 // Forward declaration for the Params struct defined in IndexGen.hpp
@@ -231,7 +231,9 @@ void PrintTestResults(const int candidateNum, const long long int matrixOnesNum,
  * @param matrixOnesNum The number of ones in the generation matrix.
  */
 void ToFile(const vector<string> &codeWords, const Params &params, const int candidateNum,
-			const long long int matrixOnesNum);
+			const long long int matrixOnesNum, const chrono::duration<double> &candidatesTime,
+			const chrono::duration<double> &fillAdjListTime, const chrono::duration<double> &processMatrixTime,
+			const chrono::duration<double> &overAllTime);
 
 /**
  * @brief Serializes a `Params` struct to a file.

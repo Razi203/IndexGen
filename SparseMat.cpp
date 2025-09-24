@@ -401,7 +401,7 @@ void Codebook(AdjList &adjList, vector<string> &codebook, const vector<string> &
 }
 
 void CodebookAdjList(const vector<string> &candidates, vector<string> &codebook, const int minED, const int threadNum,
-					 const int saveInterval, long long int &matrixOnesNum)
+					 const int saveInterval, long long int &matrixOnesNum, std::chrono::duration<double> &fillAdjListTime, std::chrono::duration<double> &processMatrixTime)
 {
 	AdjList adjList;
 	NumToFile(1, "progress_stage.txt");
@@ -409,8 +409,8 @@ void CodebookAdjList(const vector<string> &candidates, vector<string> &codebook,
 	auto starta = chrono::steady_clock::now();
 	FillAdjList(adjList, candidates, minED, threadNum, saveInterval, false, matrixOnesNum);
 	auto enda = chrono::steady_clock::now();
-	chrono::duration<double> elapsed_secsa = enda - starta;
-	cout << "Fill AdjList Time:\t" << fixed << setprecision(2) << elapsed_secsa.count() << "\tseconds" << endl;
+	fillAdjListTime = enda - starta;
+	cout << "Fill AdjList Time:\t" << fixed << setprecision(2) << fillAdjListTime.count() << "\tseconds" << endl;
 
 	NumToFile(2, "progress_stage.txt");
 	LongLongIntToFile(matrixOnesNum, "matrix_ones_num.txt");
@@ -418,8 +418,8 @@ void CodebookAdjList(const vector<string> &candidates, vector<string> &codebook,
 	auto startc = chrono::steady_clock::now();
 	Codebook(adjList, codebook, candidates, saveInterval, false);
 	auto endc = chrono::steady_clock::now();
-	chrono::duration<double> elapsed_secs = endc - startc;
-	cout << "Process Matrix Time:\t" << fixed << setprecision(2) << elapsed_secs.count() << "\tseconds" << endl;
+	processMatrixTime = endc - startc;
+	cout << "Process Matrix Time:\t" << fixed << setprecision(2) << processMatrixTime.count() << "\tseconds" << endl;
 
 	remove("progress_stage.txt");
 	remove("matrix_ones_num.txt");
@@ -454,6 +454,7 @@ void GenerateCodebookAdj(const Params &params)
 	auto start = std::chrono::steady_clock::now();
 	ParamsToFile(params, "progress_params.txt");
 	PrintTestParams(params);
+
 	auto start_candidates = std::chrono::steady_clock::now();
 	vector<string> candidates = Candidates(params);
 	StrVecToFile(candidates, "progress_cand.txt");
@@ -461,22 +462,24 @@ void GenerateCodebookAdj(const Params &params)
 	std::chrono::duration<double> elapsed_secs_candidates = end_candidates - start_candidates;
 	cout << "Candidates Time: " << fixed << setprecision(2) << elapsed_secs_candidates.count() << "\tseconds" << endl;
 
+	std::chrono::duration<double> fillAdjListTime, processMatrixTime;
+
 	vector<string> codebook;
 	long long int matrixOnesNum;
 
-	CodebookAdjList(candidates, codebook, params.codeMinED, params.threadNum, params.saveInterval, matrixOnesNum);
+	CodebookAdjList(candidates, codebook, params.codeMinED, params.threadNum, params.saveInterval, matrixOnesNum, fillAdjListTime, processMatrixTime);
 
 	long long int candidateNum = candidates.size();
 	PrintTestResults(candidateNum, matrixOnesNum, codebook.size());
-	ToFile(codebook, params, candidateNum, matrixOnesNum);
+	auto end = std::chrono::steady_clock::now();
+	std::chrono::duration<double> overAllTime = end - start;
+	ToFile(codebook, params, candidateNum, matrixOnesNum, elapsed_secs_candidates, fillAdjListTime, processMatrixTime, overAllTime);
 	//	VerifyDist(codebook, params.codeMinED, params.threadNum);
 	cout << "=====================================================" << endl;
 	remove("progress_params.txt");
 	remove("progress_cand.txt");
 
-	auto end = std::chrono::steady_clock::now();
-	std::chrono::duration<double> elapsed_secs = end - start;
-	cout << "Codebook Time: " << fixed << setprecision(2) << elapsed_secs.count() << "\tseconds" << endl;
+	cout << "Codebook Time: " << fixed << setprecision(2) << overAllTime.count() << "\tseconds" << endl;
 	cout << "=====================================================" << endl;
 }
 
@@ -495,7 +498,7 @@ void GenerateCodebookAdjResumeFromFile()
 		long long int matrixOnesNum;
 		CodebookAdjListResumeFromFile(candidates, codebook, params, matrixOnesNum);
 		PrintTestResults(candidateNum, matrixOnesNum, codebook.size());
-		ToFile(codebook, params, candidateNum, matrixOnesNum);
+		ToFile(codebook, params, candidateNum, matrixOnesNum, chrono::duration<double>::zero(), chrono::duration<double>::zero(), chrono::duration<double>::zero(), chrono::duration<double>::zero());
 		//		VerifyDist(codebook, params.minED, params.maxCodeLen, params.threadNum);
 		cout << "=====================================================" << endl;
 		remove("progress_params.txt");

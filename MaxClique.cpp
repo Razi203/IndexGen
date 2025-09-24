@@ -120,7 +120,10 @@ void GenerateCodebookMaxClique(const Params &params)
 
 	PrintTestResults(candidateNum, matrixOnesNum, codebook.size());
 
-	ToFile(codebook, params, candidateNum, matrixOnesNum);
+	// TODO: Measure and report timing information
+	// For now, we just pass zero durations to the ToFile function.
+	ToFile(codebook, params, candidateNum, matrixOnesNum, std::chrono::duration<double>::zero(),
+		   std::chrono::duration<double>::zero(), std::chrono::duration<double>::zero(), std::chrono::duration<double>::zero());
 	VerifyDist(codebook, params.codeMinED, params.threadNum);
 	std::cout << "=====================================================" << std::endl;
 }

@@ -216,7 +216,9 @@ void VerifyDist(vector<string> &vecs, const int minED, const int threadNum)
 }
 
 void PrintParamsToFile(std::ofstream &out, const int candidateNum, const int codeSize, const Params &params,
-					   const long long int matrixOnesNum)
+					   const long long int matrixOnesNum, const std::chrono::duration<double> &candidatesTime,
+					   const std::chrono::duration<double> &fillAdjListTime, const std::chrono::duration<double> &processMatrixTime,
+					   const std::chrono::duration<double> &overallTime)
 {
 	// Using std::endl for consistency
 	out << "--- Configuration ---" << std::endl;
@@ -266,6 +268,12 @@ void PrintParamsToFile(std::ofstream &out, const int candidateNum, const int cod
 	out << "Number of Candidates:\t\t" << candidateNum << std::endl;
 	out << "Number of Ones in Matrix:\t" << matrixOnesNum << std::endl;
 	out << "Number of Code Words:\t\t" << codeSize << std::endl;
+	out << "--- Performance Metrics ---" << std::endl;
+	out << "Number of Threads:\t\t" << params.threadNum << std::endl;
+	out << "Candidate Generation Time:\t" << fixed << setprecision(2) << candidatesTime.count() << "\tseconds" << std::endl;
+	out << "Fill Adjacency List Time:\t" << fixed << setprecision(2) << fillAdjListTime.count() << "\tseconds" << std::endl;
+	out << "Process Matrix Time:\t\t" << fixed << setprecision(2) << processMatrixTime.count() << "\tseconds" << std::endl;
+	out << "Overall Execution Time:\t\t" << fixed << setprecision(2) << overallTime.count() << "\tseconds" << std::endl;
 
 	out << "=========================================== " << std::endl;
 }
@@ -284,7 +292,8 @@ string FileName(const int codeLen, const int codeSize, const int minED)
 }
 
 void ToFile(const vector<string> &codeWords, const Params &params, const int candidateNum,
-			const long long int matrixOnesNum)
+			const long long int matrixOnesNum, const std::chrono::duration<double> &candidatesTime, const std::chrono::duration<double> &fillAdjListTime,
+			const std::chrono::duration<double> &processMatrixTime, const std::chrono::duration<double> &overallTime)
 {
 	int codeSize = codeWords.size();
 	ofstream output;
@@ -296,7 +305,7 @@ void ToFile(const vector<string> &codeWords, const Params &params, const int can
 		return;
 	}
 
-	PrintParamsToFile(output, candidateNum, codeSize, params, matrixOnesNum);
+	PrintParamsToFile(output, candidateNum, codeSize, params, matrixOnesNum, candidatesTime, fillAdjListTime, processMatrixTime, overallTime);
 
 	for (const string &word : codeWords)
 	{

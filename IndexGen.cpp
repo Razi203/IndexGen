@@ -19,10 +19,10 @@
 using namespace std;
 
 // The alphabet mapping used throughout the project:
-// 0 = A (Adenine)
-// 1 = C (Cytosine)
-// 2 = G (Guanine)
-// 3 = T (Thymine)
+// 0 = A
+// 1 = C
+// 2 = G
+// 3 = T
 
 /*	*** Codebook Generator Usage ***
  * 	GenerateCodebookAdj(params): Generates a set of codewords of length codeLen, s.t. the minimal edit distance between
@@ -50,7 +50,6 @@ int main()
 	using std::fixed;
 	using std::setprecision;
 
-	// Start the master timer to measure total execution time.
 	auto start = std::chrono::steady_clock::now();
 
 	// --- Configuration ---
@@ -67,36 +66,33 @@ int main()
 	// 2. Choose the generation method and create its specific constraints.
 	// To switch methods, just uncomment the block you want to use.
 
-	/*
+	// /*
 	// --- Option A: Use the Linear Code method (This matches your original setup) ---
-	int minHD = 4; // This is the specific parameter for the Linear Code method
+	int minHD = 4;
 	auto constraints = std::make_unique<LinearCodeConstraints>(minHD);
 	Params params(codeLen, minED, maxRun, minGCCont, maxGCCont, threadNum, saveInterval,
 				  GenerationMethod::LINEAR_CODE, std::move(constraints));
-	*/
-
-	// /*
-	// --- Option B: Use the VT Code method (Example) ---
-	int remainder = 0; // The specific parameter for the VT Code method
-	auto constraints = std::make_unique<VTCodeConstraints>(remainder);
-	Params params(codeLen, minED, maxRun, minGCCont, maxGCCont, threadNum, saveInterval,
-				  GenerationMethod::VT_CODE, std::move(constraints));
 	// */
 
 	/*
-	// --- Option C: Use the All Strings method (Example) ---
-	// This method has no specific parameters, so we just create the empty object.
+	// --- Option B: Use the VT Code method  ---
+	int remainder = 0;
+	auto constraints = std::make_unique<VTCodeConstraints>(remainder);
+	Params params(codeLen, minED, maxRun, minGCCont, maxGCCont, threadNum, saveInterval,
+				  GenerationMethod::VT_CODE, std::move(constraints));
+	*/
+
+	/*
+	// --- Option C: Use the All Strings method ---
 	auto constraints = std::make_unique<AllStringsConstraints>();
 	Params params(codeLen, minED, maxRun, minGCCont, maxGCCont, threadNum, saveInterval,
 				  GenerationMethod::ALL_STRINGS, std::move(constraints));
 	*/
 
 	// --- Execution ---
-	// The rest of your main function remains the same!
-	// The `GenerateCodebookAdj` function now internally knows which algorithm to run.
 
 	// Option 1: Start a new codebook generation process.
-	for (int len = 10; len <= 14; len++)
+	for (int len = 10; len <= 10; len++)
 	{
 		cout << "--- Starting Generation for Codeword Length " << len << " ---" << endl;
 		params.codeLen = len;
@@ -106,13 +102,12 @@ int main()
 	}
 
 	// Option 2: Resume a previously interrupted generation process.
-	// Note: This function would also need to be updated to use your new FileToParams function.
-	GenerateCodebookAdjResumeFromFile();
+	// GenerateCodebookAdjResumeFromFile();
 
 	// --- Completion ---
 	auto end = std::chrono::steady_clock::now();
 	std::chrono::duration<double> elapsed_secs = end - start;
 	cout << "Total Execution Time: " << fixed << setprecision(2) << elapsed_secs.count() << " seconds" << endl;
 
-	return 0; // Indicate successful execution
+	return 0;
 }
