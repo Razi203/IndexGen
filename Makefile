@@ -9,7 +9,7 @@ CXX = g++
 CXXFLAGS = -std=c++17 -O3 -pthread -Wall
 
 # Name of the final executable
-TARGET = dna_code_generator.exe
+TARGET = IndexGen
 
 # Find all .cpp files in the current directory
 SOURCES = $(wildcard *.cpp)

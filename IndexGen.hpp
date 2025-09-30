@@ -11,6 +11,11 @@
 #define INDEXGEN_HPP_
 
 #include <memory>
+#include <string>
+#include <vector>
+
+// Forward declarations for functions defined in other files
+struct Params; // Forward declare Params struct for function prototypes
 
 /**
  * @enum GenerationMethod
@@ -20,7 +25,9 @@ enum class GenerationMethod
 {
 	LINEAR_CODE, ///< Uses linear codes to generate candidate strings with guaranteed Hamming distance.
 	VT_CODE,	 ///< Uses Varshamov-Tenengolts codes for candidate generation.
-	ALL_STRINGS	 ///< Generates all possible strings of the specified length (brute-force).
+	ALL_STRINGS, ///< Generates all possible strings of the specified length (brute-force).
+	CUSTOM_1,	 ///< Placeholder for a custom generation method 1.
+	CUSTOM_2	 ///< Placeholder for a custom generation method 2.
 };
 
 /**
@@ -60,22 +67,46 @@ struct VTCodeConstraints : public GenerationConstraints
 	// --- VT Code Specific Parameters ---
 
 	/**
-	 * @brief The remainder parameter for the VT code.
-	 * @details This integer value (0 to n) defines the specific VT code used for
+	 * @brief The remainder parameter 'a' for the VT code.
+	 * @details This integer value defines the specific VT code used for
 	 * candidate generation. Different values yield different sets of codewords.
-	 * @note Valid values: {0, 1, ..., n}, where n is
-	 * the length of the codewords.
 	 */
-	int remainder;
+	int a;
+	/**
+	 * @brief The remainder parameter 'b' for the VT code.
+	 */
+	int b;
 
-	VTCodeConstraints() : GenerationConstraints(), remainder() {}
+	VTCodeConstraints() : GenerationConstraints(), a(), b() {}
 
-	VTCodeConstraints(int rem) : GenerationConstraints(), remainder(rem) {}
+	VTCodeConstraints(int rem_a, int rem_b) : GenerationConstraints(), a(rem_a), b(rem_b) {}
 };
 
 struct AllStringsConstraints : public GenerationConstraints
 {
 	AllStringsConstraints() : GenerationConstraints() {}
+};
+
+struct Custom1Constraints : public GenerationConstraints
+{
+	// --- Custom Method 1 Specific Parameters ---
+	//
+
+	int remainder;
+
+	Custom1Constraints() : GenerationConstraints(), remainder() {}
+	Custom1Constraints(int rem) : GenerationConstraints(), remainder(rem) {}
+};
+
+struct Custom2Constraints : public GenerationConstraints
+{
+	// --- Custom Method 2 Specific Parameters ---
+	//
+
+	int remainder;
+
+	Custom2Constraints() : GenerationConstraints(), remainder() {}
+	Custom2Constraints(int rem) : GenerationConstraints(), remainder(rem) {}
 };
 
 /**

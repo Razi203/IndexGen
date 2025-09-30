@@ -1,0 +1,36 @@
+---
+Language: Cpp
+# Use C++17 standard for formatting decisions
+Standard: c++17
+
+# Base style
+BasedOnStyle: LLVM
+
+# Indentation
+IndentWidth: 4
+UseTab: Never
+TabWidth: 4
+
+# Braces
+BreakBeforeBraces: Allman
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: None
+
+# Line length
+ColumnLimit: 120
+
+# Spacing
+SpaceAfterCStyleCast: false
+SpaceAfterLogicalNot: false
+SpaceBeforeParens: ControlStatements
+SpacesInParentheses: false
+
+# Include sorting
+SortIncludes: true
+IncludeBlocks: Preserve
+
+# Other formatting options
+AlignTrailingComments: true
+AllowAllParametersOfDeclarationOnNextLine: true
+BinPackParameters: true

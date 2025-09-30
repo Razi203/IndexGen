@@ -4,8 +4,10 @@
  */
 
 #include "Candidates.hpp"
-#include "Utils.hpp"
+#include "Custom1.hpp"
+#include "Custom2.hpp"
 #include "LinearCodes.hpp"
+#include "Utils.hpp"
 #include "VTCodes.hpp"
 #include <cassert>
 #include <iostream>
@@ -19,14 +21,14 @@
  */
 vector<string> GenAllStrings(const int n)
 {
-	vector<string> result;
-	vector<int> start(n, 0);
-	// Iterate through all base-4 numbers of length n
-	for (vector<int> vec = start; not vec.empty(); vec = NextBase4(vec))
-	{
-		result.push_back(VecToStr(vec));
-	}
-	return result;
+    vector<string> result;
+    vector<int> start(n, 0);
+    // Iterate through all base-4 numbers of length n
+    for (vector<int> vec = start; not vec.empty(); vec = NextBase4(vec))
+    {
+        result.push_back(VecToStr(vec));
+    }
+    return result;
 }
 
 /**
@@ -39,13 +41,13 @@ vector<string> GenAllStrings(const int n)
  */
 vector<string> GenAllCodeStrings(const int n, const int minHammDist)
 {
-	vector<vector<int>> codeVecs = CodedVecs(n, minHammDist);
-	vector<string> codeWords;
-	for (const vector<int> &vec : codeVecs)
-	{
-		codeWords.push_back(VecToStr(vec));
-	}
-	return codeWords;
+    vector<vector<int>> codeVecs = CodedVecs(n, minHammDist);
+    vector<string> codeWords;
+    for (const vector<int> &vec : codeVecs)
+    {
+        codeWords.push_back(VecToStr(vec));
+    }
+    return codeWords;
 }
 
 /**
@@ -56,7 +58,7 @@ vector<string> GenAllCodeStrings(const int n, const int minHammDist)
  */
 void NoFilter(const vector<string> &strs, vector<string> &filteredStrs, const Params &params)
 {
-	filteredStrs = strs;
+    filteredStrs = strs;
 }
 
 /**
@@ -69,13 +71,13 @@ void NoFilter(const vector<string> &strs, vector<string> &filteredStrs, const Pa
  */
 void FilterGC(const vector<string> &strs, vector<string> &filteredStrs, const Params &params)
 {
-	for (const string &str : strs)
-	{
-		if (TestGCCont(str, params.minGCCont, params.maxGCCont))
-		{
-			filteredStrs.push_back(str);
-		}
-	}
+    for (const string &str : strs)
+    {
+        if (TestGCCont(str, params.minGCCont, params.maxGCCont))
+        {
+            filteredStrs.push_back(str);
+        }
+    }
 }
 
 /**
@@ -88,13 +90,13 @@ void FilterGC(const vector<string> &strs, vector<string> &filteredStrs, const Pa
  */
 void FilterMaxRun(const vector<string> &strs, vector<string> &filteredStrs, const Params &params)
 {
-	for (const string &str : strs)
-	{
-		if ((MaxRun(str) <= params.maxRun))
-		{
-			filteredStrs.push_back(str);
-		}
-	}
+    for (const string &str : strs)
+    {
+        if ((MaxRun(str) <= params.maxRun))
+        {
+            filteredStrs.push_back(str);
+        }
+    }
 }
 
 /**
@@ -105,13 +107,13 @@ void FilterMaxRun(const vector<string> &strs, vector<string> &filteredStrs, cons
  */
 void FilterGCMaxRun(const vector<string> &strs, vector<string> &filteredStrs, const Params &params)
 {
-	for (const string &str : strs)
-	{
-		if ((MaxRun(str) <= params.maxRun) && TestGCCont(str, params.minGCCont, params.maxGCCont))
-		{
-			filteredStrs.push_back(str);
-		}
-	}
+    for (const string &str : strs)
+    {
+        if ((MaxRun(str) <= params.maxRun) && TestGCCont(str, params.minGCCont, params.maxGCCont))
+        {
+            filteredStrs.push_back(str);
+        }
+    }
 }
 
 // --- Public Function Implementations ---
@@ -119,99 +121,113 @@ void FilterGCMaxRun(const vector<string> &strs, vector<string> &filteredStrs, co
 // See Candidates.hpp for function documentation.
 std::vector<std::string> Candidates(const Params &params)
 {
-	std::vector<std::string> unfiltered, filtered;
+    std::vector<std::string> unfiltered, filtered;
 
-	// Step 1: Generate the initial set of strings based on the chosen method.
-	// This part is refactored to use the new polymorphic structure.
-	if (!params.constraints)
-	{
-		throw std::runtime_error("Cannot generate candidates: constraints object is null.");
-	}
+    // Step 1: Generate the initial set of strings based on the chosen method.
+    // This part is refactored to use the new polymorphic structure.
+    if (!params.constraints)
+    {
+        throw std::runtime_error("Cannot generate candidates: constraints object is null.");
+    }
 
-	switch (params.method)
-	{
-	case GenerationMethod::LINEAR_CODE:
-	{
-		auto *constraints = dynamic_cast<LinearCodeConstraints *>(params.constraints.get());
-		if (!constraints)
-		{
-			throw std::runtime_error("Invalid constraints provided for LINEAR_CODE method.");
-		}
-		unfiltered = GenAllCodeStrings(params.codeLen, constraints->candMinHD);
-		break;
-	}
+    switch (params.method)
+    {
+    case GenerationMethod::LINEAR_CODE:
+    {
+        auto *constraints = dynamic_cast<LinearCodeConstraints *>(params.constraints.get());
+        if (!constraints)
+        {
+            throw std::runtime_error("Invalid constraints provided for LINEAR_CODE method.");
+        }
+        unfiltered = GenAllCodeStrings(params.codeLen, constraints->candMinHD);
+        break;
+    }
 
-	case GenerationMethod::ALL_STRINGS:
-	{
-		unfiltered = GenAllStrings(params.codeLen);
-		break;
-	}
+    case GenerationMethod::ALL_STRINGS:
+    {
+        unfiltered = GenAllStrings(params.codeLen);
+        break;
+    }
 
-	case GenerationMethod::VT_CODE:
-	{
-		auto *constraints = dynamic_cast<VTCodeConstraints *>(params.constraints.get());
-		unfiltered = GenerateVTCodesMT_Mem(params.codeLen, constraints->remainder, params.threadNum);
-		break;
-	}
+    case GenerationMethod::VT_CODE:
+    {
+        auto *constraints = dynamic_cast<VTCodeConstraints *>(params.constraints.get());
+        unfiltered = GenerateVTCodes(params.codeLen, constraints->a, constraints->b, params.threadNum);
+        break;
+    }
 
-	default:
-	{
-		throw std::runtime_error("Unknown or unsupported candidate generation method.");
-	}
-	}
+    case GenerationMethod::CUSTOM_1:
+    {
+        auto *constraints = dynamic_cast<Custom1Constraints *>(params.constraints.get());
+        unfiltered = GenerateCustomCodes(params.codeLen, constraints->remainder, params.threadNum);
+        break;
+    }
 
-	// Step 2: Apply the specified filters.
-	// This entire section remains UNCHANGED because maxRun and GCCont are still in the main Params struct.
-	bool useMaxRunFilter = (params.maxRun > 0);
-	bool useGCFilter = (params.minGCCont > 0 || params.maxGCCont > 0);
+    case GenerationMethod::CUSTOM_2:
+    {
+        auto *constraints = dynamic_cast<Custom2Constraints *>(params.constraints.get());
+        unfiltered = GenerateCustomCodes2(params.codeLen, constraints->remainder, params.threadNum);
+        break;
+    }
 
-	if (useMaxRunFilter && useGCFilter)
-	{
-		FilterGCMaxRun(unfiltered, filtered, params);
-	}
-	else if (useMaxRunFilter)
-	{
-		FilterMaxRun(unfiltered, filtered, params);
-	}
-	else if (useGCFilter)
-	{
-		FilterGC(unfiltered, filtered, params);
-	}
-	else
-	{
-		NoFilter(unfiltered, filtered, params); // No filters applied.
-	}
-	return filtered;
+    default:
+    {
+        throw std::runtime_error("Unknown or unsupported candidate generation method.");
+    }
+    }
+
+    // Step 2: Apply the specified filters.
+    // This entire section remains UNCHANGED because maxRun and GCCont are still in the main Params struct.
+    bool useMaxRunFilter = (params.maxRun > 0);
+    bool useGCFilter = (params.minGCCont > 0 || params.maxGCCont > 0);
+
+    if (useMaxRunFilter && useGCFilter)
+    {
+        FilterGCMaxRun(unfiltered, filtered, params);
+    }
+    else if (useMaxRunFilter)
+    {
+        FilterMaxRun(unfiltered, filtered, params);
+    }
+    else if (useGCFilter)
+    {
+        FilterGC(unfiltered, filtered, params);
+    }
+    else
+    {
+        NoFilter(unfiltered, filtered, params); // No filters applied.
+    }
+    return filtered;
 }
 
 // See Candidates.hpp for function documentation.
 void TestCandidates(const int n, const int d)
 {
-	vector<string> cand = GenAllCodeStrings(n, d);
-	cout << "Testing code n=" << n << "\td=" << d << "\tcode size " << cand.size() << "...";
+    vector<string> cand = GenAllCodeStrings(n, d);
+    cout << "Testing code n=" << n << "\td=" << d << "\tcode size " << cand.size() << "...";
 
-	// Verify that the Hamming distance is correct for all pairs.
-	bool success = true;
-	for (size_t i = 0; i < cand.size(); i++)
-	{
-		for (size_t j = i + 1; j < cand.size(); j++)
-		{
-			if (HammingDist(cand[i], cand[j]) < d)
-			{
-				success = false;
-				break;
-			}
-		}
-		if (!success)
-			break;
-	}
+    // Verify that the Hamming distance is correct for all pairs.
+    bool success = true;
+    for (size_t i = 0; i < cand.size(); i++)
+    {
+        for (size_t j = i + 1; j < cand.size(); j++)
+        {
+            if (HammingDist(cand[i], cand[j]) < d)
+            {
+                success = false;
+                break;
+            }
+        }
+        if (!success)
+            break;
+    }
 
-	if (!success)
-	{
-		cout << "FAILURE" << endl;
-	}
-	else
-	{
-		cout << "SUCCESS" << endl;
-	}
+    if (!success)
+    {
+        cout << "FAILURE" << endl;
+    }
+    else
+    {
+        cout << "SUCCESS" << endl;
+    }
 }
