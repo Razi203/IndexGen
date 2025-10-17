@@ -207,7 +207,7 @@ void configure_parser(cxxopts::Options &options)
         ("m,method", "Generation method: LinearCode, VTCode, AllStrings, Custom1, Custom2",
          cxxopts::value<string>()->default_value("LinearCode"))
         // Method-specific parameters
-        ("minHD", "Min Hamming Distance for LinearCode method", cxxopts::value<int>()->default_value("4"))(
+        ("minHD", "Min Hamming Distance for LinearCode method", cxxopts::value<int>()->default_value("3"))(
             "vt_a", "Parameter 'a' for VTCode method", cxxopts::value<int>()->default_value("0"))(
             "vt_b", "Parameter 'b' for VTCode method", cxxopts::value<int>()->default_value("0"))(
             "rem", "Remainder for Custom1/Custom2 method", cxxopts::value<int>()->default_value("0"));

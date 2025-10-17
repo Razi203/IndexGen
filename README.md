@@ -1,209 +1,79 @@
 # DNA Codebook Generator
 
-## 1. Project Overview
+## How to Use the Project
 
-This project is a high-performance C++ application designed to generate robust sets of DNA sequences, known as "codebooks," for use in biotechnology applications like DNA data storage, genetic barcoding (e.g., in scRNA-seq), or DNA watermarking.
+### Step 1: Compilation
 
-The primary goal is to create large codebooks where every sequence is significantly different from every other sequence, minimizing the chance of errors during DNA synthesis or sequencing. The key metric used is the **Levenshtein distance** (or edit distance), which accounts for the three main types of sequencing errors: insertions, deletions, and substitutions.
-
-The core workflow involves:
-
-1.  Generating a large pool of initial candidate DNA sequences that meet basic criteria.
-2.  Constructing a "conflict graph" where sequences that are too similar (i.e., have an edit distance below a specified threshold) are connected.
-3.  Using an efficient, greedy algorithm to find a **maximal independent set** in this graph. This set of unconnected sequences forms the final, error-resilient codebook.
-4.  Providing tools to decode erroneous sequences back to their most likely original codeword.
-
-The entire process is multi-threaded to leverage modern multi-core processors and includes a recovery mechanism for very long-running jobs.
-
----
-
-## 2. File Structure
-
-The project is organized into several distinct modules, each with a specific responsibility:
-
-* `IndexGen (.hpp/.cpp)`: The main entry point of the application. It contains the `main()` function and the central `Params` struct used for configuration.
-* `SparseMat (.hpp/.cpp)`: Implements the primary, memory-efficient algorithm for codebook generation using an adjacency list to represent the conflict graph and a greedy selection strategy.
-* `Candidates (.hpp/.cpp)`: Responsible for generating the initial pool of candidate DNA sequences, with options for applying biological filters.
-* `Decode (.hpp/.cpp)`: Implements the nearest-neighbor decoding algorithm to find the closest valid codeword for a given (potentially erroneous) sequence.
-* `LinearCodes (.hpp/.cpp)`: A module for generating highly structured sets of candidates with a guaranteed minimum **Hamming distance** using linear block codes.
-* `GF4 (.hpp/.cpp)`: Provides the mathematical foundation for `LinearCodes`, implementing arithmetic over the Galois Field of 4 elements (GF(4)), which corresponds to the four DNA bases {A, C, G, T}.
-* `GenMat (.hpp/.cpp)`: A data module containing pre-computed generator matrices used by the `LinearCodes` module.
-* `Utils (.hpp/.cpp)`: A collection of utility functions used across the project, including the core `FastEditDistance` calculation.
-* `MaxClique (.hpp/.cpp)`: An alternative, more computationally intensive algorithm for codebook generation that solves the Maximum Clique problem. It can produce optimal results but is slower than `SparseMat`.
-* `mcqd.h`: An external library providing a solver for the Maximum Clique problem.
-
----
-
-## 3. Core Concepts
-
-### Levenshtein vs. Hamming Distance
-
-While **Hamming distance** only counts substitutions, **Levenshtein distance** counts insertions, deletions, and substitutions. Because DNA sequencing technologies are prone to insertion/deletion errors, using Levenshtein distance is critical for creating robust codebooks.
-
-
-
-### The Generation Pipeline
-
-The code generation follows a three-step pipeline:
-
-**Step 1: Candidate Generation**
-The process starts in the `Candidates` module. You can choose one of two methods:
-
-* **Exhaustive:** Generate all 4^N possible DNA strings of a given length. This is thorough but computationally expensive.
-* **Linear Codes:** Generate a smaller, structured subset of strings that already have a guaranteed minimum *Hamming distance*. This is much faster and is the recommended approach.
-
-After generation, biological filters are applied to remove undesirable sequences, such as those with extreme GC-content or long homopolymer runs (e.g., "AAAAA").
-
-**Step 2: Codebook Selection (Greedy Algorithm)**
-This is the core of the `SparseMat` module.
-
-1.  A "conflict graph" is built where each filtered candidate is a node.
-2.  An edge is drawn between any two nodes if their Levenshtein distance is *less than* the desired minimum (`codeMinED`).
-3.  The algorithm then iteratively selects a node with the fewest connections (lowest degree), adds it to the codebook, and removes it and all its neighbors from the graph.
-4.  This process repeats until the graph is empty. The resulting set of selected nodes is the final codebook.
-
-**Step 3: Decoding**
-The `Decode` module is used after a codebook has been generated. If you sequence a DNA strand and get a result that isn't in your codebook (due to errors), the decoder performs a nearest-neighbor search to find the valid codeword with the minimum Levenshtein distance to your result.
-
----
-
-## 4. How to Use the Project
-
-### Step 1: Getting the Project Files
-
-To use the project, you need to copy all the source and header files to a single directory on your local machine.
-
-**Option A: Using Git (Recommended)**
-If you have Git installed, you can clone the entire project repository with a single command:
+You will need a C++ compiler that supports C++17 (like g++) and the `make` build tool. Navigate to the project directory in your terminal and run the `make` command. This will compile all source files and create an executable file named `IndexGen`.
 
 ```bash
-git clone <repository_url>
-cd <repository_directory>
-````
+# Navigate to the project directory
+cd /path/to/IndexGen
 
-*(Replace `<repository_url>` and `<repository_directory>` with the actual URL and folder name for the project.)*
-
-**Option B: Manual Copy**
-Create a new directory for the project and ensure all of the following files are present inside it:
-
-```
-Candidates.cpp
-Candidates.hpp
-Decode.cpp
-Decode.hpp
-GenMat.cpp
-GenMat.hpp
-GF4.cpp
-GF4.hpp
-IndexGen.cpp
-IndexGen.hpp
-LinearCodes.cpp
-LinearCodes.hpp
-MaxClique.cpp
-MaxClique.hpp
-mcqd.h
-SparseMat.cpp
-SparseMat.hpp
-Utils.cpp
-Utils.hpp
+# Compile the project
+make
 ```
 
-### Step 2: Compilation
+### Step 2: Running the Generator
 
-You will need a C++ compiler (like g++). Navigate to the project directory and compile all the source files. Using optimization flags and enabling threading is highly recommended.
+The application is configured and run entirely through command-line arguments.
 
 ```bash
-# Example compilation command on Linux/macOS
-g++ -std=c++11 -O3 -pthread *.cpp -o dna_code_generator.exe
+# Run the generator with default settings
+./IndexGen
+
+# Run with custom parameters
+./IndexGen --lenStart 12 --lenEnd 15 --editDist 5 --method VTCode --vt_a 1 --vt_b 2
 ```
 
-### Step 3: Configuration
+The program will create a new directory with a timestamped name (e.g., `2023-10-27_10-30`) to store the output files and progress. You can specify a custom directory using the `--dir` flag.
 
-All configuration is done inside the `main()` function in `IndexGen.cpp`. Open this file and edit the `Params` object.
+### Step 3: Command-Line Arguments
 
-```cpp
-// Inside main() in IndexGen.cpp
+Here is a list of the available arguments to configure the codebook generation:
 
-// --- Configuration ---
-int codeLen = 10;
-int minHD = 4;
-int minED = 4;
-int maxRun = 3;
-double minGCCont = 0.3;
-double maxGCCont = 0.7;
-int threadNum = 8;
-int saveInterval = 80000;
+| Flag, Long Flag | Description | Default Value |
+| :--- | :--- | :--- |
+| `-h`, `--help` | Print usage information. | |
+| `-r`, `--resume` | Resume generation from a previous run. Requires the `--dir` flag to point to the saved progress directory. | `false` |
+| `-d`, `--dir` | The directory for output and for resuming a previous job. | current timestamp |
+| `-s`, `--lenStart` | The starting length for the codewords. | `10` |
+| `-e`, `--lenEnd` | The ending length for the codewords. The generator will iterate from `lenStart` to `lenEnd`. | `10` |
+| `--editDist` | The minimum Levenshtein (edit) distance for the final codebook. | `4` |
+| `--maxRun` | The longest allowed homopolymer run (e.g., a value of 3 forbids "AAAA"). 0 for no constraint! | `3` |
+| `--minGC` | The minimum GC-content as a decimal (e.g., 0.3 for 30%). 0 for no constraint! | `0.3` |
+| `--maxGC` | The maximum GC-content as a decimal (e.g., 0.7 for 70%). 0 for no constraint! | `0.7` |
+| `-t`, `--threads` | Number of threads to use for parallel tasks. | `16` |
+| `--saveInterval`| The interval in seconds at which to save progress. | `80000` |
+| `-m`, `--method` | The generation method. Options: `LinearCode`, `VTCode`, `AllStrings`, `Custom1`, `Custom2`. | `LinearCode` |
+| `--minHD` | (LinearCode) The minimum Hamming Distance for the initial candidate set. | `3` |
+| `--vt_a` | (VTCode) The remainder parameter 'a' for the VT code. | `0` |
+| `--vt_b` | (VTCode) The remainder parameter 'b' for the VT code. | `0` |
+| `--rem` | (Custom1/Custom2) The remainder parameter for the custom methods. | `0` |
 
-Params params(codeLen, minHD, minED, maxRun, minGCCont, maxGCCont, threadNum, saveInterval);
-```
+### Step 4: Resuming an Interrupted Job
 
-**Parameter Guide:**
-
-  * `codeLen`: The length of your DNA sequences.
-  * `candMinHD`: **(Important)** The minimum Hamming distance for the initial candidates.
-      * `1`: Brute-force, generates all 4^N strings. Very slow.
-      * `2-5`: **Recommended.** Uses a linear code to generate a much smaller, pre-filtered set. A higher value gives better starting candidates but a smaller pool. `4` is a good starting point.
-  * `codeMinED`: The target minimum Levenshtein distance for the final codebook. This is the main quality metric. A higher value gives more error resilience but results in a smaller codebook.
-  * `maxRun`: The longest allowed homopolymer run. `3` or `4` is typical. Set to `0` to disable.
-  * `minGCCont` / `maxGCCont`: The GC-content window (e.g., 0.3 to 0.7). Set both to `0` to disable.
-  * `threadNum`: Set this to the number of CPU cores on your system for best performance.
-  * `saveInterval`: How often (in seconds) to save progress. Necessary for long jobs.
-
-### Step 4: Running the Generator
-
-After compiling and configuring, run the executable from your terminal:
+If a long-running job is stopped, you can resume it from the last saved checkpoint. Use the `--resume` flag and specify the directory containing the progress files with the `--dir` flag.
 
 ```bash
-./dna_code_generator
+# Example: Resume the job located in the '2023-10-27_10-30' directory
+./IndexGen --resume --dir 2023-10-27_10-30
 ```
 
-The program will print its progress to the console. When finished, it will generate a `.txt` file in the same directory, named according to the code parameters (e.g., `CodeSize-0001234_CodeLen-10_MinED-4.txt`).
+-----
 
-The output file contains a metadata header followed by the list of generated codewords, one per line.
+## Extending with New Methods
 
-### Step 5: Resuming a Job
-
-If a long-running job is interrupted, you can resume it if `saveInterval` was set.
-
-1.  Do **not** delete the `progress_*.txt` files created by the program.
-2.  In `IndexGen.cpp`, comment out the `GenerateCodebookAdj(params);` line.
-3.  Uncomment the `GenerateCodebookAdjResumeFromFile();` line.
-4.  Recompile and run the program again. It will load the progress files and continue where it left off.
-
-<!-- end list -->
-
-```cpp
-// --- Execution ---
-
-// Comment out the original call
-// for (int len = 10; len <= 16; len++) {
-// 	 ...
-// 	 GenerateCodebookAdj(params);
-// 	 ...
-// }
-
-// Uncomment the resume call
-GenerateCodebookAdjResumeFromFile();
-```
-
-
----
-
-
-## 5. Extending the Generator with New Methods
-
-The application is designed using a **Strategy Pattern**, which makes adding new candidate generation methods a straightforward process. To add a new method, you need to update a few key functions to make the system aware of your new logic and its specific parameters.
-
-Follow these steps to add a new method called `NEW_METHOD`.
-
----
+The application uses a **Strategy Pattern**, making it easy to add new candidate generation methods. To add a new method called `NEW_METHOD`, follow these steps.
 
 ### Step 1: Define the Method Identifier
 
-First, add a unique identifier for your new method to the `GenerationMethod` enum.
+Add a unique identifier for your new method to the `GenerationMethod` enum.
 
-* **File**: `IndexGen.hpp`
-* **Action**: Add `NEW_METHOD` to the `enum class`.
+  * **File**: `IndexGen.hpp`
+  * **Action**: Add `NEW_METHOD` to the `enum class`.
+
+<!-- end list -->
 
 ```cpp
 enum class GenerationMethod
@@ -211,17 +81,17 @@ enum class GenerationMethod
     LINEAR_CODE,
     VT_CODE,
     ALL_STRINGS,
+    CUSTOM_1,
+    CUSTOM_2,
     NEW_METHOD // <-- Add your new method here
 };
-````
-
------
+```
 
 ### Step 2: Create a New Constraints Struct
 
-Next, create a new `struct` to hold any parameters that are specific to your new method. This struct must inherit from `GenerationConstraints`.
+Create a `struct` to hold any parameters specific to your new method. This struct must inherit from `GenerationConstraints`.
 
-  * **File**: `IndexGep.hpp`
+  * **File**: `IndexGen.hpp`
   * **Action**: Define `NewMethodConstraints`.
 
 <!-- end list -->
@@ -235,15 +105,13 @@ struct NewMethodConstraints : public GenerationConstraints
 
     // Create a constructor for easy initialization
     NewMethodConstraints(int p1, double p2)
-        : new_parameter_1(p1), new_parameter_2(p2) {}
+        : GenerationConstraints(), new_parameter_1(p1), new_parameter_2(p2) {}
 };
 ```
 
------
-
 ### Step 3: Implement the Generation Logic
 
-This is the core step where you integrate your actual algorithm. Add a new `case` to the `switch` statement in the `Candidates` function to call your generation logic.
+Add a new `case` to the `switch` statement in the `Candidates` function to call your generation logic.
 
   * **File**: `Candidates.cpp`
   * **Action**: Add a `case` for `NEW_METHOD` inside the `Candidates` function.
@@ -251,117 +119,121 @@ This is the core step where you integrate your actual algorithm. Add a new `case
 <!-- end list -->
 
 ```cpp
-std::vector<std::string> Candidates(const Params &params)
+// In the Candidates function...
+switch (params.method)
 {
-    // ...
-    switch (params.method)
-    {
-        // ... (existing cases)
+    // ... (existing cases)
 
-        case GenerationMethod::NEW_METHOD: {
-            auto *constraints = dynamic_cast<NewMethodConstraints *>(params.constraints.get());
-            if (!constraints) {
-                throw std::runtime_error("Invalid constraints for NEW_METHOD.");
-            }
-            // Call your new generation function with its specific parameters
-            unfiltered = GenNewMethodStrings(params.codeLen, constraints->new_parameter_1, constraints->new_parameter_2);
-            break;
+    case GenerationMethod::NEW_METHOD: {
+        auto* constraints = dynamic_cast<NewMethodConstraints*>(params.constraints.get());
+        if (!constraints) {
+            throw std::runtime_error("Invalid constraints for NEW_METHOD.");
         }
-
-        default: {
-            // ...
-        }
+        // Call your new generation function with its specific parameters
+        unfiltered = GenNewMethodStrings(params.codeLen, constraints->new_parameter_1, constraints->new_parameter_2);
+        break;
     }
-    // ... (filtering logic remains the same)
 }
 ```
 
------
+### Step 4: Update Utility Functions (I/O)
 
-### Step 4: Update Utility Functions
-
-To ensure your new method can be saved, loaded, and printed correctly, you need to update the `switch` statements in the utility functions.
-
-#### 4.1. Serialization
+To ensure your new method's parameters can be **saved, loaded, and printed** correctly, you must update the I/O functions in `Utils.cpp`.
 
   * **File**: `Utils.cpp`
-  * **Action**: Update both `ParamsToFile` and `FileToParams`.
+  * **Action**: Add a `case` for `NEW_METHOD` to all relevant `switch` statements.
 
-In `ParamsToFile`:
+#### 4.1. Serialization (Saving and Loading)
 
-```cpp
-// ... inside the switch statement
-case GenerationMethod::NEW_METHOD: {
-    auto* constraints = dynamic_cast<NewMethodConstraints*>(params.constraints.get());
-    if (constraints) {
-        output_file << constraints->new_parameter_1 << '\n';
-        output_file << constraints->new_parameter_2 << '\n';
+Update `ParamsToFile` to write your new parameters to the progress file and `FileToParams` to read them back.
+
+  * In `ParamsToFile`:
+    ```cpp
+    // ... inside the switch statement
+    case GenerationMethod::NEW_METHOD: {
+        auto* constraints = dynamic_cast<NewMethodConstraints*>(params.constraints.get());
+        if (constraints) {
+            output_file << constraints->new_parameter_1 << '\n';
+            output_file << constraints->new_parameter_2 << '\n';
+        }
+        break;
     }
-    break;
-}
-```
-
-In `FileToParams`:
-
-```cpp
-// ... inside the switch statement
-case GenerationMethod::NEW_METHOD: {
-    int p1;
-    double p2;
-    input_file >> p1;
-    input_file >> p2;
-    params.constraints = std::make_unique<NewMethodConstraints>(p1, p2);
-    break;
-}
-```
-
-#### 4.2. Printing & Logging
-
-  * **File**: `Utils.cpp`
-  * **Action**: Update the `GenerationMethodToString` helper and any printing functions (`PrintTestParams`, `PrintParamsToFile`).
-
-In `GenerationMethodToString`:
-
-```cpp
-// ... inside the switch statement
-case GenerationMethod::NEW_METHOD:
-    return "New Method Name";
-```
-
-In `PrintTestParams` (and/or `PrintParamsToFile`):
-
-```cpp
-// ... inside the switch statement
-case GenerationMethod::NEW_METHOD: {
-    auto *constraints = dynamic_cast<NewMethodConstraints *>(params.constraints.get());
-    if (constraints) {
-        cout << "New Parameter 1:\t\t" << constraints->new_parameter_1 << endl;
-        cout << "New Parameter 2:\t\t" << constraints->new_parameter_2 << endl;
+    ```
+  * In `FileToParams`:
+    ```cpp
+    // ... inside the switch statement
+    case GenerationMethod::NEW_METHOD: {
+        int p1;
+        double p2;
+        input_file >> p1;
+        input_file >> p2;
+        params.constraints = std::make_unique<NewMethodConstraints>(p1, p2);
+        break;
     }
-    break;
-}
-```
+    ```
 
------
+#### 4.2. Printing and Logging
 
-### Step 5: (Optional) Add an Example to `main`
+Update the helper functions that print parameters to the console or log files. This is crucial for debugging and keeping records.
 
-To make your new method easy to test and use, add a configuration block for it in your main entry point.
+  * In `GenerationMethodToString`:
+    ```cpp
+    // ... inside the switch statement
+    case GenerationMethod::NEW_METHOD:
+        return "New Method Name";
+    ```
+  * In `PrintParamsToFile` (and/or `PrintTestParams`):
+    ```cpp
+    // ... inside the switch statement
+    case GenerationMethod::NEW_METHOD: {
+        auto *constraints = dynamic_cast<NewMethodConstraints *>(params.constraints.get());
+        if (constraints) {
+            output_file << "New Parameter 1:\t\t" << constraints->new_parameter_1 << endl;
+            output_file << "New Parameter 2:\t\t" << constraints->new_parameter_2 << endl;
+        }
+        break;
+    }
+    ```
+
+### Step 5: Add Command-Line Options
+
+Finally, make your new method configurable from the command line.
 
   * **File**: `IndexGen.cpp`
-  * **Action**: Add an example of how to instantiate `Params` with `NEW_METHOD`.
+  * **Action**: Update the `configure_parser` and `main` functions.
 
 <!-- end list -->
 
-```cpp
-/*
-// --- Option D: Use the New Method (Example) ---
-int p1 = 123;
-double p2 = 45.6;
-auto constraints = std::make_unique<NewMethodConstraints>(p1, p2);
-Params params(codeLen, minED, maxRun, minGCCont, maxGCCont, threadNum, saveInterval,
-              GenerationMethod::NEW_METHOD, std::move(constraints));
-*/
-```
+1.  **Add the options** in `configure_parser`:
+    ```cpp
+    void configure_parser(cxxopts::Options &options)
+    {
+        options.add_options()
+            // ... (existing options)
+            ("new_param_1", "Description for new parameter 1", cxxopts::value<int>()->default_value("0"))
+            ("new_param_2", "Description for new parameter 2", cxxopts::value<double>()->default_value("0.0"));
+    }
+    ```
+2.  **Handle the new method** in `main`. Add an `else if` block to parse the new parameters and create your custom constraints object.
+    ```cpp
+    // In main()...
+    string method_str = result["method"].as<string>();
 
-That's it\! By following these steps, you can cleanly integrate any number of new generation algorithms into the existing framework.
+    if (method_str == "LinearCode") {
+        // ...
+    }
+    // ... (other methods)
+    else if (method_str == "NEW_METHOD")
+    {
+        params.method = GenerationMethod::NEW_METHOD;
+        int p1 = result["new_param_1"].as<int>();
+        double p2 = result["new_param_2"].as<double>();
+        params.constraints = make_unique<NewMethodConstraints>(p1, p2);
+        cout << "Using Generation Method: NEW_METHOD (p1=" << p1 << ", p2=" << p2 << ")" << endl;
+    }
+    else
+    {
+        cerr << "Error: Unknown generation method '" << method_str << "'." << endl;
+        return 1;
+    }
+    ```

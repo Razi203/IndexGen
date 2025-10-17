@@ -222,14 +222,20 @@ void PrintParamsToFile(std::ofstream &out, const int candidateNum, const int cod
                        const std::chrono::duration<double> &overallTime)
 {
     // Using std::endl for consistency
-    out << "--- Configuration ---" << std::endl;
+    out << "--- Global Parameters ---" << std::endl;
+    out << "Code Length:\t\t\t" << params.codeLen << std::endl;
+    out << "Min Codebook Edit Distance:\t" << params.codeMinED << std::endl;
+    
+    out << std::endl;
+
     out << "Max Run:\t\t\t" << params.maxRun << std::endl;
     out << "Min GC Content:\t\t\t" << params.minGCCont << std::endl;
     out << "Max GC Content:\t\t\t" << params.maxGCCont << std::endl;
-    out << "Code Length:\t\t\t" << params.codeLen << std::endl;
-    out << "Min Codebook Edit Distance:\t" << params.codeMinED << std::endl;
+
+    out << std::endl;
 
     // --- Generation Method & Specifics ---
+    out << "--- Generation Configuration ---" << std::endl;
     out << "Generation Method:\t\t" << GenerationMethodToString(params.method) << std::endl;
 
     if (!params.constraints)
@@ -285,9 +291,14 @@ void PrintParamsToFile(std::ofstream &out, const int candidateNum, const int cod
         }
     }
 
+
+    out << std::endl; 
+    out << "--- Results Summary ---" << std::endl;
     out << "Number of Candidates:\t\t" << candidateNum << std::endl;
     out << "Number of Ones in Matrix:\t" << matrixOnesNum << std::endl;
     out << "Number of Code Words:\t\t" << codeSize << std::endl;
+
+    out << std::endl;
     out << "--- Performance Metrics ---" << std::endl;
     out << "Number of Threads:\t\t" << params.threadNum << std::endl;
     out << "Candidate Generation Time:\t" << fixed << setprecision(2) << candidatesTime.count() << "\tseconds"
