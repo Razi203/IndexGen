@@ -225,7 +225,7 @@ void PrintParamsToFile(std::ofstream &out, const int candidateNum, const int cod
     out << "--- Global Parameters ---" << std::endl;
     out << "Code Length:\t\t\t" << params.codeLen << std::endl;
     out << "Min Codebook Edit Distance:\t" << params.codeMinED << std::endl;
-    
+
     out << std::endl;
 
     out << "Max Run:\t\t\t" << params.maxRun << std::endl;
@@ -288,28 +288,38 @@ void PrintParamsToFile(std::ofstream &out, const int candidateNum, const int cod
             }
             break;
         }
+        case GenerationMethod::PROGRESSIVE_WAVE:
+        {
+            auto *constraints = dynamic_cast<ProgressiveWaveConstraints *>(params.constraints.get());
+            if (constraints)
+            {
+                out << "Progressive Wave parameter seeds:\t" << constraints->num_seeds << std::endl;
+                out << "Progressive Wave parameter pool:\t" << constraints->pool_size << std::endl;
+            }
+            break;
         }
+        }
+
+        out << std::endl;
+        out << "--- Results Summary ---" << std::endl;
+        out << "Number of Candidates:\t\t" << candidateNum << std::endl;
+        out << "Number of Ones in Matrix:\t" << matrixOnesNum << std::endl;
+        out << "Number of Code Words:\t\t" << codeSize << std::endl;
+
+        out << std::endl;
+        out << "--- Performance Metrics ---" << std::endl;
+        out << "Number of Threads:\t\t" << params.threadNum << std::endl;
+        out << "Candidate Generation Time:\t" << fixed << setprecision(2) << candidatesTime.count() << "\tseconds"
+            << std::endl;
+        out << "Fill Adjacency List Time:\t" << fixed << setprecision(2) << fillAdjListTime.count() << "\tseconds"
+            << std::endl;
+        out << "Process Matrix Time:\t\t" << fixed << setprecision(2) << processMatrixTime.count() << "\tseconds"
+            << std::endl;
+        out << "Overall Execution Time:\t\t" << fixed << setprecision(2) << overallTime.count() << "\tseconds"
+            << std::endl;
+
+        out << "=========================================== " << std::endl;
     }
-
-
-    out << std::endl; 
-    out << "--- Results Summary ---" << std::endl;
-    out << "Number of Candidates:\t\t" << candidateNum << std::endl;
-    out << "Number of Ones in Matrix:\t" << matrixOnesNum << std::endl;
-    out << "Number of Code Words:\t\t" << codeSize << std::endl;
-
-    out << std::endl;
-    out << "--- Performance Metrics ---" << std::endl;
-    out << "Number of Threads:\t\t" << params.threadNum << std::endl;
-    out << "Candidate Generation Time:\t" << fixed << setprecision(2) << candidatesTime.count() << "\tseconds"
-        << std::endl;
-    out << "Fill Adjacency List Time:\t" << fixed << setprecision(2) << fillAdjListTime.count() << "\tseconds"
-        << std::endl;
-    out << "Process Matrix Time:\t\t" << fixed << setprecision(2) << processMatrixTime.count() << "\tseconds"
-        << std::endl;
-    out << "Overall Execution Time:\t\t" << fixed << setprecision(2) << overallTime.count() << "\tseconds" << std::endl;
-
-    out << "=========================================== " << std::endl;
 }
 
 string FileName(const int codeLen, const int codeSize, const int minED)
@@ -614,6 +624,8 @@ std::string GenerationMethodToString(GenerationMethod method)
         return "Custom Method 1";
     case GenerationMethod::CUSTOM_2:
         return "Custom Method 2";
+    case GenerationMethod::PROGRESSIVE_WAVE:
+        return "Progressive Wave";
     default:
         return "Unknown";
     }
@@ -685,6 +697,16 @@ void PrintTestParams(const Params &params)
         if (constraints)
         {
             cout << "Custom2 Code parameter remainder:\t" << constraints->remainder << endl;
+        }
+        break;
+    }
+    case GenerationMethod::PROGRESSIVE_WAVE:
+    {
+        auto *constraints = dynamic_cast<ProgressiveWaveConstraints *>(params.constraints.get());
+        if (constraints)
+        {
+            cout << "Progressive Wave parameter seeds:\t" << constraints->num_seeds << endl;
+            cout << "Progressive Wave parameter pool:\t" << constraints->pool_size << endl;
         }
         break;
     }
@@ -770,6 +792,16 @@ void ParamsToFile(const Params &params, const std::string &fileName)
         }
         break;
     }
+    case GenerationMethod::PROGRESSIVE_WAVE:
+    {
+        auto *constraints = dynamic_cast<ProgressiveWaveConstraints *>(params.constraints.get());
+        if (constraints)
+        {
+            output_file << constraints->num_seeds << '\n';
+            output_file << constraints->pool_size << '\n';
+        }
+        break;
+    }
     default:
     {
         // Handle unknown types to make your code more robust
@@ -835,6 +867,14 @@ void FileToParams(Params &params, const std::string &fileName)
         int remainder;
         input_file >> remainder;
         params.constraints = std::make_unique<Custom2Constraints>(remainder);
+        break;
+    }
+    case GenerationMethod::PROGRESSIVE_WAVE:
+    {
+        int num_seeds, pool_size;
+        input_file >> num_seeds;
+        input_file >> pool_size;
+        params.constraints = std::make_unique<ProgressiveWaveConstraints>(num_seeds, pool_size);
         break;
     }
     default:

@@ -142,6 +142,15 @@ int main(int argc, char *argv[])
                 params.constraints = make_unique<Custom2Constraints>(rem);
                 cout << "Using Generation Method: Custom2 (remainder=" << rem << ")" << endl;
             }
+            else if (method_str == "ProgressiveWave")
+            {
+                params.method = GenerationMethod::PROGRESSIVE_WAVE;
+                int seeds = result["wave_seeds"].as<int>();
+                int p_size = result["wave_pool"].as<int>();
+                params.constraints = make_unique<ProgressiveWaveConstraints>(seeds, p_size);
+                cout << "Using Generation Method: ProgressiveWave (seeds=" << seeds << ", pool_size=" << p_size << ")"
+                     << endl;
+            }
             else
             {
                 cerr << "Error: Unknown generation method '" << method_str << "'." << endl;
@@ -204,13 +213,16 @@ void configure_parser(cxxopts::Options &options)
         ("t,threads", "Number of threads to use", cxxopts::value<int>()->default_value("16"))(
             "saveInterval", "Interval in seconds to save progress", cxxopts::value<int>()->default_value("80000"))
         // Generation Method
-        ("m,method", "Generation method: LinearCode, VTCode, AllStrings, Custom1, Custom2",
+        ("m,method", "Generation method: LinearCode, VTCode, AllStrings, Custom1, Custom2, ProgressiveWave",
          cxxopts::value<string>()->default_value("LinearCode"))
         // Method-specific parameters
         ("minHD", "Min Hamming Distance for LinearCode method", cxxopts::value<int>()->default_value("3"))(
             "vt_a", "Parameter 'a' for VTCode method", cxxopts::value<int>()->default_value("0"))(
             "vt_b", "Parameter 'b' for VTCode method", cxxopts::value<int>()->default_value("0"))(
-            "rem", "Remainder for Custom1/Custom2 method", cxxopts::value<int>()->default_value("0"));
+            "rem", "Remainder for Custom1/Custom2 method", cxxopts::value<int>()->default_value("0"))(
+            "wave_seeds", "Number of seeds for ProgressiveWave method",
+            cxxopts::value<int>()->default_value("8"))("wave_pool", "Size of random candidate pool for ProgressiveWave",
+                                                       cxxopts::value<int>()->default_value("50000"));
 }
 
 /**

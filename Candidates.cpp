@@ -9,6 +9,7 @@
 #include "LinearCodes.hpp"
 #include "Utils.hpp"
 #include "VTCodes.hpp"
+#include "WaveGen.hpp"
 #include <cassert>
 #include <iostream>
 
@@ -167,6 +168,13 @@ std::vector<std::string> Candidates(const Params &params)
     {
         auto *constraints = dynamic_cast<Custom2Constraints *>(params.constraints.get());
         unfiltered = GenerateCustomCodes2(params.codeLen, constraints->remainder, params.threadNum);
+        break;
+    }
+
+    case GenerationMethod::PROGRESSIVE_WAVE:
+    {
+        // No need to cast constraints here as it's done inside the function
+        unfiltered = GenProgressiveWave(params);
         break;
     }
 
