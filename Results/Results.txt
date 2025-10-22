@@ -1,0 +1,528 @@
+--- Global Parameters ---
+Code Length:			10
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Varshamov-Tenengolts Code
+VT Code parameter a:		0
+VT Code parameter b:		0
+
+--- Results Summary ---
+Number of Candidates:		26164
+Number of Ones in Matrix:	797244
+Number of Code Words:		3269
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.03	seconds
+Fill Adjacency List Time:	1.48	seconds
+Process Matrix Time:		2.08	seconds
+Overall Execution Time:		3.60	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			10
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Random Candidates
+Number of Random Candidates:	10000
+
+--- Results Summary ---
+Number of Candidates:		10000
+Number of Ones in Matrix:	55722
+Number of Code Words:		3822
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.02	seconds
+Fill Adjacency List Time:	0.22	seconds
+Process Matrix Time:		0.10	seconds
+Overall Execution Time:		0.35	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			10
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Random Candidates
+Number of Random Candidates:	26000
+
+--- Results Summary ---
+Number of Candidates:		26000
+Number of Ones in Matrix:	376904
+Number of Code Words:		5681
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.03	seconds
+Fill Adjacency List Time:	1.36	seconds
+Process Matrix Time:		1.02	seconds
+Overall Execution Time:		2.42	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			10
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Random Candidates
+Number of Random Candidates:	50000
+
+--- Results Summary ---
+Number of Candidates:		50000
+Number of Ones in Matrix:	1394342
+Number of Code Words:		6883
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.04	seconds
+Fill Adjacency List Time:	4.99	seconds
+Process Matrix Time:		4.22	seconds
+Overall Execution Time:		9.26	seconds
+===========================================
+
+--- Global Parameters ---
+Code Length:			10
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Linear Code
+Min Candidate Hamming Distance:	3
+
+--- Results Summary ---
+Number of Candidates:		16384
+Number of Ones in Matrix:	48384
+Number of Code Words:		8208
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.02	seconds
+Fill Adjacency List Time:	0.49	seconds
+Process Matrix Time:		0.14	seconds
+Overall Execution Time:		0.67	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			10
+Min Codebook Edit Distance:	4
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Linear Code
+Min Candidate Hamming Distance:	4
+
+--- Results Summary ---
+Number of Candidates:		1024
+Number of Ones in Matrix:	3006
+Number of Code Words:		544
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.00	seconds
+Fill Adjacency List Time:	0.02	seconds
+Process Matrix Time:		0.02	seconds
+Overall Execution Time:		0.06	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			10
+Min Codebook Edit Distance:	4
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Random Candidates
+Number of Random Candidates:	10000
+
+--- Results Summary ---
+Number of Candidates:		10000
+Number of Ones in Matrix:	617232
+Number of Code Words:		772
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.01	seconds
+Fill Adjacency List Time:	0.55	seconds
+Process Matrix Time:		1.40	seconds
+Overall Execution Time:		1.97	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			10
+Min Codebook Edit Distance:	4
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Varshamov-Tenengolts Code
+VT Code parameter a:		0
+VT Code parameter b:		0
+
+--- Results Summary ---
+Number of Candidates:		26164
+Number of Ones in Matrix:	4560312
+Number of Code Words:		858
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.03	seconds
+Fill Adjacency List Time:	3.52	seconds
+Process Matrix Time:		12.09	seconds
+Overall Execution Time:		15.66	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			10
+Min Codebook Edit Distance:	4
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Linear Code
+Min Candidate Hamming Distance:	3
+
+--- Results Summary ---
+Number of Candidates:		16384
+Number of Ones in Matrix:	1731690
+Number of Code Words:		861
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.02	seconds
+Fill Adjacency List Time:	1.32	seconds
+Process Matrix Time:		4.00	seconds
+Overall Execution Time:		5.35	seconds
+===========================================
+
+--- Global Parameters ---
+Code Length:			10
+Min Codebook Edit Distance:	4
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Random Candidates
+Number of Random Candidates:	25000
+
+--- Results Summary ---
+Number of Candidates:		25000
+Number of Ones in Matrix:	3854418
+Number of Code Words:		921
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.02	seconds
+Fill Adjacency List Time:	3.56	seconds
+Process Matrix Time:		10.01	seconds
+Overall Execution Time:		13.61	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			10
+Min Codebook Edit Distance:	4
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Random Candidates
+Number of Random Candidates:	50000
+
+--- Results Summary ---
+Number of Candidates:		50000
+Number of Ones in Matrix:	15388244
+Number of Code Words:		1027
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.06	seconds
+Fill Adjacency List Time:	15.14	seconds
+Process Matrix Time:		43.02	seconds
+Overall Execution Time:		58.24	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Varshamov-Tenengolts Code
+VT Code parameter a:		0
+VT Code parameter b:		0
+
+--- Results Summary ---
+Number of Candidates:		95326
+Number of Ones in Matrix:	3462130
+Number of Code Words:		10509
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.06	seconds
+Fill Adjacency List Time:	16.56	seconds
+Process Matrix Time:		9.65	seconds
+Overall Execution Time:		26.29	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Random Candidates
+Number of Random Candidates:	26000
+
+--- Results Summary ---
+Number of Candidates:		26000
+Number of Ones in Matrix:	115804
+Number of Code Words:		11208
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.05	seconds
+Fill Adjacency List Time:	1.21	seconds
+Process Matrix Time:		0.33	seconds
+Overall Execution Time:		1.62	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Random Candidates
+Number of Random Candidates:	95000
+
+--- Results Summary ---
+Number of Candidates:		95000
+Number of Ones in Matrix:	1541730
+Number of Code Words:		19434
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.06	seconds
+Fill Adjacency List Time:	16.02	seconds
+Process Matrix Time:		4.32	seconds
+Overall Execution Time:		20.42	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Linear Code
+Min Candidate Hamming Distance:	3
+
+--- Results Summary ---
+Number of Candidates:		65536
+Number of Ones in Matrix:	261108
+Number of Code Words:		28082
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.05	seconds
+Fill Adjacency List Time:	6.80	seconds
+Process Matrix Time:		0.95	seconds
+Overall Execution Time:		7.82	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	4
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Random Candidates
+Number of Random Candidates:	10000
+
+--- Results Summary ---
+Number of Candidates:		10000
+Number of Ones in Matrix:	216248
+Number of Code Words:		1716
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.01	seconds
+Fill Adjacency List Time:	0.44	seconds
+Process Matrix Time:		0.45	seconds
+Overall Execution Time:		0.92	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	4
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Linear Code
+Min Candidate Hamming Distance:	4
+
+--- Results Summary ---
+Number of Candidates:		4096
+Number of Ones in Matrix:	16578
+Number of Code Words:		1874
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.01	seconds
+Fill Adjacency List Time:	0.09	seconds
+Process Matrix Time:		0.04	seconds
+Overall Execution Time:		0.16	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	4
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Random Candidates
+Number of Random Candidates:	25000
+
+--- Results Summary ---
+Number of Candidates:		25000
+Number of Ones in Matrix:	1340526
+Number of Code Words:		2193
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.02	seconds
+Fill Adjacency List Time:	2.68	seconds
+Process Matrix Time:		3.44	seconds
+Overall Execution Time:		6.16	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	4
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Varshamov-Tenengolts Code
+VT Code parameter a:		0
+VT Code parameter b:		0
+
+--- Results Summary ---
+Number of Candidates:		95326
+Number of Ones in Matrix:	21548194
+Number of Code Words:		2571
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.06	seconds
+Fill Adjacency List Time:	36.15	seconds
+Process Matrix Time:		62.07	seconds
+Overall Execution Time:		98.29	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	4
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Linear Code
+Min Candidate Hamming Distance:	3
+
+--- Results Summary ---
+Number of Candidates:		65536
+Number of Ones in Matrix:	9899280
+Number of Code Words:		2610
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.06	seconds
+Fill Adjacency List Time:	17.34	seconds
+Process Matrix Time:		27.73	seconds
+Overall Execution Time:		45.16	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	4
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Random Candidates
+Number of Random Candidates:	95000
+
+--- Results Summary ---
+Number of Candidates:		95000
+Number of Ones in Matrix:	19458156
+Number of Code Words:		2829
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.05	seconds
+Fill Adjacency List Time:	40.55	seconds
+Process Matrix Time:		58.61	seconds
+Overall Execution Time:		99.23	seconds
+=========================================== 
