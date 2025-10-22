@@ -182,7 +182,7 @@ Update the helper functions that print parameters to the console or log files. T
     case GenerationMethod::NEW_METHOD:
         return "New Method Name";
     ```
-  * In `PrintParamsToFile` (and/or `PrintTestParams`):
+  * In `PrintParamsToFile` and `PrintTestParams`:
     ```cpp
     // ... inside the switch statement
     case GenerationMethod::NEW_METHOD: {

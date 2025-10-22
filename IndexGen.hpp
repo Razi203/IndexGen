@@ -23,12 +23,13 @@ struct Params; // Forward declare Params struct for function prototypes
  */
 enum class GenerationMethod
 {
-    LINEAR_CODE,     ///< Uses linear codes to generate candidate strings with guaranteed Hamming distance.
-    VT_CODE,         ///< Uses Varshamov-Tenengolts codes for candidate generation.
-    ALL_STRINGS,     ///< Generates all possible strings of the specified length (brute-force).
-    CUSTOM_1,        ///< Placeholder for a custom generation method 1.
-    CUSTOM_2,        ///< Placeholder for a custom generation method 2.
-    PROGRESSIVE_WAVE ///< Generates candidates by expanding from diverse seed sequences.
+    LINEAR_CODE,      ///< Uses linear codes to generate candidate strings with guaranteed Hamming distance.
+    VT_CODE,          ///< Uses Varshamov-Tenengolts codes for candidate generation.
+    ALL_STRINGS,      ///< Generates all possible strings of the specified length (brute-force).
+    CUSTOM_1,         ///< Placeholder for a custom generation method 1.
+    CUSTOM_2,         ///< Placeholder for a custom generation method 2.
+    PROGRESSIVE_WAVE, ///< Generates candidates by expanding from diverse seed sequences.
+    RANDOM            ///< Generates candidates using a randomization approach.
 };
 
 /**
@@ -145,6 +146,23 @@ struct ProgressiveWaveConstraints : public GenerationConstraints
     {
     }
     ProgressiveWaveConstraints(int seeds, int pool) : GenerationConstraints(), num_seeds(seeds), pool_size(pool)
+    {
+    }
+};
+
+/**
+ * @struct RandomConstraints
+ * @brief Constraints for the Random Generation method.
+ */
+struct RandomConstraints : public GenerationConstraints
+{
+    /** @brief The number of random candidates to generate. */
+    int num_candidates;
+
+    RandomConstraints() : GenerationConstraints(), num_candidates()
+    {
+    }
+    RandomConstraints(int num) : GenerationConstraints(), num_candidates(num)
     {
     }
 };

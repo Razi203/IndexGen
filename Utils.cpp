@@ -265,6 +265,15 @@ void PrintParamsToFile(std::ofstream &out, const int candidateNum, const int cod
             }
             break;
         }
+        case GenerationMethod::RANDOM:
+        {
+            auto *constraints = dynamic_cast<RandomConstraints *>(params.constraints.get());
+            if (constraints)
+            {
+                out << "Number of Random Candidates:\t" << constraints->num_candidates << std::endl;
+            }
+            break;
+        }
         case GenerationMethod::ALL_STRINGS:
         {
             // No specific parameters to log for this method
@@ -618,6 +627,8 @@ std::string GenerationMethodToString(GenerationMethod method)
         return "Linear Code";
     case GenerationMethod::VT_CODE:
         return "Varshamov-Tenengolts Code";
+    case GenerationMethod::RANDOM:
+        return "Random Candidates";
     case GenerationMethod::ALL_STRINGS:
         return "All Strings (Brute-Force)";
     case GenerationMethod::CUSTOM_1:
@@ -673,6 +684,15 @@ void PrintTestParams(const Params &params)
         {
             cout << "VT Code parameter a:\t\t" << constraints->a << endl;
             cout << "VT Code parameter b:\t\t" << constraints->b << endl;
+        }
+        break;
+    }
+    case GenerationMethod::RANDOM:
+    {
+        auto *constraints = dynamic_cast<RandomConstraints *>(params.constraints.get());
+        if (constraints)
+        {
+            cout << "Number of Random Candidates:\t" << constraints->num_candidates << endl;
         }
         break;
     }
@@ -769,6 +789,15 @@ void ParamsToFile(const Params &params, const std::string &fileName)
         }
         break;
     }
+    case GenerationMethod::RANDOM:
+    {
+        auto *constraints = dynamic_cast<RandomConstraints *>(params.constraints.get());
+        if (constraints)
+        {
+            output_file << constraints->num_candidates << '\n';
+        }
+        break;
+    }
     case GenerationMethod::ALL_STRINGS:
     {
         // This method has no specific parameters to save
@@ -848,6 +877,13 @@ void FileToParams(Params &params, const std::string &fileName)
         input_file >> a;
         input_file >> b;
         params.constraints = std::make_unique<VTCodeConstraints>(a, b);
+        break;
+    }
+    case GenerationMethod::RANDOM:
+    {
+        int num_candidates;
+        input_file >> num_candidates;
+        params.constraints = std::make_unique<RandomConstraints>(num_candidates);
         break;
     }
     case GenerationMethod::ALL_STRINGS:

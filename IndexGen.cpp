@@ -122,6 +122,13 @@ int main(int argc, char *argv[])
                 params.constraints = make_unique<VTCodeConstraints>(rem_a, rem_b);
                 cout << "Using Generation Method: VTCode (a=" << rem_a << ", b=" << rem_b << ")" << endl;
             }
+            else if (method_str == "Random")
+            {
+                params.method = GenerationMethod::RANDOM;
+                int num_candidates = result["rand_candidates"].as<int>();
+                params.constraints = make_unique<RandomConstraints>(num_candidates);
+                cout << "Using Generation Method: Random (candidates=" << num_candidates << ")" << endl;
+            }
             else if (method_str == "AllStrings")
             {
                 params.method = GenerationMethod::ALL_STRINGS;
@@ -164,10 +171,28 @@ int main(int argc, char *argv[])
 
             for (int len = start_len; len <= end_len; len++)
             {
-                cout << "\n--- Starting Generation for Codeword Length " << len << " ---" << endl;
+                auto current_time = chrono::system_clock::now();
+                time_t current_time_t = chrono::system_clock::to_time_t(current_time);
+                tm local_tm;
+#ifdef _WIN32
+                localtime_s(&local_tm, &current_time_t);
+#else
+                localtime_r(&current_time_t, &local_tm);
+#endif
+                cout << "\n--- Starting Generation for Codeword Length " << len
+                     << " (Current Time: " << put_time(&local_tm, "%Y-%m-%d %H:%M:%S") << ") ---" << endl;
                 params.codeLen = len;
                 GenerateCodebookAdj(params);
-                cout << "--- Finished Generation for Codeword Length " << len << " ---" << endl;
+                auto finish_time = chrono::system_clock::now();
+                time_t finish_time_t = chrono::system_clock::to_time_t(finish_time);
+                tm finish_tm;
+#ifdef _WIN32
+                localtime_s(&finish_tm, &finish_time_t);
+#else
+                localtime_r(&finish_time_t, &finish_tm);
+#endif
+                cout << "--- Finished Generation for Codeword Length " << len
+                     << " (Current Time: " << put_time(&finish_tm, "%Y-%m-%d %H:%M:%S") << ") ---" << endl;
             }
         }
 
@@ -204,7 +229,7 @@ void configure_parser(cxxopts::Options &options)
         // Core Parameters
         ("s,lenStart", "Starting codeword length", cxxopts::value<int>()->default_value("10"))(
             "e,lenEnd", "Ending codeword length", cxxopts::value<int>()->default_value("10"))(
-            "editDist", "Minimum edit distance for the codebook", cxxopts::value<int>()->default_value("4"))
+            "D,editDist", "Minimum edit distance for the codebook", cxxopts::value<int>()->default_value("4"))
         // Biological Constraints
         ("maxRun", "Longest allowed homopolymer run", cxxopts::value<int>()->default_value("3"))(
             "minGC", "Minimum GC-content (0.0 to 1.0)", cxxopts::value<double>()->default_value("0.3"))(
@@ -213,16 +238,18 @@ void configure_parser(cxxopts::Options &options)
         ("t,threads", "Number of threads to use", cxxopts::value<int>()->default_value("16"))(
             "saveInterval", "Interval in seconds to save progress", cxxopts::value<int>()->default_value("80000"))
         // Generation Method
-        ("m,method", "Generation method: LinearCode, VTCode, AllStrings, Custom1, Custom2, ProgressiveWave",
+        ("m,method", "Generation method: LinearCode, VTCode, Random, AllStrings, Custom1, Custom2, ProgressiveWave",
          cxxopts::value<string>()->default_value("LinearCode"))
         // Method-specific parameters
         ("minHD", "Min Hamming Distance for LinearCode method", cxxopts::value<int>()->default_value("3"))(
             "vt_a", "Parameter 'a' for VTCode method", cxxopts::value<int>()->default_value("0"))(
             "vt_b", "Parameter 'b' for VTCode method", cxxopts::value<int>()->default_value("0"))(
             "rem", "Remainder for Custom1/Custom2 method", cxxopts::value<int>()->default_value("0"))(
-            "wave_seeds", "Number of seeds for ProgressiveWave method",
-            cxxopts::value<int>()->default_value("8"))("wave_pool", "Size of random candidate pool for ProgressiveWave",
-                                                       cxxopts::value<int>()->default_value("50000"));
+            "wave_seeds", "Number of seeds for ProgressiveWave method", cxxopts::value<int>()->default_value("8"))(
+            "wave_pool", "Size of random candidate pool for ProgressiveWave",
+            cxxopts::value<int>()->default_value("50000"))("rand_candidates",
+                                                           "Number of random candidates for Random method",
+                                                           cxxopts::value<int>()->default_value("50000"));
 }
 
 /**

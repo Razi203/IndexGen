@@ -12,6 +12,7 @@
 #include "WaveGen.hpp"
 #include <cassert>
 #include <iostream>
+#include <thread>
 
 // --- Internal Generation and Filtering Functions ---
 
@@ -29,6 +30,61 @@ vector<string> GenAllStrings(const int n)
     {
         result.push_back(VecToStr(vec));
     }
+    return result;
+}
+
+vector<string> GenerateRandomCandidates(const int n, const int num_candidates, const int threadNum)
+{
+    vector<string> result;
+    result.reserve(num_candidates);
+
+    // Calculate candidates per thread
+    int candidates_per_thread = num_candidates / threadNum;
+    int remainder = num_candidates % threadNum;
+
+    // Vector to store threads and their results
+    vector<std::thread> threads;
+    vector<vector<string>> thread_results(threadNum);
+
+    // Lambda function for each thread to generate random strings
+    auto generate_random = [n](int count, int seed, vector<string> &local_result)
+    {
+        std::mt19937 rng(seed);
+        std::uniform_int_distribution<int> dist(0, 3);
+        local_result.reserve(count);
+
+        for (int i = 0; i < count; ++i)
+        {
+            string random_str;
+            random_str.reserve(n);
+            for (int j = 0; j < n; ++j)
+            {
+                random_str += std::to_string(dist(rng));
+            }
+            local_result.push_back(random_str);
+        }
+    };
+
+    // Launch threads
+    for (int i = 0; i < threadNum; ++i)
+    {
+        int count = candidates_per_thread + (i < remainder ? 1 : 0);
+        int seed = std::random_device{}() + i;
+        threads.emplace_back(generate_random, count, seed, std::ref(thread_results[i]));
+    }
+
+    // Wait for all threads to complete
+    for (auto &thread : threads)
+    {
+        thread.join();
+    }
+
+    // Combine results from all threads
+    for (const auto &local_result : thread_results)
+    {
+        result.insert(result.end(), local_result.begin(), local_result.end());
+    }
+
     return result;
 }
 
@@ -141,6 +197,17 @@ std::vector<std::string> Candidates(const Params &params)
             throw std::runtime_error("Invalid constraints provided for LINEAR_CODE method.");
         }
         unfiltered = GenAllCodeStrings(params.codeLen, constraints->candMinHD);
+        break;
+    }
+
+    case GenerationMethod::RANDOM:
+    {
+        auto *constraints = dynamic_cast<RandomConstraints *>(params.constraints.get());
+        if (!constraints)
+        {
+            throw std::runtime_error("Invalid constraints provided for RANDOM method.");
+        }
+        unfiltered = GenerateRandomCandidates(params.codeLen, constraints->num_candidates, params.threadNum);
         break;
     }
 
