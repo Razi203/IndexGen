@@ -4,12 +4,10 @@
  */
 
 #include "Candidates.hpp"
-#include "Custom1.hpp"
-#include "Custom2.hpp"
-#include "LinearCodes.hpp"
+#include "Candidates/LinearCodes.hpp"
+#include "Candidates/VTCodes.hpp"
+#include "Candidates/WaveGen.hpp"
 #include "Utils.hpp"
-#include "VTCodes.hpp"
-#include "WaveGen.hpp"
 #include <cassert>
 #include <iostream>
 #include <thread>
@@ -221,20 +219,6 @@ std::vector<std::string> Candidates(const Params &params)
     {
         auto *constraints = dynamic_cast<VTCodeConstraints *>(params.constraints.get());
         unfiltered = GenerateVTCodes(params.codeLen, constraints->a, constraints->b, params.threadNum);
-        break;
-    }
-
-    case GenerationMethod::CUSTOM_1:
-    {
-        auto *constraints = dynamic_cast<Custom1Constraints *>(params.constraints.get());
-        unfiltered = GenerateCustomCodes(params.codeLen, constraints->remainder, params.threadNum);
-        break;
-    }
-
-    case GenerationMethod::CUSTOM_2:
-    {
-        auto *constraints = dynamic_cast<Custom2Constraints *>(params.constraints.get());
-        unfiltered = GenerateCustomCodes2(params.codeLen, constraints->remainder, params.threadNum);
         break;
     }
 

@@ -135,20 +135,6 @@ int main(int argc, char *argv[])
                 params.constraints = make_unique<AllStringsConstraints>();
                 cout << "Using Generation Method: AllStrings" << endl;
             }
-            else if (method_str == "Custom1")
-            {
-                params.method = GenerationMethod::CUSTOM_1;
-                int rem = result["rem"].as<int>();
-                params.constraints = make_unique<Custom1Constraints>(rem);
-                cout << "Using Generation Method: Custom1 (remainder=" << rem << ")" << endl;
-            }
-            else if (method_str == "Custom2")
-            {
-                params.method = GenerationMethod::CUSTOM_2;
-                int rem = result["rem"].as<int>();
-                params.constraints = make_unique<Custom2Constraints>(rem);
-                cout << "Using Generation Method: Custom2 (remainder=" << rem << ")" << endl;
-            }
             else if (method_str == "ProgressiveWave")
             {
                 params.method = GenerationMethod::PROGRESSIVE_WAVE;
@@ -238,13 +224,12 @@ void configure_parser(cxxopts::Options &options)
         ("t,threads", "Number of threads to use", cxxopts::value<int>()->default_value("16"))(
             "saveInterval", "Interval in seconds to save progress", cxxopts::value<int>()->default_value("80000"))
         // Generation Method
-        ("m,method", "Generation method: LinearCode, VTCode, Random, AllStrings, Custom1, Custom2, ProgressiveWave",
+        ("m,method", "Generation method: LinearCode, VTCode, Random, AllStrings, ProgressiveWave",
          cxxopts::value<string>()->default_value("LinearCode"))
         // Method-specific parameters
         ("minHD", "Min Hamming Distance for LinearCode method", cxxopts::value<int>()->default_value("3"))(
             "vt_a", "Parameter 'a' for VTCode method", cxxopts::value<int>()->default_value("0"))(
             "vt_b", "Parameter 'b' for VTCode method", cxxopts::value<int>()->default_value("0"))(
-            "rem", "Remainder for Custom1/Custom2 method", cxxopts::value<int>()->default_value("0"))(
             "wave_seeds", "Number of seeds for ProgressiveWave method", cxxopts::value<int>()->default_value("8"))(
             "wave_pool", "Size of random candidate pool for ProgressiveWave",
             cxxopts::value<int>()->default_value("50000"))("rand_candidates",

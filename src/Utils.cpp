@@ -1,5 +1,5 @@
 #include "Utils.hpp"
-#include "LinearCodes.hpp"
+#include "Candidates/LinearCodes.hpp"
 #include <cassert>
 #include <fstream>
 #include <iomanip>
@@ -277,24 +277,6 @@ void PrintParamsToFile(std::ofstream &out, const int candidateNum, const int cod
         case GenerationMethod::ALL_STRINGS:
         {
             // No specific parameters to log for this method
-            break;
-        }
-        case GenerationMethod::CUSTOM_1:
-        {
-            auto *constraints = dynamic_cast<Custom1Constraints *>(params.constraints.get());
-            if (constraints)
-            {
-                out << "Custom1 Code parameter remainder:\t" << constraints->remainder << std::endl;
-            }
-            break;
-        }
-        case GenerationMethod::CUSTOM_2:
-        {
-            auto *constraints = dynamic_cast<Custom2Constraints *>(params.constraints.get());
-            if (constraints)
-            {
-                out << "Custom2 Code parameter remainder:\t" << constraints->remainder << std::endl;
-            }
             break;
         }
         case GenerationMethod::PROGRESSIVE_WAVE:
@@ -631,10 +613,6 @@ std::string GenerationMethodToString(GenerationMethod method)
         return "Random Candidates";
     case GenerationMethod::ALL_STRINGS:
         return "All Strings (Brute-Force)";
-    case GenerationMethod::CUSTOM_1:
-        return "Custom Method 1";
-    case GenerationMethod::CUSTOM_2:
-        return "Custom Method 2";
     case GenerationMethod::PROGRESSIVE_WAVE:
         return "Progressive Wave";
     default:
@@ -700,24 +678,6 @@ void PrintTestParams(const Params &params)
     {
         // No specific parameters to print for this method
         cout << "No specific parameters for this method." << endl;
-        break;
-    }
-    case GenerationMethod::CUSTOM_1:
-    {
-        auto *constraints = dynamic_cast<Custom1Constraints *>(params.constraints.get());
-        if (constraints)
-        {
-            cout << "Custom1 Code parameter remainder:\t" << constraints->remainder << endl;
-        }
-        break;
-    }
-    case GenerationMethod::CUSTOM_2:
-    {
-        auto *constraints = dynamic_cast<Custom2Constraints *>(params.constraints.get());
-        if (constraints)
-        {
-            cout << "Custom2 Code parameter remainder:\t" << constraints->remainder << endl;
-        }
         break;
     }
     case GenerationMethod::PROGRESSIVE_WAVE:
@@ -803,24 +763,6 @@ void ParamsToFile(const Params &params, const std::string &fileName)
         // This method has no specific parameters to save
         break;
     }
-    case GenerationMethod::CUSTOM_1:
-    {
-        auto *constraints = dynamic_cast<Custom1Constraints *>(params.constraints.get());
-        if (constraints)
-        {
-            output_file << constraints->remainder << '\n';
-        }
-        break;
-    }
-    case GenerationMethod::CUSTOM_2:
-    {
-        auto *constraints = dynamic_cast<Custom2Constraints *>(params.constraints.get());
-        if (constraints)
-        {
-            output_file << constraints->remainder << '\n';
-        }
-        break;
-    }
     case GenerationMethod::PROGRESSIVE_WAVE:
     {
         auto *constraints = dynamic_cast<ProgressiveWaveConstraints *>(params.constraints.get());
@@ -889,20 +831,6 @@ void FileToParams(Params &params, const std::string &fileName)
     case GenerationMethod::ALL_STRINGS:
     {
         params.constraints = std::make_unique<AllStringsConstraints>();
-        break;
-    }
-    case GenerationMethod::CUSTOM_1:
-    {
-        int remainder;
-        input_file >> remainder;
-        params.constraints = std::make_unique<Custom1Constraints>(remainder);
-        break;
-    }
-    case GenerationMethod::CUSTOM_2:
-    {
-        int remainder;
-        input_file >> remainder;
-        params.constraints = std::make_unique<Custom2Constraints>(remainder);
         break;
     }
     case GenerationMethod::PROGRESSIVE_WAVE:

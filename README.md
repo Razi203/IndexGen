@@ -30,26 +30,7 @@ The program will create a new directory with a timestamped name (e.g., `2023-10-
 
 ### Step 3: Command-Line Arguments
 
-Here is a list of the available arguments to configure the codebook generation:
-
-| Flag, Long Flag | Description | Default Value |
-| :--- | :--- | :--- |
-| `-h`, `--help` | Print usage information. | |
-| `-r`, `--resume` | Resume generation from a previous run. Requires the `--dir` flag to point to the saved progress directory. | `false` |
-| `-d`, `--dir` | The directory for output and for resuming a previous job. | current timestamp |
-| `-s`, `--lenStart` | The starting length for the codewords. | `10` |
-| `-e`, `--lenEnd` | The ending length for the codewords. The generator will iterate from `lenStart` to `lenEnd`. | `10` |
-| `--editDist` | The minimum Levenshtein (edit) distance for the final codebook. | `4` |
-| `--maxRun` | The longest allowed homopolymer run (e.g., a value of 3 forbids "AAAA"). 0 for no constraint! | `3` |
-| `--minGC` | The minimum GC-content as a decimal (e.g., 0.3 for 30%). 0 for no constraint! | `0.3` |
-| `--maxGC` | The maximum GC-content as a decimal (e.g., 0.7 for 70%). 0 for no constraint! | `0.7` |
-| `-t`, `--threads` | Number of threads to use for parallel tasks. | `16` |
-| `--saveInterval`| The interval in seconds at which to save progress. | `80000` |
-| `-m`, `--method` | The generation method. Options: `LinearCode`, `VTCode`, `AllStrings`, `Custom1`, `Custom2`. | `LinearCode` |
-| `--minHD` | (LinearCode) The minimum Hamming Distance for the initial candidate set. | `3` |
-| `--vt_a` | (VTCode) The remainder parameter 'a' for the VT code. | `0` |
-| `--vt_b` | (VTCode) The remainder parameter 'b' for the VT code. | `0` |
-| `--rem` | (Custom1/Custom2) The remainder parameter for the custom methods. | `0` |
+Run ```./IndexGen -h``` or ```./IndexGen --help``` for the full list of arguments
 
 ### Step 4: Resuming an Interrupted Job
 
@@ -79,10 +60,11 @@ Add a unique identifier for your new method to the `GenerationMethod` enum.
 enum class GenerationMethod
 {
     LINEAR_CODE,
-    VT_CODE,
+    RANDOM,
     ALL_STRINGS,
-    CUSTOM_1,
-    CUSTOM_2,
+    .
+    .
+    .
     NEW_METHOD // <-- Add your new method here
 };
 ```

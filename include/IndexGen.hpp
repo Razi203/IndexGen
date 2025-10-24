@@ -26,8 +26,6 @@ enum class GenerationMethod
     LINEAR_CODE,      ///< Uses linear codes to generate candidate strings with guaranteed Hamming distance.
     VT_CODE,          ///< Uses Varshamov-Tenengolts codes for candidate generation.
     ALL_STRINGS,      ///< Generates all possible strings of the specified length (brute-force).
-    CUSTOM_1,         ///< Placeholder for a custom generation method 1.
-    CUSTOM_2,         ///< Placeholder for a custom generation method 2.
     PROGRESSIVE_WAVE, ///< Generates candidates by expanding from diverse seed sequences.
     RANDOM            ///< Generates candidates using a randomization approach.
 };
@@ -97,36 +95,6 @@ struct VTCodeConstraints : public GenerationConstraints
 struct AllStringsConstraints : public GenerationConstraints
 {
     AllStringsConstraints() : GenerationConstraints()
-    {
-    }
-};
-
-struct Custom1Constraints : public GenerationConstraints
-{
-    // --- Custom Method 1 Specific Parameters ---
-    //
-
-    int remainder;
-
-    Custom1Constraints() : GenerationConstraints(), remainder()
-    {
-    }
-    Custom1Constraints(int rem) : GenerationConstraints(), remainder(rem)
-    {
-    }
-};
-
-struct Custom2Constraints : public GenerationConstraints
-{
-    // --- Custom Method 2 Specific Parameters ---
-    //
-
-    int remainder;
-
-    Custom2Constraints() : GenerationConstraints(), remainder()
-    {
-    }
-    Custom2Constraints(int rem) : GenerationConstraints(), remainder(rem)
     {
     }
 };

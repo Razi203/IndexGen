@@ -3,7 +3,7 @@
  * @brief Implements the Progressive Wave Construction method.
  */
 
-#include "WaveGen.hpp"
+#include "Candidates/WaveGen.hpp"
 #include "IndexGen.hpp"
 #include "Utils.hpp" // For FastEditDistance
 #include <algorithm>
