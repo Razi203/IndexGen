@@ -1,0 +1,29 @@
+Warning: Directory 'Results/12.5/Random_25000' already exists. Files may be overwritten.
+Output will be saved in directory: /home_nfs/razi.hleihil/IndexGen/Results/12.5/Random_25000
+Using Generation Method: Random (candidates=25000)
+
+--- Starting Generation for Codeword Length 12 (Current Time: 2025-10-25 01:37:46) ---
+--- Common Parameters ---
+Code Length:			12
+Min Codebook Edit Distance:	5
+Max Homopolymer Run:		0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Method ---
+Method:				Random Candidates
+Number of Random Candidates:	25000
+Candidates Time: 0.03	seconds
+Fill AdjList Time:	17.28	seconds
+Find Min Sum Row Time:	0.00	seconds
+Del Ball Time:		3.28	seconds
+Process Matrix Time:	5.47	seconds
+Number of Candidate Words:	25000
+Number of Ones in Matrix:	4178218
+Number of Code Words:		903
+=====================================================
+Codebook Time: 22.80	seconds
+=====================================================
+--- Finished Generation for Codeword Length 12 (Current Time: 2025-10-25 01:38:09) ---
+
+Total Execution Time: 22.81 seconds

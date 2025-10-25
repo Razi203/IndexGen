@@ -1,0 +1,29 @@
+Warning: Directory 'Results/12.5/LinearCode_HD4' already exists. Files may be overwritten.
+Output will be saved in directory: /home_nfs/razi.hleihil/IndexGen/Results/12.5/LinearCode_HD4
+Using Generation Method: LinearCode (minHD=4)
+
+--- Starting Generation for Codeword Length 12 (Current Time: 2025-10-25 01:57:15) ---
+--- Common Parameters ---
+Code Length:			12
+Min Codebook Edit Distance:	5
+Max Homopolymer Run:		0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Method ---
+Method:				Linear Code
+Min Candidate Hamming Distance:	4
+Candidates Time: 0.02	seconds
+Fill AdjList Time:	6.92	seconds
+Find Min Sum Row Time:	0.00	seconds
+Del Ball Time:		1.24	seconds
+Process Matrix Time:	2.19	seconds
+Number of Candidate Words:	16384
+Number of Ones in Matrix:	1895526
+Number of Code Words:		807
+=====================================================
+Codebook Time: 9.15	seconds
+=====================================================
+--- Finished Generation for Codeword Length 12 (Current Time: 2025-10-25 01:57:24) ---
+
+Total Execution Time: 9.16 seconds

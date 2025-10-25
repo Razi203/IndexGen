@@ -1,0 +1,30 @@
+Warning: Directory 'Results/12.4/VTCode' already exists. Files may be overwritten.
+Output will be saved in directory: /home_nfs/razi.hleihil/IndexGen/Results/12.4/VTCode
+Using Generation Method: VTCode (a=0, b=0)
+
+--- Starting Generation for Codeword Length 12 (Current Time: 2025-10-25 01:24:31) ---
+--- Common Parameters ---
+Code Length:			12
+Min Codebook Edit Distance:	4
+Max Homopolymer Run:		0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Method ---
+Method:				Varshamov-Tenengolts Code
+VT Code parameter a:		0
+VT Code parameter b:		0
+Candidates Time: 0.36	seconds
+Fill AdjList Time:	1507.65	seconds
+Find Min Sum Row Time:	0.00	seconds
+Del Ball Time:		97.78	seconds
+Process Matrix Time:	152.51	seconds
+Number of Candidate Words:	349696
+Number of Ones in Matrix:	99767816
+Number of Code Words:		7957
+=====================================================
+Codebook Time: 1660.54	seconds
+=====================================================
+--- Finished Generation for Codeword Length 12 (Current Time: 2025-10-25 01:52:12) ---
+
+Total Execution Time: 1660.55 seconds

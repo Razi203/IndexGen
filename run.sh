@@ -44,7 +44,7 @@ SAVE_INTERVAL=1800 # Set to 30 minutes, 80000 is > 22 hours
 
 # --- Method-Specific Parameters ---
 
-# Generation method: LinearCode, VTCode, Random, AllStrings, ProgressiveWave
+# Generation method: LinearCode, VTCode, Random, Diff_VTCode
 METHOD="Diff_VTCode"
 
 # Min Hamming Distance (for LinearCode)
@@ -53,12 +53,6 @@ MIN_HD=5
 # 'a' and 'b' parameters (for VTCode)
 VT_A=0
 VT_B=0
-
-# Number of seeds (for ProgressiveWave)
-WAVE_SEEDS=8
-
-# Candidate pool size (for ProgressiveWave)
-WAVE_POOL=50000
 
 # Number of candidates (for Random)
 RAND_CANDIDATES=50000
@@ -88,8 +82,6 @@ CMD="$EXECUTABLE \
     --minHD $MIN_HD \
     --vt_a $VT_A \
     --vt_b $VT_B \
-    --wave_seeds $WAVE_SEEDS \
-    --wave_pool $WAVE_POOL \
     --rand_candidates $RAND_CANDIDATES"
 
 # Print the command to the console so you know what's being run

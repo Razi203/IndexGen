@@ -1,0 +1,29 @@
+Warning: Directory 'Results/12.4/Diff_VTCode' already exists. Files may be overwritten.
+Output will be saved in directory: /home_nfs/razi.hleihil/IndexGen/Results/12.4/Diff_VTCode
+Using Generation Method: Differential VTCode (syndrome=0)
+
+--- Starting Generation for Codeword Length 12 (Current Time: 2025-10-25 01:30:21) ---
+--- Common Parameters ---
+Code Length:			12
+Min Codebook Edit Distance:	4
+Max Homopolymer Run:		0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Method ---
+Method:				Differential Varshamov-Tenengolts Code
+Differential VT Code syndrome:	0
+Candidates Time: 0.58	seconds
+Fill AdjList Time:	1434.69	seconds
+Find Min Sum Row Time:	0.00	seconds
+Del Ball Time:		119.94	seconds
+Process Matrix Time:	177.62	seconds
+Number of Candidate Words:	349536
+Number of Ones in Matrix:	105682226
+Number of Code Words:		7472
+=====================================================
+Codebook Time: 1612.90	seconds
+=====================================================
+--- Finished Generation for Codeword Length 12 (Current Time: 2025-10-25 01:57:14) ---
+
+Total Execution Time: 1612.92 seconds
