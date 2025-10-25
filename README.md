@@ -51,8 +51,8 @@ The application uses a **Strategy Pattern**, making it easy to add new candidate
 
 Add a unique identifier for your new method to the `GenerationMethod` enum.
 
-  * **File**: `IndexGen.hpp`
-  * **Action**: Add `NEW_METHOD` to the `enum class`.
+* **File**: `IndexGen.hpp`
+* **Action**: Add `NEW_METHOD` to the `enum class`.
 
 <!-- end list -->
 
@@ -73,8 +73,8 @@ enum class GenerationMethod
 
 Create a `struct` to hold any parameters specific to your new method. This struct must inherit from `GenerationConstraints`.
 
-  * **File**: `IndexGen.hpp`
-  * **Action**: Define `NewMethodConstraints`.
+* **File**: `IndexGen.hpp`
+* **Action**: Define `NewMethodConstraints`.
 
 <!-- end list -->
 
@@ -95,8 +95,8 @@ struct NewMethodConstraints : public GenerationConstraints
 
 Add a new `case` to the `switch` statement in the `Candidates` function to call your generation logic.
 
-  * **File**: `Candidates.cpp`
-  * **Action**: Add a `case` for `NEW_METHOD` inside the `Candidates` function.
+* **File**: `Candidates.cpp`
+* **Action**: Add a `case` for `NEW_METHOD` inside the `Candidates` function.
 
 <!-- end list -->
 
@@ -122,14 +122,15 @@ switch (params.method)
 
 To ensure your new method's parameters can be **saved, loaded, and printed** correctly, you must update the I/O functions in `Utils.cpp`.
 
-  * **File**: `Utils.cpp`
-  * **Action**: Add a `case` for `NEW_METHOD` to all relevant `switch` statements.
+* **File**: `Utils.cpp`
+* **Action**: Add a `case` for `NEW_METHOD` to all relevant `switch` statements.
 
 #### 4.1. Serialization (Saving and Loading)
 
 Update `ParamsToFile` to write your new parameters to the progress file and `FileToParams` to read them back.
 
-  * In `ParamsToFile`:
+* In `ParamsToFile`:
+
     ```cpp
     // ... inside the switch statement
     case GenerationMethod::NEW_METHOD: {
@@ -141,7 +142,9 @@ Update `ParamsToFile` to write your new parameters to the progress file and `Fil
         break;
     }
     ```
-  * In `FileToParams`:
+
+* In `FileToParams`:
+
     ```cpp
     // ... inside the switch statement
     case GenerationMethod::NEW_METHOD: {
@@ -158,13 +161,16 @@ Update `ParamsToFile` to write your new parameters to the progress file and `Fil
 
 Update the helper functions that print parameters to the console or log files. This is crucial for debugging and keeping records.
 
-  * In `GenerationMethodToString`:
+* In `GenerationMethodToString`:
+
     ```cpp
     // ... inside the switch statement
     case GenerationMethod::NEW_METHOD:
         return "New Method Name";
     ```
-  * In `PrintParamsToFile` and `PrintTestParams`:
+
+* In `PrintParamsToFile` and `PrintTestParams`:
+
     ```cpp
     // ... inside the switch statement
     case GenerationMethod::NEW_METHOD: {
@@ -181,12 +187,13 @@ Update the helper functions that print parameters to the console or log files. T
 
 Finally, make your new method configurable from the command line.
 
-  * **File**: `IndexGen.cpp`
-  * **Action**: Update the `configure_parser` and `main` functions.
+* **File**: `IndexGen.cpp`
+* **Action**: Update the `configure_parser` and `main` functions.
 
 <!-- end list -->
 
-1.  **Add the options** in `configure_parser`:
+1. **Add the options** in `configure_parser`:
+
     ```cpp
     void configure_parser(cxxopts::Options &options)
     {
@@ -196,7 +203,9 @@ Finally, make your new method configurable from the command line.
             ("new_param_2", "Description for new parameter 2", cxxopts::value<double>()->default_value("0.0"));
     }
     ```
-2.  **Handle the new method** in `main`. Add an `else if` block to parse the new parameters and create your custom constraints object.
+
+2. **Handle the new method** in `main`. Add an `else if` block to parse the new parameters and create your custom constraints object.
+
     ```cpp
     // In main()...
     string method_str = result["method"].as<string>();

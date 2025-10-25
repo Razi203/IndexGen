@@ -23,11 +23,12 @@ struct Params; // Forward declare Params struct for function prototypes
  */
 enum class GenerationMethod
 {
-    LINEAR_CODE,      ///< Uses linear codes to generate candidate strings with guaranteed Hamming distance.
-    VT_CODE,          ///< Uses Varshamov-Tenengolts codes for candidate generation.
-    ALL_STRINGS,      ///< Generates all possible strings of the specified length (brute-force).
-    PROGRESSIVE_WAVE, ///< Generates candidates by expanding from diverse seed sequences.
-    RANDOM            ///< Generates candidates using a randomization approach.
+    LINEAR_CODE,         ///< Uses linear codes to generate candidate strings with guaranteed Hamming distance.
+    ALL_STRINGS,         ///< Generates all possible strings of the specified length (brute-force).
+    RANDOM,              ///< Generates candidates using a randomization approach.
+    VT_CODE,             ///< Uses Varshamov-Tenengolts codes for candidate generation.
+    PROGRESSIVE_WAVE,    ///< Generates candidates by expanding from diverse seed sequences.
+    DIFFERENTIAL_VT_CODE ///< Uses Differential Varshamov-Tenengolts codes for candidate generation.
 };
 
 /**
@@ -132,6 +133,20 @@ struct RandomConstraints : public GenerationConstraints
     }
     RandomConstraints(int num) : GenerationConstraints(), num_candidates(num)
     {
+    }
+};
+
+struct DifferentialVTCodeConstraints : public GenerationConstraints
+{
+    int syndrome; // The syndrome parameter
+
+    DifferentialVTCodeConstraints() : syndrome()
+    {
+    }
+
+    DifferentialVTCodeConstraints(int syndrome) : syndrome(syndrome)
+    {
+        // Assuming BaseConstraints has a virtual destructor or function
     }
 };
 

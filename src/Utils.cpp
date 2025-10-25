@@ -289,6 +289,15 @@ void PrintParamsToFile(std::ofstream &out, const int candidateNum, const int cod
             }
             break;
         }
+        case GenerationMethod::DIFFERENTIAL_VT_CODE:
+        {
+            auto *constraints = dynamic_cast<DifferentialVTCodeConstraints *>(params.constraints.get());
+            if (constraints)
+            {
+                out << "Differential VT Code syndrome:\t" << constraints->syndrome << std::endl;
+            }
+            break;
+        }
         }
 
         out << std::endl;
@@ -615,6 +624,8 @@ std::string GenerationMethodToString(GenerationMethod method)
         return "All Strings (Brute-Force)";
     case GenerationMethod::PROGRESSIVE_WAVE:
         return "Progressive Wave";
+    case GenerationMethod::DIFFERENTIAL_VT_CODE:
+        return "Differential Varshamov-Tenengolts Code";
     default:
         return "Unknown";
     }
@@ -687,6 +698,15 @@ void PrintTestParams(const Params &params)
         {
             cout << "Progressive Wave parameter seeds:\t" << constraints->num_seeds << endl;
             cout << "Progressive Wave parameter pool:\t" << constraints->pool_size << endl;
+        }
+        break;
+    }
+    case GenerationMethod::DIFFERENTIAL_VT_CODE:
+    {
+        auto *constraints = dynamic_cast<DifferentialVTCodeConstraints *>(params.constraints.get());
+        if (constraints)
+        {
+            cout << "Differential VT Code syndrome:\t" << constraints->syndrome << endl;
         }
         break;
     }
@@ -773,6 +793,15 @@ void ParamsToFile(const Params &params, const std::string &fileName)
         }
         break;
     }
+    case GenerationMethod::DIFFERENTIAL_VT_CODE:
+    {
+        auto *constraints = dynamic_cast<DifferentialVTCodeConstraints *>(params.constraints.get());
+        if (constraints)
+        {
+            output_file << constraints->syndrome << '\n';
+        }
+        break;
+    }
     default:
     {
         // Handle unknown types to make your code more robust
@@ -839,6 +868,13 @@ void FileToParams(Params &params, const std::string &fileName)
         input_file >> num_seeds;
         input_file >> pool_size;
         params.constraints = std::make_unique<ProgressiveWaveConstraints>(num_seeds, pool_size);
+        break;
+    }
+    case GenerationMethod::DIFFERENTIAL_VT_CODE:
+    {
+        int syndrome;
+        input_file >> syndrome;
+        params.constraints = std::make_unique<DifferentialVTCodeConstraints>(syndrome);
         break;
     }
     default:

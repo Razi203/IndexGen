@@ -4,6 +4,7 @@
  */
 
 #include "Candidates.hpp"
+#include "Candidates/DifferentialVTCodes.hpp"
 #include "Candidates/LinearCodes.hpp"
 #include "Candidates/VTCodes.hpp"
 #include "Candidates/WaveGen.hpp"
@@ -219,6 +220,17 @@ std::vector<std::string> Candidates(const Params &params)
     {
         auto *constraints = dynamic_cast<VTCodeConstraints *>(params.constraints.get());
         unfiltered = GenerateVTCodes(params.codeLen, constraints->a, constraints->b, params.threadNum);
+        break;
+    }
+
+    case GenerationMethod::DIFFERENTIAL_VT_CODE:
+    {
+        auto *constraints = dynamic_cast<DifferentialVTCodeConstraints *>(params.constraints.get());
+        if (!constraints)
+        {
+            throw std::runtime_error("Invalid constraints provided for DIFFERENTIAL_VT_CODE method.");
+        }
+        unfiltered = GenerateDifferentialVTCodes(params.codeLen, constraints->syndrome, params.threadNum);
         break;
     }
 

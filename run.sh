@@ -12,7 +12,7 @@
 EXECUTABLE="./IndexGen"
 
 # Output/Resume directory
-OUTPUT_DIR="Results"
+OUTPUT_DIR="Results/10.5"
 
 # To resume a previous run, uncomment the following line:
 # RESUME="--resume"
@@ -37,7 +37,7 @@ MAX_GC=0  # default: 0.7
 # --- Performance Parameters ---
 
 # Number of threads to use
-THREADS=16
+THREADS=32
 
 # Interval in seconds to save progress
 SAVE_INTERVAL=1800 # Set to 30 minutes, 80000 is > 22 hours
@@ -45,10 +45,10 @@ SAVE_INTERVAL=1800 # Set to 30 minutes, 80000 is > 22 hours
 # --- Method-Specific Parameters ---
 
 # Generation method: LinearCode, VTCode, Random, AllStrings, ProgressiveWave
-METHOD="LinearCode"
+METHOD="Diff_VTCode"
 
 # Min Hamming Distance (for LinearCode)
-MIN_HD=3
+MIN_HD=5
 
 # 'a' and 'b' parameters (for VTCode)
 VT_A=0
@@ -62,6 +62,9 @@ WAVE_POOL=50000
 
 # Number of candidates (for Random)
 RAND_CANDIDATES=50000
+
+# Syndrome (for Differential VTCode)
+VT_SYND=0
 
 
 # =============================================================================

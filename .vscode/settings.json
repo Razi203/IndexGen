@@ -60,6 +60,14 @@
     "chrono": "cpp",
     "ostream": "cpp",
     "iomanip": "cpp",
-    "iterator": "cpp"
-  }
+    "iterator": "cpp",
+    "numeric": "cpp"
+  },
+  "makefile.launchConfigurations": [
+    {
+      "cwd": "/home_nfs/razi.hleihil/IndexGen",
+      "binaryPath": "/home_nfs/razi.hleihil/IndexGen/IndexGen",
+      "binaryArgs": []
+    }
+  ]
 }
