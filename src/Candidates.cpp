@@ -7,7 +7,6 @@
 #include "Candidates/DifferentialVTCodes.hpp"
 #include "Candidates/LinearCodes.hpp"
 #include "Candidates/VTCodes.hpp"
-#include "Candidates/WaveGen.hpp"
 #include "Utils.hpp"
 #include <cassert>
 #include <iostream>
@@ -234,12 +233,6 @@ std::vector<std::string> Candidates(const Params &params)
         break;
     }
 
-    case GenerationMethod::PROGRESSIVE_WAVE:
-    {
-        // No need to cast constraints here as it's done inside the function
-        unfiltered = GenProgressiveWave(params);
-        break;
-    }
 
     default:
     {

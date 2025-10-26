@@ -27,7 +27,6 @@ enum class GenerationMethod
     ALL_STRINGS,         ///< Generates all possible strings of the specified length (brute-force).
     RANDOM,              ///< Generates candidates using a randomization approach.
     VT_CODE,             ///< Uses Varshamov-Tenengolts codes for candidate generation.
-    PROGRESSIVE_WAVE,    ///< Generates candidates by expanding from diverse seed sequences.
     DIFFERENTIAL_VT_CODE ///< Uses Differential Varshamov-Tenengolts codes for candidate generation.
 };
 
@@ -96,25 +95,6 @@ struct VTCodeConstraints : public GenerationConstraints
 struct AllStringsConstraints : public GenerationConstraints
 {
     AllStringsConstraints() : GenerationConstraints()
-    {
-    }
-};
-
-/**
- * @struct ProgressiveWaveConstraints
- * @brief Constraints for the Progressive Wave Construction method.
- */
-struct ProgressiveWaveConstraints : public GenerationConstraints
-{
-    /** @brief The number of diverse seed sequences to start the generation from. */
-    int num_seeds;
-    /** @brief The number of random candidates to generate for the initial pool. */
-    int pool_size;
-
-    ProgressiveWaveConstraints() : GenerationConstraints(), num_seeds(), pool_size()
-    {
-    }
-    ProgressiveWaveConstraints(int seeds, int pool) : GenerationConstraints(), num_seeds(seeds), pool_size(pool)
     {
     }
 };
