@@ -279,16 +279,6 @@ void PrintParamsToFile(std::ofstream &out, const int candidateNum, const int cod
             // No specific parameters to log for this method
             break;
         }
-        case GenerationMethod::PROGRESSIVE_WAVE:
-        {
-            auto *constraints = dynamic_cast<ProgressiveWaveConstraints *>(params.constraints.get());
-            if (constraints)
-            {
-                out << "Progressive Wave parameter seeds:\t" << constraints->num_seeds << std::endl;
-                out << "Progressive Wave parameter pool:\t" << constraints->pool_size << std::endl;
-            }
-            break;
-        }
         case GenerationMethod::DIFFERENTIAL_VT_CODE:
         {
             auto *constraints = dynamic_cast<DifferentialVTCodeConstraints *>(params.constraints.get());
@@ -622,8 +612,6 @@ std::string GenerationMethodToString(GenerationMethod method)
         return "Random Candidates";
     case GenerationMethod::ALL_STRINGS:
         return "All Strings (Brute-Force)";
-    case GenerationMethod::PROGRESSIVE_WAVE:
-        return "Progressive Wave";
     case GenerationMethod::DIFFERENTIAL_VT_CODE:
         return "Differential Varshamov-Tenengolts Code";
     default:
@@ -689,16 +677,6 @@ void PrintTestParams(const Params &params)
     {
         // No specific parameters to print for this method
         cout << "No specific parameters for this method." << endl;
-        break;
-    }
-    case GenerationMethod::PROGRESSIVE_WAVE:
-    {
-        auto *constraints = dynamic_cast<ProgressiveWaveConstraints *>(params.constraints.get());
-        if (constraints)
-        {
-            cout << "Progressive Wave parameter seeds:\t" << constraints->num_seeds << endl;
-            cout << "Progressive Wave parameter pool:\t" << constraints->pool_size << endl;
-        }
         break;
     }
     case GenerationMethod::DIFFERENTIAL_VT_CODE:
@@ -783,16 +761,6 @@ void ParamsToFile(const Params &params, const std::string &fileName)
         // This method has no specific parameters to save
         break;
     }
-    case GenerationMethod::PROGRESSIVE_WAVE:
-    {
-        auto *constraints = dynamic_cast<ProgressiveWaveConstraints *>(params.constraints.get());
-        if (constraints)
-        {
-            output_file << constraints->num_seeds << '\n';
-            output_file << constraints->pool_size << '\n';
-        }
-        break;
-    }
     case GenerationMethod::DIFFERENTIAL_VT_CODE:
     {
         auto *constraints = dynamic_cast<DifferentialVTCodeConstraints *>(params.constraints.get());
@@ -860,14 +828,6 @@ void FileToParams(Params &params, const std::string &fileName)
     case GenerationMethod::ALL_STRINGS:
     {
         params.constraints = std::make_unique<AllStringsConstraints>();
-        break;
-    }
-    case GenerationMethod::PROGRESSIVE_WAVE:
-    {
-        int num_seeds, pool_size;
-        input_file >> num_seeds;
-        input_file >> pool_size;
-        params.constraints = std::make_unique<ProgressiveWaveConstraints>(num_seeds, pool_size);
         break;
     }
     case GenerationMethod::DIFFERENTIAL_VT_CODE:
