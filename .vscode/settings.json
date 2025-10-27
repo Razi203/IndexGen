@@ -61,7 +61,8 @@
     "ostream": "cpp",
     "iomanip": "cpp",
     "iterator": "cpp",
-    "numeric": "cpp"
+    "numeric": "cpp",
+    "vector": "cpp"
   },
   "makefile.launchConfigurations": [
     {

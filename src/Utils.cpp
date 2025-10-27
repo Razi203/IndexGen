@@ -288,6 +288,16 @@ void PrintParamsToFile(std::ofstream &out, const int candidateNum, const int cod
             }
             break;
         }
+        case GenerationMethod::RANDOM_LINEAR:
+        {
+            auto *constraints = dynamic_cast<RandomLinearConstraints *>(params.constraints.get());
+            if (constraints)
+            {
+                out << "Min Candidate Hamming Distance:\t" << constraints->candMinHD << std::endl;
+                out << "Number of Random Candidates:\t" << constraints->num_candidates << std::endl;
+            }
+            break;
+        }
         }
 
         out << std::endl;
@@ -614,6 +624,8 @@ std::string GenerationMethodToString(GenerationMethod method)
         return "All Strings (Brute-Force)";
     case GenerationMethod::DIFFERENTIAL_VT_CODE:
         return "Differential Varshamov-Tenengolts Code";
+    case GenerationMethod::RANDOM_LINEAR:
+        return "Random Linear Code";
     default:
         return "Unknown";
     }
@@ -685,6 +697,16 @@ void PrintTestParams(const Params &params)
         if (constraints)
         {
             cout << "Differential VT Code syndrome:\t" << constraints->syndrome << endl;
+        }
+        break;
+    }
+    case GenerationMethod::RANDOM_LINEAR:
+    {
+        auto *constraints = dynamic_cast<RandomLinearConstraints *>(params.constraints.get());
+        if (constraints)
+        {
+            cout << "Min Candidate Hamming Distance:\t" << constraints->candMinHD << endl;
+            cout << "Number of Random Candidates:\t" << constraints->num_candidates << endl;
         }
         break;
     }
@@ -770,6 +792,16 @@ void ParamsToFile(const Params &params, const std::string &fileName)
         }
         break;
     }
+    case GenerationMethod::RANDOM_LINEAR:
+    {
+        auto *constraints = dynamic_cast<RandomLinearConstraints *>(params.constraints.get());
+        if (constraints)
+        {
+            output_file << constraints->candMinHD << '\n';
+            output_file << constraints->num_candidates << '\n';
+        }
+        break;
+    }
     default:
     {
         // Handle unknown types to make your code more robust
@@ -835,6 +867,14 @@ void FileToParams(Params &params, const std::string &fileName)
         int syndrome;
         input_file >> syndrome;
         params.constraints = std::make_unique<DifferentialVTCodeConstraints>(syndrome);
+        break;
+    }
+    case GenerationMethod::RANDOM_LINEAR:
+    {
+        int min_hd, num_candidates;
+        input_file >> min_hd;
+        input_file >> num_candidates;
+        params.constraints = std::make_unique<RandomLinearConstraints>(min_hd, num_candidates);
         break;
     }
     default:

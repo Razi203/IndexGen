@@ -12,18 +12,18 @@
 EXECUTABLE="./IndexGen"
 
 # Output/Resume directory
-OUTPUT_DIR="Results/10.5"
+OUTPUT_DIR="TEMP"
 
 # To resume a previous run, uncomment the following line:
 # RESUME="--resume"
 RESUME=""
 
 # Codeword length range
-LEN_START=10
-LEN_END=10
+LEN_START=14
+LEN_END=14
 
 # Minimum edit distance
-EDIT_DIST=5
+EDIT_DIST=3
 
 # --- Constraint Parameters ---
 
@@ -45,10 +45,10 @@ SAVE_INTERVAL=1800 # Set to 30 minutes, 80000 is > 22 hours
 # --- Method-Specific Parameters ---
 
 # Generation method: LinearCode, VTCode, Random, Diff_VTCode
-METHOD="Diff_VTCode"
+METHOD="LinearCode"
 
 # Min Hamming Distance (for LinearCode)
-MIN_HD=5
+MIN_HD=3
 
 # 'a' and 'b' parameters (for VTCode)
 VT_A=0
@@ -59,6 +59,11 @@ RAND_CANDIDATES=50000
 
 # Syndrome (for Differential VTCode)
 VT_SYND=0
+
+# Min Hamming Distance (for RandomLinear)
+RANDLIN_MINHD=3
+# Number of candidates (for RandomLinear)
+RANDLIN_CANDIDATES=2000000
 
 
 # =============================================================================
@@ -82,7 +87,10 @@ CMD="$EXECUTABLE \
     --minHD $MIN_HD \
     --vt_a $VT_A \
     --vt_b $VT_B \
-    --rand_candidates $RAND_CANDIDATES"
+    --rand_candidates $RAND_CANDIDATES\
+    --vt_synd $VT_SYND \
+    --randlin_minHD $RANDLIN_MINHD \
+    --randlin_candidates $RANDLIN_CANDIDATES"
 
 # Print the command to the console so you know what's being run
 echo "Executing command:"

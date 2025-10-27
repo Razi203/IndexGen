@@ -6,6 +6,7 @@
 #include "Candidates.hpp"
 #include "Candidates/DifferentialVTCodes.hpp"
 #include "Candidates/LinearCodes.hpp"
+#include "Candidates/RandomLinear.hpp"
 #include "Candidates/VTCodes.hpp"
 #include "Utils.hpp"
 #include <cassert>
@@ -233,6 +234,17 @@ std::vector<std::string> Candidates(const Params &params)
         break;
     }
 
+    case GenerationMethod::RANDOM_LINEAR:
+    {
+        auto *constraints = dynamic_cast<RandomLinearConstraints *>(params.constraints.get());
+        if (!constraints)
+        {
+            throw std::runtime_error("Invalid constraints provided for RANDOM_LINEAR method.");
+        }
+        unfiltered =
+            GenerateRandomLinearCandidates(params.codeLen, constraints->candMinHD, constraints->num_candidates);
+        break;
+    }
 
     default:
     {

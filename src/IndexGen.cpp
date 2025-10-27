@@ -142,6 +142,15 @@ int main(int argc, char *argv[])
                 params.constraints = make_unique<DifferentialVTCodeConstraints>(syndrome);
                 cout << "Using Generation Method: Differential VTCode (syndrome=" << syndrome << ")" << endl;
             }
+            else if (method_str == "RandomLinear")
+            {
+                params.method = GenerationMethod::RANDOM_LINEAR;
+                int minHD = result["randlin_minHD"].as<int>();
+                int num_candidates = result["randlin_candidates"].as<int>();
+                params.constraints = make_unique<RandomLinearConstraints>(minHD, num_candidates);
+                cout << "Using Generation Method: RandomLinear (minHD=" << minHD << ", candidates=" << num_candidates
+                     << ")" << endl;
+            }
             else
             {
                 cerr << "Error: Unknown generation method '" << method_str << "'." << endl;
@@ -222,7 +231,7 @@ void configure_parser(cxxopts::Options &options)
         ("t,threads", "Number of threads to use", cxxopts::value<int>()->default_value("16"))(
             "saveInterval", "Interval in seconds to save progress", cxxopts::value<int>()->default_value("80000"))
         // Generation Method
-        ("m,method", "Generation method: LinearCode, VTCode, Random, Diff_VTCode, AllStrings",
+        ("m,method", "Generation method: LinearCode, VTCode, Random, Diff_VTCode, AllStrings, RandomLinear",
          cxxopts::value<string>()->default_value("LinearCode"))
         // Method-specific parameters
         ("minHD", "Min Hamming Distance for LinearCode method", cxxopts::value<int>()->default_value("3"))(
@@ -230,7 +239,10 @@ void configure_parser(cxxopts::Options &options)
             "vt_b", "Parameter 'b' for VTCode method", cxxopts::value<int>()->default_value("0"))(
             "rand_candidates", "Number of random candidates for Random method",
             cxxopts::value<int>()->default_value("50000"))("vt_synd", "Syndrome for Differential VTCode method",
-                                                           cxxopts::value<int>()->default_value("0"));
+                                                           cxxopts::value<int>()->default_value("0"))(
+            "randlin_minHD", "Min Hamming Distance for RandomLinear method", cxxopts::value<int>()->default_value("3"))(
+            "randlin_candidates", "Number of random candidates for RandomLinear method",
+            cxxopts::value<int>()->default_value("50000"));
 }
 
 /**

@@ -23,11 +23,12 @@ struct Params; // Forward declare Params struct for function prototypes
  */
 enum class GenerationMethod
 {
-    LINEAR_CODE,         ///< Uses linear codes to generate candidate strings with guaranteed Hamming distance.
-    ALL_STRINGS,         ///< Generates all possible strings of the specified length (brute-force).
-    RANDOM,              ///< Generates candidates using a randomization approach.
-    VT_CODE,             ///< Uses Varshamov-Tenengolts codes for candidate generation.
-    DIFFERENTIAL_VT_CODE ///< Uses Differential Varshamov-Tenengolts codes for candidate generation.
+    LINEAR_CODE,          ///< Uses linear codes to generate candidate strings with guaranteed Hamming distance.
+    ALL_STRINGS,          ///< Generates all possible strings of the specified length (brute-force).
+    RANDOM,               ///< Generates candidates using a randomization approach.
+    VT_CODE,              ///< Uses Varshamov-Tenengolts codes for candidate generation.
+    DIFFERENTIAL_VT_CODE, ///< Uses Differential Varshamov-Tenengolts codes for candidate generation.
+    RANDOM_LINEAR         ///< Generates random samples from linear codes.
 };
 
 /**
@@ -127,6 +128,27 @@ struct DifferentialVTCodeConstraints : public GenerationConstraints
     DifferentialVTCodeConstraints(int syndrome) : syndrome(syndrome)
     {
         // Assuming BaseConstraints has a virtual destructor or function
+    }
+};
+
+/**
+ * @struct RandomLinearConstraints
+ * @brief Constraints for the Random Linear method.
+ */
+struct RandomLinearConstraints : public GenerationConstraints
+{
+    /** @brief The minimum Hamming distance for the linear code generation. */
+    int candMinHD;
+
+    /** @brief The number of random candidates to select from the linear code. */
+    int num_candidates;
+
+    RandomLinearConstraints() : GenerationConstraints(), candMinHD(), num_candidates()
+    {
+    }
+
+    RandomLinearConstraints(int min_hd, int num) : GenerationConstraints(), candMinHD(min_hd), num_candidates(num)
+    {
     }
 };
 

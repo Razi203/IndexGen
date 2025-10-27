@@ -1,0 +1,155 @@
+--- Global Parameters ---
+Code Length:			14
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Random Linear Code
+Min Candidate Hamming Distance:	3
+Number of Random Candidates:	2000000
+
+--- Results Summary ---
+Number of Candidates:		2000000
+Number of Ones in Matrix:	5965804
+Number of Code Words:		1020185
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	2.89	seconds
+Fill Adjacency List Time:	6583.52	seconds
+Process Matrix Time:		26.88	seconds
+Overall Execution Time:		6613.31	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			12
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Random Linear Code
+Min Candidate Hamming Distance:	3
+Number of Random Candidates:	130000
+
+--- Results Summary ---
+Number of Candidates:		130000
+Number of Ones in Matrix:	291174
+Number of Code Words:		73276
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.17	seconds
+Fill Adjacency List Time:	27.92	seconds
+Process Matrix Time:		0.99	seconds
+Overall Execution Time:		29.10	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			14
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Linear Code
+Min Candidate Hamming Distance:	3
+
+--- Results Summary ---
+Number of Candidates:		4194304
+Number of Ones in Matrix:	26245632
+Number of Code Words:		1481907
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	2.88	seconds
+Fill Adjacency List Time:	26876.42	seconds
+Process Matrix Time:		30.57	seconds
+Overall Execution Time:		26909.90	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			10
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Random Linear Code
+Min Candidate Hamming Distance:	3
+Number of Random Candidates:	10000
+
+--- Results Summary ---
+Number of Candidates:		10000
+Number of Ones in Matrix:	18064
+Number of Code Words:		6045
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.02	seconds
+Fill Adjacency List Time:	0.22	seconds
+Process Matrix Time:		0.06	seconds
+Overall Execution Time:		0.31	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			13
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Random Linear Code
+Min Candidate Hamming Distance:	3
+Number of Random Candidates:	400000
+
+--- Results Summary ---
+Number of Candidates:		400000
+Number of Ones in Matrix:	789542
+Number of Code Words:		237052
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.64	seconds
+Fill Adjacency List Time:	258.25	seconds
+Process Matrix Time:		3.19	seconds
+Overall Execution Time:		262.11	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Random Linear Code
+Min Candidate Hamming Distance:	3
+Number of Random Candidates:	30000
+
+--- Results Summary ---
+Number of Candidates:		30000
+Number of Ones in Matrix:	54284
+Number of Code Words:		18121
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.05	seconds
+Fill Adjacency List Time:	1.60	seconds
+Process Matrix Time:		0.16	seconds
+Overall Execution Time:		1.82	seconds
+=========================================== 
+
