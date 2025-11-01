@@ -19,8 +19,8 @@ OUTPUT_DIR="TEMP"
 RESUME=""
 
 # Codeword length range
-LEN_START=14
-LEN_END=14
+LEN_START=10
+LEN_END=11
 
 # Minimum edit distance
 EDIT_DIST=3

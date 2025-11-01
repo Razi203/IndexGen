@@ -1,5 +1,6 @@
 #include "SparseMat.hpp"
 #include "Candidates.hpp"
+#include "EditDistance.hpp"
 #include "Utils.hpp"
 #include <algorithm>
 #include <cassert>
@@ -224,10 +225,12 @@ void FillAdjListTH(vector<pair<int, int>> &pairVec, const vector<string> &candid
     int candNum = candidates.size();
     for (int i = threadStart; i < candNum; i += threadNum)
     {
+        PatternHandle H = MakePattern(candidates[i]);
         for (int j = i + 1; j < candNum; j++)
         {
             bool EDIsAtLeastMinED =
-                FastEditDistance0123(candidates[i], candidates[j], minED, cand0123Cont[i], cand0123Cont[j]);
+                // FastEditDistance0123(candidates[i], candidates[j], minED, cand0123Cont[i], cand0123Cont[j]);
+                EditDistanceExactAtLeast(candidates[j], H, minED);
             if (!EDIsAtLeastMinED)
             {
                 pairVec.push_back(make_pair(i, j));
@@ -476,7 +479,7 @@ void GenerateCodebookAdj(const Params &params)
     std::chrono::duration<double> overAllTime = end - start;
     ToFile(codebook, params, candidateNum, matrixOnesNum, elapsed_secs_candidates, fillAdjListTime, processMatrixTime,
            overAllTime);
-    //	VerifyDist(codebook, params.codeMinED, params.threadNum);
+    // VerifyDist(codebook, params.codeMinED, params.threadNum);
     cout << "=====================================================" << endl;
     remove("progress_params.txt");
     remove("progress_cand.txt");
