@@ -1,0 +1,1994 @@
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Linear Code
+Min Candidate Hamming Distance:	3
+
+--- Results Summary ---
+Number of Candidates:		65536
+Number of Ones in Matrix:	261108
+Number of Code Words:		28082
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.05	seconds
+Fill Adjacency List Time:	6.75	seconds
+Process Matrix Time:		0.76	seconds
+Overall Execution Time:		7.57	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Differential Varshamov-Tenengolts Code
+Differential VT Code syndrome:	5
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	4599392
+Number of Code Words:		8632
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.08	seconds
+Fill Adjacency List Time:	17.76	seconds
+Process Matrix Time:		12.50	seconds
+Overall Execution Time:		30.36	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Differential Varshamov-Tenengolts Code
+Differential VT Code syndrome:	15
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	4599476
+Number of Code Words:		8634
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.06	seconds
+Fill Adjacency List Time:	17.75	seconds
+Process Matrix Time:		13.21	seconds
+Overall Execution Time:		31.05	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Differential Varshamov-Tenengolts Code
+Differential VT Code syndrome:	28
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	4599392
+Number of Code Words:		8657
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.07	seconds
+Fill Adjacency List Time:	17.34	seconds
+Process Matrix Time:		12.75	seconds
+Overall Execution Time:		30.18	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Differential Varshamov-Tenengolts Code
+Differential VT Code syndrome:	3
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	4599444
+Number of Code Words:		8645
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.06	seconds
+Fill Adjacency List Time:	17.10	seconds
+Process Matrix Time:		12.47	seconds
+Overall Execution Time:		29.65	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Differential Varshamov-Tenengolts Code
+Differential VT Code syndrome:	17
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	4599392
+Number of Code Words:		8627
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.06	seconds
+Fill Adjacency List Time:	17.12	seconds
+Process Matrix Time:		12.86	seconds
+Overall Execution Time:		30.07	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Differential Varshamov-Tenengolts Code
+Differential VT Code syndrome:	22
+
+--- Results Summary ---
+Number of Candidates:		95326
+Number of Ones in Matrix:	4599568
+Number of Code Words:		8631
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.08	seconds
+Fill Adjacency List Time:	17.19	seconds
+Process Matrix Time:		12.76	seconds
+Overall Execution Time:		30.04	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Differential Varshamov-Tenengolts Code
+Differential VT Code syndrome:	12
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	4599420
+Number of Code Words:		8646
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.08	seconds
+Fill Adjacency List Time:	17.26	seconds
+Process Matrix Time:		12.90	seconds
+Overall Execution Time:		30.25	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Differential Varshamov-Tenengolts Code
+Differential VT Code syndrome:	31
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	4599380
+Number of Code Words:		8654
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.08	seconds
+Fill Adjacency List Time:	17.19	seconds
+Process Matrix Time:		12.00	seconds
+Overall Execution Time:		29.28	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Differential Varshamov-Tenengolts Code
+Differential VT Code syndrome:	21
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	4599420
+Number of Code Words:		8642
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.09	seconds
+Fill Adjacency List Time:	17.10	seconds
+Process Matrix Time:		12.18	seconds
+Overall Execution Time:		29.38	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Differential Varshamov-Tenengolts Code
+Differential VT Code syndrome:	7
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	4599476
+Number of Code Words:		8613
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.07	seconds
+Fill Adjacency List Time:	17.10	seconds
+Process Matrix Time:		12.38	seconds
+Overall Execution Time:		29.57	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Differential Varshamov-Tenengolts Code
+Differential VT Code syndrome:	0
+
+--- Results Summary ---
+Number of Candidates:		95326
+Number of Ones in Matrix:	4599568
+Number of Code Words:		8643
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.07	seconds
+Fill Adjacency List Time:	17.17	seconds
+Process Matrix Time:		12.77	seconds
+Overall Execution Time:		30.02	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Differential Varshamov-Tenengolts Code
+Differential VT Code syndrome:	13
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	4599380
+Number of Code Words:		8644
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.07	seconds
+Fill Adjacency List Time:	17.37	seconds
+Process Matrix Time:		12.75	seconds
+Overall Execution Time:		30.20	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Differential Varshamov-Tenengolts Code
+Differential VT Code syndrome:	1
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	4599420
+Number of Code Words:		8657
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.08	seconds
+Fill Adjacency List Time:	17.08	seconds
+Process Matrix Time:		12.45	seconds
+Overall Execution Time:		29.62	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Differential Varshamov-Tenengolts Code
+Differential VT Code syndrome:	10
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	4599420
+Number of Code Words:		8610
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.06	seconds
+Fill Adjacency List Time:	17.20	seconds
+Process Matrix Time:		12.87	seconds
+Overall Execution Time:		30.14	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Differential Varshamov-Tenengolts Code
+Differential VT Code syndrome:	20
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	4599380
+Number of Code Words:		8613
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.07	seconds
+Fill Adjacency List Time:	17.18	seconds
+Process Matrix Time:		12.84	seconds
+Overall Execution Time:		30.10	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Differential Varshamov-Tenengolts Code
+Differential VT Code syndrome:	16
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	4599392
+Number of Code Words:		8610
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.06	seconds
+Fill Adjacency List Time:	17.05	seconds
+Process Matrix Time:		13.08	seconds
+Overall Execution Time:		30.20	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Differential Varshamov-Tenengolts Code
+Differential VT Code syndrome:	19
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	4599444
+Number of Code Words:		8666
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.07	seconds
+Fill Adjacency List Time:	17.13	seconds
+Process Matrix Time:		12.65	seconds
+Overall Execution Time:		29.87	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Differential Varshamov-Tenengolts Code
+Differential VT Code syndrome:	27
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	4599392
+Number of Code Words:		8612
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.07	seconds
+Fill Adjacency List Time:	17.14	seconds
+Process Matrix Time:		12.32	seconds
+Overall Execution Time:		29.57	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Differential Varshamov-Tenengolts Code
+Differential VT Code syndrome:	6
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	4599392
+Number of Code Words:		8672
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.07	seconds
+Fill Adjacency List Time:	17.10	seconds
+Process Matrix Time:		12.49	seconds
+Overall Execution Time:		29.67	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Differential Varshamov-Tenengolts Code
+Differential VT Code syndrome:	25
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	4599444
+Number of Code Words:		8672
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.07	seconds
+Fill Adjacency List Time:	17.08	seconds
+Process Matrix Time:		12.86	seconds
+Overall Execution Time:		30.02	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Differential Varshamov-Tenengolts Code
+Differential VT Code syndrome:	14
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	4599444
+Number of Code Words:		8631
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.07	seconds
+Fill Adjacency List Time:	17.24	seconds
+Process Matrix Time:		13.28	seconds
+Overall Execution Time:		30.62	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Differential Varshamov-Tenengolts Code
+Differential VT Code syndrome:	24
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	4599380
+Number of Code Words:		8630
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.07	seconds
+Fill Adjacency List Time:	17.04	seconds
+Process Matrix Time:		12.41	seconds
+Overall Execution Time:		29.53	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Differential Varshamov-Tenengolts Code
+Differential VT Code syndrome:	23
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	4599420
+Number of Code Words:		8665
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.07	seconds
+Fill Adjacency List Time:	17.09	seconds
+Process Matrix Time:		12.25	seconds
+Overall Execution Time:		29.43	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Differential Varshamov-Tenengolts Code
+Differential VT Code syndrome:	30
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	4599444
+Number of Code Words:		8639
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.07	seconds
+Fill Adjacency List Time:	17.24	seconds
+Process Matrix Time:		12.66	seconds
+Overall Execution Time:		29.98	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Differential Varshamov-Tenengolts Code
+Differential VT Code syndrome:	11
+
+--- Results Summary ---
+Number of Candidates:		95326
+Number of Ones in Matrix:	4599568
+Number of Code Words:		8645
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.07	seconds
+Fill Adjacency List Time:	17.14	seconds
+Process Matrix Time:		12.62	seconds
+Overall Execution Time:		29.84	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Differential Varshamov-Tenengolts Code
+Differential VT Code syndrome:	29
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	4599476
+Number of Code Words:		8640
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.10	seconds
+Fill Adjacency List Time:	17.22	seconds
+Process Matrix Time:		12.80	seconds
+Overall Execution Time:		30.14	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Differential Varshamov-Tenengolts Code
+Differential VT Code syndrome:	8
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	4599444
+Number of Code Words:		8659
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.07	seconds
+Fill Adjacency List Time:	17.10	seconds
+Process Matrix Time:		12.79	seconds
+Overall Execution Time:		29.98	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Differential Varshamov-Tenengolts Code
+Differential VT Code syndrome:	9
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	4599380
+Number of Code Words:		8650
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.07	seconds
+Fill Adjacency List Time:	17.12	seconds
+Process Matrix Time:		12.72	seconds
+Overall Execution Time:		29.93	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Differential Varshamov-Tenengolts Code
+Differential VT Code syndrome:	4
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	4599476
+Number of Code Words:		8618
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.07	seconds
+Fill Adjacency List Time:	17.53	seconds
+Process Matrix Time:		13.16	seconds
+Overall Execution Time:		30.77	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Differential Varshamov-Tenengolts Code
+Differential VT Code syndrome:	26
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	4599476
+Number of Code Words:		8628
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.07	seconds
+Fill Adjacency List Time:	17.17	seconds
+Process Matrix Time:		12.66	seconds
+Overall Execution Time:		29.92	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Differential Varshamov-Tenengolts Code
+Differential VT Code syndrome:	32
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	4599420
+Number of Code Words:		8655
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.07	seconds
+Fill Adjacency List Time:	17.22	seconds
+Process Matrix Time:		12.95	seconds
+Overall Execution Time:		30.26	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Differential Varshamov-Tenengolts Code
+Differential VT Code syndrome:	2
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	4599380
+Number of Code Words:		8638
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.12	seconds
+Fill Adjacency List Time:	17.08	seconds
+Process Matrix Time:		12.92	seconds
+Overall Execution Time:		30.14	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Differential Varshamov-Tenengolts Code
+Differential VT Code syndrome:	18
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	4599476
+Number of Code Words:		8634
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.06	seconds
+Fill Adjacency List Time:	17.32	seconds
+Process Matrix Time:		12.91	seconds
+Overall Execution Time:		30.31	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Varshamov-Tenengolts Code
+VT Code parameter a:		1
+VT Code parameter b:		2
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	3445840
+Number of Code Words:		10554
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.07	seconds
+Fill Adjacency List Time:	16.92	seconds
+Process Matrix Time:		9.10	seconds
+Overall Execution Time:		26.10	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Varshamov-Tenengolts Code
+VT Code parameter a:		9
+VT Code parameter b:		2
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	3423518
+Number of Code Words:		10567
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.05	seconds
+Fill Adjacency List Time:	16.78	seconds
+Process Matrix Time:		9.34	seconds
+Overall Execution Time:		26.20	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Varshamov-Tenengolts Code
+VT Code parameter a:		0
+VT Code parameter b:		1
+
+--- Results Summary ---
+Number of Candidates:		95326
+Number of Ones in Matrix:	3462130
+Number of Code Words:		10501
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.05	seconds
+Fill Adjacency List Time:	16.79	seconds
+Process Matrix Time:		9.51	seconds
+Overall Execution Time:		26.37	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Varshamov-Tenengolts Code
+VT Code parameter a:		5
+VT Code parameter b:		2
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	3469606
+Number of Code Words:		10543
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.06	seconds
+Fill Adjacency List Time:	17.17	seconds
+Process Matrix Time:		9.82	seconds
+Overall Execution Time:		27.07	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Varshamov-Tenengolts Code
+VT Code parameter a:		10
+VT Code parameter b:		2
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	3446002
+Number of Code Words:		10528
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.06	seconds
+Fill Adjacency List Time:	16.67	seconds
+Process Matrix Time:		9.98	seconds
+Overall Execution Time:		26.73	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Varshamov-Tenengolts Code
+VT Code parameter a:		10
+VT Code parameter b:		1
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	3445932
+Number of Code Words:		10526
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.05	seconds
+Fill Adjacency List Time:	16.66	seconds
+Process Matrix Time:		9.83	seconds
+Overall Execution Time:		26.57	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Varshamov-Tenengolts Code
+VT Code parameter a:		5
+VT Code parameter b:		3
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	3469626
+Number of Code Words:		10552
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.05	seconds
+Fill Adjacency List Time:	16.65	seconds
+Process Matrix Time:		9.45	seconds
+Overall Execution Time:		26.18	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Varshamov-Tenengolts Code
+VT Code parameter a:		2
+VT Code parameter b:		2
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	3423542
+Number of Code Words:		10528
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.07	seconds
+Fill Adjacency List Time:	16.72	seconds
+Process Matrix Time:		9.70	seconds
+Overall Execution Time:		26.51	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Varshamov-Tenengolts Code
+VT Code parameter a:		0
+VT Code parameter b:		3
+
+--- Results Summary ---
+Number of Candidates:		95326
+Number of Ones in Matrix:	3462136
+Number of Code Words:		10494
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.15	seconds
+Fill Adjacency List Time:	16.92	seconds
+Process Matrix Time:		9.97	seconds
+Overall Execution Time:		27.07	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Varshamov-Tenengolts Code
+VT Code parameter a:		8
+VT Code parameter b:		0
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	3422322
+Number of Code Words:		10583
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.06	seconds
+Fill Adjacency List Time:	16.66	seconds
+Process Matrix Time:		9.25	seconds
+Overall Execution Time:		26.00	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Varshamov-Tenengolts Code
+VT Code parameter a:		2
+VT Code parameter b:		3
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	3423518
+Number of Code Words:		10546
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.06	seconds
+Fill Adjacency List Time:	16.69	seconds
+Process Matrix Time:		9.10	seconds
+Overall Execution Time:		25.88	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Varshamov-Tenengolts Code
+VT Code parameter a:		7
+VT Code parameter b:		3
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	3445740
+Number of Code Words:		10538
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.08	seconds
+Fill Adjacency List Time:	16.66	seconds
+Process Matrix Time:		9.26	seconds
+Overall Execution Time:		26.01	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Varshamov-Tenengolts Code
+VT Code parameter a:		2
+VT Code parameter b:		1
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	3423534
+Number of Code Words:		10555
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.05	seconds
+Fill Adjacency List Time:	16.84	seconds
+Process Matrix Time:		9.15	seconds
+Overall Execution Time:		26.06	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Varshamov-Tenengolts Code
+VT Code parameter a:		3
+VT Code parameter b:		1
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	3422322
+Number of Code Words:		10565
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.06	seconds
+Fill Adjacency List Time:	16.81	seconds
+Process Matrix Time:		10.16	seconds
+Overall Execution Time:		27.04	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Varshamov-Tenengolts Code
+VT Code parameter a:		4
+VT Code parameter b:		2
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	3445740
+Number of Code Words:		10560
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.16	seconds
+Fill Adjacency List Time:	16.77	seconds
+Process Matrix Time:		9.40	seconds
+Overall Execution Time:		26.34	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Varshamov-Tenengolts Code
+VT Code parameter a:		9
+VT Code parameter b:		1
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	3423490
+Number of Code Words:		10548
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.16	seconds
+Fill Adjacency List Time:	17.06	seconds
+Process Matrix Time:		9.47	seconds
+Overall Execution Time:		26.72	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Varshamov-Tenengolts Code
+VT Code parameter a:		5
+VT Code parameter b:		1
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	3469652
+Number of Code Words:		10501
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.05	seconds
+Fill Adjacency List Time:	16.87	seconds
+Process Matrix Time:		9.44	seconds
+Overall Execution Time:		26.37	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Varshamov-Tenengolts Code
+VT Code parameter a:		3
+VT Code parameter b:		3
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	3422532
+Number of Code Words:		10580
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.17	seconds
+Fill Adjacency List Time:	16.63	seconds
+Process Matrix Time:		9.49	seconds
+Overall Execution Time:		26.31	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Varshamov-Tenengolts Code
+VT Code parameter a:		3
+VT Code parameter b:		0
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	3422538
+Number of Code Words:		10580
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.07	seconds
+Fill Adjacency List Time:	16.66	seconds
+Process Matrix Time:		9.58	seconds
+Overall Execution Time:		26.32	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Varshamov-Tenengolts Code
+VT Code parameter a:		6
+VT Code parameter b:		0
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	3469652
+Number of Code Words:		10499
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.06	seconds
+Fill Adjacency List Time:	16.71	seconds
+Process Matrix Time:		9.51	seconds
+Overall Execution Time:		26.30	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Varshamov-Tenengolts Code
+VT Code parameter a:		4
+VT Code parameter b:		0
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	3445910
+Number of Code Words:		10539
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.07	seconds
+Fill Adjacency List Time:	16.74	seconds
+Process Matrix Time:		9.58	seconds
+Overall Execution Time:		26.40	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Varshamov-Tenengolts Code
+VT Code parameter a:		9
+VT Code parameter b:		3
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	3423542
+Number of Code Words:		10560
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.07	seconds
+Fill Adjacency List Time:	16.92	seconds
+Process Matrix Time:		9.25	seconds
+Overall Execution Time:		26.25	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Varshamov-Tenengolts Code
+VT Code parameter a:		7
+VT Code parameter b:		1
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	3445910
+Number of Code Words:		10534
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.07	seconds
+Fill Adjacency List Time:	17.06	seconds
+Process Matrix Time:		9.87	seconds
+Overall Execution Time:		27.03	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Varshamov-Tenengolts Code
+VT Code parameter a:		0
+VT Code parameter b:		2
+
+--- Results Summary ---
+Number of Candidates:		95326
+Number of Ones in Matrix:	3462136
+Number of Code Words:		10482
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.06	seconds
+Fill Adjacency List Time:	16.74	seconds
+Process Matrix Time:		10.04	seconds
+Overall Execution Time:		26.87	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Varshamov-Tenengolts Code
+VT Code parameter a:		2
+VT Code parameter b:		0
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	3423490
+Number of Code Words:		10575
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.05	seconds
+Fill Adjacency List Time:	16.91	seconds
+Process Matrix Time:		9.45	seconds
+Overall Execution Time:		26.43	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Varshamov-Tenengolts Code
+VT Code parameter a:		6
+VT Code parameter b:		2
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	3469626
+Number of Code Words:		10470
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.06	seconds
+Fill Adjacency List Time:	16.76	seconds
+Process Matrix Time:		9.51	seconds
+Overall Execution Time:		26.35	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Varshamov-Tenengolts Code
+VT Code parameter a:		8
+VT Code parameter b:		3
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	3422298
+Number of Code Words:		10574
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.06	seconds
+Fill Adjacency List Time:	16.80	seconds
+Process Matrix Time:		10.03	seconds
+Overall Execution Time:		26.90	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Varshamov-Tenengolts Code
+VT Code parameter a:		8
+VT Code parameter b:		2
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	3422532
+Number of Code Words:		10586
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.05	seconds
+Fill Adjacency List Time:	16.97	seconds
+Process Matrix Time:		9.81	seconds
+Overall Execution Time:		26.85	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Varshamov-Tenengolts Code
+VT Code parameter a:		6
+VT Code parameter b:		3
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	3469606
+Number of Code Words:		10475
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.05	seconds
+Fill Adjacency List Time:	16.73	seconds
+Process Matrix Time:		9.46	seconds
+Overall Execution Time:		26.26	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Varshamov-Tenengolts Code
+VT Code parameter a:		4
+VT Code parameter b:		3
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	3445896
+Number of Code Words:		10497
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.05	seconds
+Fill Adjacency List Time:	16.68	seconds
+Process Matrix Time:		9.40	seconds
+Overall Execution Time:		26.15	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Varshamov-Tenengolts Code
+VT Code parameter a:		1
+VT Code parameter b:		1
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	3445860
+Number of Code Words:		10499
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.06	seconds
+Fill Adjacency List Time:	16.78	seconds
+Process Matrix Time:		9.87	seconds
+Overall Execution Time:		26.73	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Varshamov-Tenengolts Code
+VT Code parameter a:		10
+VT Code parameter b:		0
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	3445860
+Number of Code Words:		10569
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.06	seconds
+Fill Adjacency List Time:	16.81	seconds
+Process Matrix Time:		9.33	seconds
+Overall Execution Time:		26.22	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Varshamov-Tenengolts Code
+VT Code parameter a:		1
+VT Code parameter b:		3
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	3446002
+Number of Code Words:		10529
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.06	seconds
+Fill Adjacency List Time:	16.85	seconds
+Process Matrix Time:		8.88	seconds
+Overall Execution Time:		25.81	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Varshamov-Tenengolts Code
+VT Code parameter a:		0
+VT Code parameter b:		0
+
+--- Results Summary ---
+Number of Candidates:		95326
+Number of Ones in Matrix:	3462130
+Number of Code Words:		10509
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.06	seconds
+Fill Adjacency List Time:	16.86	seconds
+Process Matrix Time:		9.10	seconds
+Overall Execution Time:		26.03	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Varshamov-Tenengolts Code
+VT Code parameter a:		6
+VT Code parameter b:		1
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	3469608
+Number of Code Words:		10500
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.06	seconds
+Fill Adjacency List Time:	16.84	seconds
+Process Matrix Time:		9.46	seconds
+Overall Execution Time:		26.38	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Varshamov-Tenengolts Code
+VT Code parameter a:		3
+VT Code parameter b:		2
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	3422298
+Number of Code Words:		10608
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.07	seconds
+Fill Adjacency List Time:	16.62	seconds
+Process Matrix Time:		9.26	seconds
+Overall Execution Time:		25.96	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Varshamov-Tenengolts Code
+VT Code parameter a:		10
+VT Code parameter b:		3
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	3445840
+Number of Code Words:		10542
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.05	seconds
+Fill Adjacency List Time:	16.83	seconds
+Process Matrix Time:		9.41	seconds
+Overall Execution Time:		26.31	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Varshamov-Tenengolts Code
+VT Code parameter a:		8
+VT Code parameter b:		1
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	3422538
+Number of Code Words:		10577
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.05	seconds
+Fill Adjacency List Time:	16.75	seconds
+Process Matrix Time:		9.59	seconds
+Overall Execution Time:		26.41	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Varshamov-Tenengolts Code
+VT Code parameter a:		9
+VT Code parameter b:		0
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	3423534
+Number of Code Words:		10577
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.09	seconds
+Fill Adjacency List Time:	16.86	seconds
+Process Matrix Time:		9.44	seconds
+Overall Execution Time:		26.40	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Varshamov-Tenengolts Code
+VT Code parameter a:		4
+VT Code parameter b:		1
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	3445760
+Number of Code Words:		10556
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.06	seconds
+Fill Adjacency List Time:	16.66	seconds
+Process Matrix Time:		9.80	seconds
+Overall Execution Time:		26.54	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Varshamov-Tenengolts Code
+VT Code parameter a:		1
+VT Code parameter b:		0
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	3445932
+Number of Code Words:		10518
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.05	seconds
+Fill Adjacency List Time:	17.09	seconds
+Process Matrix Time:		9.55	seconds
+Overall Execution Time:		26.72	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Varshamov-Tenengolts Code
+VT Code parameter a:		5
+VT Code parameter b:		0
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	3469608
+Number of Code Words:		10526
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.05	seconds
+Fill Adjacency List Time:	16.77	seconds
+Process Matrix Time:		9.41	seconds
+Overall Execution Time:		26.25	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Varshamov-Tenengolts Code
+VT Code parameter a:		7
+VT Code parameter b:		2
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	3445896
+Number of Code Words:		10514
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.06	seconds
+Fill Adjacency List Time:	16.84	seconds
+Process Matrix Time:		9.13	seconds
+Overall Execution Time:		26.04	seconds
+=========================================== 
+
+--- Global Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+
+Max Run:			0
+Min GC Content:			0
+Max GC Content:			0
+
+--- Generation Configuration ---
+Generation Method:		Varshamov-Tenengolts Code
+VT Code parameter a:		7
+VT Code parameter b:		0
+
+--- Results Summary ---
+Number of Candidates:		95325
+Number of Ones in Matrix:	3445760
+Number of Code Words:		10549
+
+--- Performance Metrics ---
+Number of Threads:		32
+Candidate Generation Time:	0.06	seconds
+Fill Adjacency List Time:	16.75	seconds
+Process Matrix Time:		10.05	seconds
+Overall Execution Time:		26.87	seconds
+=========================================== 
+

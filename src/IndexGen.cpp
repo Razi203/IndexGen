@@ -19,6 +19,7 @@
 // This is a header-only library for command-line argument parsing.
 #include "cxxopts.hpp"
 
+#include "CandidateGenerator.hpp"
 #include "Candidates.hpp"
 #include "Decode.hpp"
 #include "IndexGen.hpp"
@@ -112,7 +113,6 @@ int main(int argc, char *argv[])
                 params.method = GenerationMethod::LINEAR_CODE;
                 int minHD = result["minHD"].as<int>();
                 params.constraints = make_unique<LinearCodeConstraints>(minHD);
-                cout << "Using Generation Method: LinearCode (minHD=" << minHD << ")" << endl;
             }
             else if (method_str == "VTCode")
             {
@@ -120,27 +120,23 @@ int main(int argc, char *argv[])
                 int rem_a = result["vt_a"].as<int>();
                 int rem_b = result["vt_b"].as<int>();
                 params.constraints = make_unique<VTCodeConstraints>(rem_a, rem_b);
-                cout << "Using Generation Method: VTCode (a=" << rem_a << ", b=" << rem_b << ")" << endl;
             }
             else if (method_str == "Random")
             {
                 params.method = GenerationMethod::RANDOM;
                 int num_candidates = result["rand_candidates"].as<int>();
                 params.constraints = make_unique<RandomConstraints>(num_candidates);
-                cout << "Using Generation Method: Random (candidates=" << num_candidates << ")" << endl;
             }
             else if (method_str == "AllStrings")
             {
                 params.method = GenerationMethod::ALL_STRINGS;
                 params.constraints = make_unique<AllStringsConstraints>();
-                cout << "Using Generation Method: AllStrings" << endl;
             }
             else if (method_str == "Diff_VTCode")
             {
                 params.method = GenerationMethod::DIFFERENTIAL_VT_CODE;
                 int syndrome = result["vt_synd"].as<int>();
                 params.constraints = make_unique<DifferentialVTCodeConstraints>(syndrome);
-                cout << "Using Generation Method: Differential VTCode (syndrome=" << syndrome << ")" << endl;
             }
             else if (method_str == "RandomLinear")
             {
@@ -148,8 +144,6 @@ int main(int argc, char *argv[])
                 int minHD = result["randlin_minHD"].as<int>();
                 int num_candidates = result["randlin_candidates"].as<int>();
                 params.constraints = make_unique<RandomLinearConstraints>(minHD, num_candidates);
-                cout << "Using Generation Method: RandomLinear (minHD=" << minHD << ", candidates=" << num_candidates
-                     << ")" << endl;
             }
             else
             {
@@ -157,6 +151,8 @@ int main(int argc, char *argv[])
                 cout << options.help() << endl;
                 return 1;
             }
+            std::unique_ptr<CandidateGenerator> generator = CreateGenerator(params);
+            generator->printInfo(cout);
 
             // --- Execution Loop ---
             int start_len = result["lenStart"].as<int>();

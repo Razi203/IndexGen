@@ -13,12 +13,12 @@
 #ifndef UTILS_HPP_
 #define UTILS_HPP_
 
+#include "IndexGen.hpp"
+#include <atomic>
+#include <chrono>
+#include <random>
 #include <string>
 #include <vector>
-#include <atomic>
-#include <random>
-#include <chrono>
-#include "IndexGen.hpp"
 
 using namespace std;
 
@@ -65,7 +65,7 @@ bool FastEditDistance(const string &source, const string &target, const int minE
  * @return `true` if the distance is likely >= `minED`, `false` otherwise.
  */
 bool FastEditDistance0123(const string &X, const string &Y, const int minED, const vector<char> &contx,
-						  const vector<char> &conty);
+                          const vector<char> &conty);
 
 /**
  * @brief Calculates edit distance for searching, returning -1 if it exceeds a threshold.
@@ -89,7 +89,7 @@ int FastEditDistanceForSearch(const string &source, const string &target, const 
  * @return The edit distance if less than `minED`, otherwise -1.
  */
 int FastEditDistance0123ForSearch(const string &X, const string &Y, const int minED, const vector<char> &contx,
-								  const vector<char> &conty);
+                                  const vector<char> &conty);
 
 /**
  * @brief Calculates the Hamming distance between two strings of equal length.
@@ -194,13 +194,6 @@ int MulF4(const int a, const int b);
  */
 string VecToStr(const vector<int> &vec);
 
-/**
- * @brief Converts a GenerationMethod enum to a human-readable string.
- * @param method The enum value to convert.
- * @return A string representation of the method.
- */
-std::string GenerationMethodToString(GenerationMethod method);
-
 // =================================================================================
 // SECTION: CONSOLE PRINTING
 // =================================================================================
@@ -231,9 +224,9 @@ void PrintTestResults(const int candidateNum, const long long int matrixOnesNum,
  * @param matrixOnesNum The number of ones in the generation matrix.
  */
 void ToFile(const vector<string> &codeWords, const Params &params, const int candidateNum,
-			const long long int matrixOnesNum, const chrono::duration<double> &candidatesTime,
-			const chrono::duration<double> &fillAdjListTime, const chrono::duration<double> &processMatrixTime,
-			const chrono::duration<double> &overAllTime);
+            const long long int matrixOnesNum, const chrono::duration<double> &candidatesTime,
+            const chrono::duration<double> &fillAdjListTime, const chrono::duration<double> &processMatrixTime,
+            const chrono::duration<double> &overAllTime);
 
 /**
  * @brief Serializes a `Params` struct to a file.

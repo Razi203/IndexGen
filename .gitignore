@@ -2,8 +2,6 @@
 *.o
 build/*
 IndexGen
-Temp
-Temp/*
-TEMP
-TEMP/*
-Testing
+Temp/
+TEMP/
+Test/

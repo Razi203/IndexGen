@@ -4,6 +4,7 @@
  */
 
 #include "Candidates.hpp"
+#include "CandidateGenerator.hpp"
 #include "Candidates/DifferentialVTCodes.hpp"
 #include "Candidates/LinearCodes.hpp"
 #include "Candidates/RandomLinear.hpp"
@@ -177,103 +178,14 @@ void FilterGCMaxRun(const vector<string> &strs, vector<string> &filteredStrs, co
 // See Candidates.hpp for function documentation.
 std::vector<std::string> Candidates(const Params &params)
 {
-    std::vector<std::string> unfiltered, filtered;
+    // Step 1: Create the appropriate generator using the factory function
+    std::unique_ptr<CandidateGenerator> generator = CreateGenerator(params);
 
-    // Step 1: Generate the initial set of strings based on the chosen method.
-    // This part is refactored to use the new polymorphic structure.
-    if (!params.constraints)
-    {
-        throw std::runtime_error("Cannot generate candidates: constraints object is null.");
-    }
+    // Step 2: Generate candidates
+    std::vector<std::string> unfiltered = generator->generate();
 
-    switch (params.method)
-    {
-    case GenerationMethod::LINEAR_CODE:
-    {
-        auto *constraints = dynamic_cast<LinearCodeConstraints *>(params.constraints.get());
-        if (!constraints)
-        {
-            throw std::runtime_error("Invalid constraints provided for LINEAR_CODE method.");
-        }
-        unfiltered = GenAllCodeStrings(params.codeLen, constraints->candMinHD);
-        break;
-    }
-
-    case GenerationMethod::RANDOM:
-    {
-        auto *constraints = dynamic_cast<RandomConstraints *>(params.constraints.get());
-        if (!constraints)
-        {
-            throw std::runtime_error("Invalid constraints provided for RANDOM method.");
-        }
-        unfiltered = GenerateRandomCandidates(params.codeLen, constraints->num_candidates, params.threadNum);
-        break;
-    }
-
-    case GenerationMethod::ALL_STRINGS:
-    {
-        unfiltered = GenAllStrings(params.codeLen);
-        break;
-    }
-
-    case GenerationMethod::VT_CODE:
-    {
-        auto *constraints = dynamic_cast<VTCodeConstraints *>(params.constraints.get());
-        unfiltered = GenerateVTCodes(params.codeLen, constraints->a, constraints->b, params.threadNum);
-        break;
-    }
-
-    case GenerationMethod::DIFFERENTIAL_VT_CODE:
-    {
-        auto *constraints = dynamic_cast<DifferentialVTCodeConstraints *>(params.constraints.get());
-        if (!constraints)
-        {
-            throw std::runtime_error("Invalid constraints provided for DIFFERENTIAL_VT_CODE method.");
-        }
-        unfiltered = GenerateDifferentialVTCodes(params.codeLen, constraints->syndrome, params.threadNum);
-        break;
-    }
-
-    case GenerationMethod::RANDOM_LINEAR:
-    {
-        auto *constraints = dynamic_cast<RandomLinearConstraints *>(params.constraints.get());
-        if (!constraints)
-        {
-            throw std::runtime_error("Invalid constraints provided for RANDOM_LINEAR method.");
-        }
-        unfiltered =
-            GenerateRandomLinearCandidates(params.codeLen, constraints->candMinHD, constraints->num_candidates);
-        break;
-    }
-
-    default:
-    {
-        throw std::runtime_error("Unknown or unsupported candidate generation method.");
-    }
-    }
-
-    // Step 2: Apply the specified filters.
-    // This entire section remains UNCHANGED because maxRun and GCCont are still in the main Params struct.
-    bool useMaxRunFilter = (params.maxRun > 0);
-    bool useGCFilter = (params.minGCCont > 0 || params.maxGCCont > 0);
-
-    if (useMaxRunFilter && useGCFilter)
-    {
-        FilterGCMaxRun(unfiltered, filtered, params);
-    }
-    else if (useMaxRunFilter)
-    {
-        FilterMaxRun(unfiltered, filtered, params);
-    }
-    else if (useGCFilter)
-    {
-        FilterGC(unfiltered, filtered, params);
-    }
-    else
-    {
-        NoFilter(unfiltered, filtered, params); // No filters applied.
-    }
-    return filtered;
+    // Step 3: Apply filters and return
+    return generator->applyFilters(unfiltered);
 }
 
 // See Candidates.hpp for function documentation.

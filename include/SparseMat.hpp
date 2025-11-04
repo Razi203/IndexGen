@@ -68,6 +68,12 @@ public:
     int MinSumRow() const;
 
     /**
+     * @brief Finds and returns the index of a node with the current maximum degree.
+     * @return The integer index of a row/node with the maximum sum. Asserts if the graph is empty.
+     */
+    int MaxSumRow() const;
+
+    /**
      * @brief Updates `rowsBySum` by moving a row from its current degree-group to the next lower one.
      * @param currentSum The current degree of the row.
      * @param row The index of the row whose degree has decreased.
@@ -130,6 +136,15 @@ public:
      * @return The index of the minimum-degree node that was chosen and removed.
      */
     int FindMinDel(std::unordered_set<int> &remaining, double &minSumRowTime, double &delBallTime);
+
+    /**
+     * @brief Finds the maximum-degree node and removes only that node (not its neighbors).
+     * @param remaining A set of remaining candidate indices, updated by removing the max node.
+     * @param maxSumRowTime A double to accumulate the total seconds spent in finding the max sum row.
+     * @param delRowColTime A double to accumulate the total seconds spent in `DelRowCol`.
+     * @return The index of the maximum-degree node that was chosen and removed.
+     */
+    int FindMaxDel(std::unordered_set<int> &remaining, double &maxSumRowTime, double &delRowColTime);
 
     /**
      * @brief Serializes the adjacency list to a file.

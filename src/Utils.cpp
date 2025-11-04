@@ -1,5 +1,7 @@
 #include "Utils.hpp"
+#include "CandidateGenerator.hpp"
 #include "Candidates/LinearCodes.hpp"
+#include "EditDistance.hpp"
 #include <cassert>
 #include <fstream>
 #include <iomanip>
@@ -182,9 +184,12 @@ void VerifyDistT(const vector<string> &vecs, const int minED, const int threadId
 {
     for (unsigned i = threadIdx; i < vecs.size(); i += threadNum)
     {
+        PatternHandle handle = MakePattern(vecs[i]);
         for (unsigned j = i + 1; j < vecs.size(); j++)
         {
-            int ED = FastEditDistance(vecs[i], vecs[j]);
+            // TODO: Updated this to new distance calc
+            // int ED = FastEditDistance(vecs[i], vecs[j]);
+            int ED = EditDistanceBanded(vecs[j], handle, minED - 1);
             if (ED < minED)
             {
                 success = false;
@@ -221,6 +226,7 @@ void PrintParamsToFile(std::ofstream &out, const int candidateNum, const int cod
                        const std::chrono::duration<double> &processMatrixTime,
                        const std::chrono::duration<double> &overallTime)
 {
+
     // Using std::endl for consistency
     out << "--- Global Parameters ---" << std::endl;
     out << "Code Length:\t\t\t" << params.codeLen << std::endl;
@@ -235,91 +241,34 @@ void PrintParamsToFile(std::ofstream &out, const int candidateNum, const int cod
     out << std::endl;
 
     // --- Generation Method & Specifics ---
-    out << "--- Generation Configuration ---" << std::endl;
-    out << "Generation Method:\t\t" << GenerationMethodToString(params.method) << std::endl;
-
-    if (!params.constraints)
+    try
     {
-        out << "Error: Generation constraints were not set." << std::endl;
+        std::unique_ptr<CandidateGenerator> generator = CreateGenerator(params);
+        generator->printInfo(out);
     }
-    else
+    catch (const std::exception &e)
     {
-        switch (params.method)
-        {
-        case GenerationMethod::LINEAR_CODE:
-        {
-            auto *constraints = dynamic_cast<LinearCodeConstraints *>(params.constraints.get());
-            if (constraints)
-            {
-                out << "Min Candidate Hamming Distance:\t" << constraints->candMinHD << std::endl;
-            }
-            break;
-        }
-        case GenerationMethod::VT_CODE:
-        {
-            auto *constraints = dynamic_cast<VTCodeConstraints *>(params.constraints.get());
-            if (constraints)
-            {
-                out << "VT Code parameter a:\t\t" << constraints->a << std::endl;
-                out << "VT Code parameter b:\t\t" << constraints->b << std::endl;
-            }
-            break;
-        }
-        case GenerationMethod::RANDOM:
-        {
-            auto *constraints = dynamic_cast<RandomConstraints *>(params.constraints.get());
-            if (constraints)
-            {
-                out << "Number of Random Candidates:\t" << constraints->num_candidates << std::endl;
-            }
-            break;
-        }
-        case GenerationMethod::ALL_STRINGS:
-        {
-            // No specific parameters to log for this method
-            break;
-        }
-        case GenerationMethod::DIFFERENTIAL_VT_CODE:
-        {
-            auto *constraints = dynamic_cast<DifferentialVTCodeConstraints *>(params.constraints.get());
-            if (constraints)
-            {
-                out << "Differential VT Code syndrome:\t" << constraints->syndrome << std::endl;
-            }
-            break;
-        }
-        case GenerationMethod::RANDOM_LINEAR:
-        {
-            auto *constraints = dynamic_cast<RandomLinearConstraints *>(params.constraints.get());
-            if (constraints)
-            {
-                out << "Min Candidate Hamming Distance:\t" << constraints->candMinHD << std::endl;
-                out << "Number of Random Candidates:\t" << constraints->num_candidates << std::endl;
-            }
-            break;
-        }
-        }
-
-        out << std::endl;
-        out << "--- Results Summary ---" << std::endl;
-        out << "Number of Candidates:\t\t" << candidateNum << std::endl;
-        out << "Number of Ones in Matrix:\t" << matrixOnesNum << std::endl;
-        out << "Number of Code Words:\t\t" << codeSize << std::endl;
-
-        out << std::endl;
-        out << "--- Performance Metrics ---" << std::endl;
-        out << "Number of Threads:\t\t" << params.threadNum << std::endl;
-        out << "Candidate Generation Time:\t" << fixed << setprecision(2) << candidatesTime.count() << "\tseconds"
-            << std::endl;
-        out << "Fill Adjacency List Time:\t" << fixed << setprecision(2) << fillAdjListTime.count() << "\tseconds"
-            << std::endl;
-        out << "Process Matrix Time:\t\t" << fixed << setprecision(2) << processMatrixTime.count() << "\tseconds"
-            << std::endl;
-        out << "Overall Execution Time:\t\t" << fixed << setprecision(2) << overallTime.count() << "\tseconds"
-            << std::endl;
-
-        out << "=========================================== " << std::endl;
+        out << "Error creating generator: " << e.what() << endl;
     }
+
+    out << std::endl;
+    out << "--- Results Summary ---" << std::endl;
+    out << "Number of Candidates:\t\t" << candidateNum << std::endl;
+    out << "Number of Ones in Matrix:\t" << matrixOnesNum << std::endl;
+    out << "Number of Code Words:\t\t" << codeSize << std::endl;
+
+    out << std::endl;
+    out << "--- Performance Metrics ---" << std::endl;
+    out << "Number of Threads:\t\t" << params.threadNum << std::endl;
+    out << "Candidate Generation Time:\t" << fixed << setprecision(2) << candidatesTime.count() << "\tseconds"
+        << std::endl;
+    out << "Fill Adjacency List Time:\t" << fixed << setprecision(2) << fillAdjListTime.count() << "\tseconds"
+        << std::endl;
+    out << "Process Matrix Time:\t\t" << fixed << setprecision(2) << processMatrixTime.count() << "\tseconds"
+        << std::endl;
+    out << "Overall Execution Time:\t\t" << fixed << setprecision(2) << overallTime.count() << "\tseconds" << std::endl;
+
+    out << "=========================================== " << std::endl;
 }
 
 string FileName(const int codeLen, const int codeSize, const int minED)
@@ -610,27 +559,6 @@ void TestDecode(const int codeLen, const vector<vector<int>> &H, int maxCodeLen,
     cout << "Decode Test SUCCESS\n";
 }
 
-std::string GenerationMethodToString(GenerationMethod method)
-{
-    switch (method)
-    {
-    case GenerationMethod::LINEAR_CODE:
-        return "Linear Code";
-    case GenerationMethod::VT_CODE:
-        return "Varshamov-Tenengolts Code";
-    case GenerationMethod::RANDOM:
-        return "Random Candidates";
-    case GenerationMethod::ALL_STRINGS:
-        return "All Strings (Brute-Force)";
-    case GenerationMethod::DIFFERENTIAL_VT_CODE:
-        return "Differential Varshamov-Tenengolts Code";
-    case GenerationMethod::RANDOM_LINEAR:
-        return "Random Linear Code";
-    default:
-        return "Unknown";
-    }
-}
-
 void PrintTestParams(const Params &params)
 {
     using std::cout;
@@ -643,78 +571,18 @@ void PrintTestParams(const Params &params)
     cout << "Max Homopolymer Run:\t\t" << params.maxRun << endl;
     cout << "Min GC Content:\t\t\t" << params.minGCCont << endl;
     cout << "Max GC Content:\t\t\t" << params.maxGCCont << endl;
-
-    cout << "\n--- Generation Method ---" << endl;
-    cout << "Method:\t\t\t\t" << GenerationMethodToString(params.method) << endl;
-
-    // --- Print Method-Specific Parameters ---
-    if (!params.constraints)
+    cout << endl;
+    // --- Use the generator's printInfo() method ---
+    try
     {
-        cout << "Error: Generation constraints are not set." << endl;
-        return;
+        std::unique_ptr<CandidateGenerator> generator = CreateGenerator(params);
+        generator->printInfo(cout);
     }
-
-    switch (params.method)
+    catch (const std::exception &e)
     {
-    case GenerationMethod::LINEAR_CODE:
-    {
-        // Safely cast the base pointer to the specific derived type
-        auto *constraints = dynamic_cast<LinearCodeConstraints *>(params.constraints.get());
-        if (constraints)
-        {
-            cout << "Min Candidate Hamming Distance:\t" << constraints->candMinHD << endl;
-        }
-        break;
+        cout << "Error creating generator: " << e.what() << endl;
     }
-    case GenerationMethod::VT_CODE:
-    {
-        auto *constraints = dynamic_cast<VTCodeConstraints *>(params.constraints.get());
-        if (constraints)
-        {
-            cout << "VT Code parameter a:\t\t" << constraints->a << endl;
-            cout << "VT Code parameter b:\t\t" << constraints->b << endl;
-        }
-        break;
-    }
-    case GenerationMethod::RANDOM:
-    {
-        auto *constraints = dynamic_cast<RandomConstraints *>(params.constraints.get());
-        if (constraints)
-        {
-            cout << "Number of Random Candidates:\t" << constraints->num_candidates << endl;
-        }
-        break;
-    }
-    case GenerationMethod::ALL_STRINGS:
-    {
-        // No specific parameters to print for this method
-        cout << "No specific parameters for this method." << endl;
-        break;
-    }
-    case GenerationMethod::DIFFERENTIAL_VT_CODE:
-    {
-        auto *constraints = dynamic_cast<DifferentialVTCodeConstraints *>(params.constraints.get());
-        if (constraints)
-        {
-            cout << "Differential VT Code syndrome:\t" << constraints->syndrome << endl;
-        }
-        break;
-    }
-    case GenerationMethod::RANDOM_LINEAR:
-    {
-        auto *constraints = dynamic_cast<RandomLinearConstraints *>(params.constraints.get());
-        if (constraints)
-        {
-            cout << "Min Candidate Hamming Distance:\t" << constraints->candMinHD << endl;
-            cout << "Number of Random Candidates:\t" << constraints->num_candidates << endl;
-        }
-        break;
-    }
-    default:
-    {
-        cout << "Cannot print parameters for unknown generation method." << endl;
-    }
-    }
+    cout << endl;
 }
 
 void PrintTestResults(const int candidateNum, const long long int matrixOnesNum, const int codewordsNum)
@@ -742,71 +610,16 @@ void ParamsToFile(const Params &params, const std::string &fileName)
     // 2. Write the generation method type identifier (as an integer)
     output_file << static_cast<int>(params.method) << '\n';
 
-    // 3. Write the method-specific parameters
-    if (!params.constraints)
+    // 3. Write the method-specific parameters using the generator's printParams method
+    try
     {
-        throw std::runtime_error("Cannot save Params: constraints object is null.");
+        std::unique_ptr<CandidateGenerator> generator = CreateGenerator(params);
+        generator->printParams(output_file);
     }
-
-    switch (params.method)
+    catch (const std::exception &e)
     {
-    case GenerationMethod::LINEAR_CODE:
-    {
-        auto *constraints = dynamic_cast<LinearCodeConstraints *>(params.constraints.get());
-        if (constraints)
-        {
-            output_file << constraints->candMinHD << '\n';
-        }
-        break;
-    }
-    case GenerationMethod::VT_CODE:
-    {
-        auto *constraints = dynamic_cast<VTCodeConstraints *>(params.constraints.get());
-        if (constraints)
-        {
-            output_file << constraints->a << '\n';
-            output_file << constraints->b << '\n';
-        }
-        break;
-    }
-    case GenerationMethod::RANDOM:
-    {
-        auto *constraints = dynamic_cast<RandomConstraints *>(params.constraints.get());
-        if (constraints)
-        {
-            output_file << constraints->num_candidates << '\n';
-        }
-        break;
-    }
-    case GenerationMethod::ALL_STRINGS:
-    {
-        // This method has no specific parameters to save
-        break;
-    }
-    case GenerationMethod::DIFFERENTIAL_VT_CODE:
-    {
-        auto *constraints = dynamic_cast<DifferentialVTCodeConstraints *>(params.constraints.get());
-        if (constraints)
-        {
-            output_file << constraints->syndrome << '\n';
-        }
-        break;
-    }
-    case GenerationMethod::RANDOM_LINEAR:
-    {
-        auto *constraints = dynamic_cast<RandomLinearConstraints *>(params.constraints.get());
-        if (constraints)
-        {
-            output_file << constraints->candMinHD << '\n';
-            output_file << constraints->num_candidates << '\n';
-        }
-        break;
-    }
-    default:
-    {
-        // Handle unknown types to make your code more robust
-        throw std::runtime_error("Unknown generation method during serialization.");
-    }
+        output_file.close();
+        throw std::runtime_error(std::string("Error writing parameters: ") + e.what());
     }
 
     output_file.close();
@@ -832,55 +645,42 @@ void FileToParams(Params &params, const std::string &fileName)
     input_file >> method_type_int;
     params.method = static_cast<GenerationMethod>(method_type_int);
 
-    // 3. Based on the method, read specific data and create the correct constraints object
-    switch (params.method)
+    // 3. Create default constraints based on method type, then use generator's readParams
+    try
     {
-    case GenerationMethod::LINEAR_CODE:
-    {
-        int min_hd;
-        input_file >> min_hd;
-        params.constraints = std::make_unique<LinearCodeConstraints>(min_hd);
-        break;
+        // First create empty constraints based on the method type
+        switch (params.method)
+        {
+        case GenerationMethod::LINEAR_CODE:
+            params.constraints = std::make_unique<LinearCodeConstraints>();
+            break;
+        case GenerationMethod::VT_CODE:
+            params.constraints = std::make_unique<VTCodeConstraints>();
+            break;
+        case GenerationMethod::RANDOM:
+            params.constraints = std::make_unique<RandomConstraints>();
+            break;
+        case GenerationMethod::ALL_STRINGS:
+            params.constraints = std::make_unique<AllStringsConstraints>();
+            break;
+        case GenerationMethod::DIFFERENTIAL_VT_CODE:
+            params.constraints = std::make_unique<DifferentialVTCodeConstraints>();
+            break;
+        case GenerationMethod::RANDOM_LINEAR:
+            params.constraints = std::make_unique<RandomLinearConstraints>();
+            break;
+        default:
+            throw std::runtime_error("Unknown generation method type found in file.");
+        }
+
+        // Create generator and use its readParams method to populate constraints
+        std::unique_ptr<CandidateGenerator> generator = CreateGenerator(params);
+        generator->readParams(input_file, params.constraints.get());
     }
-    case GenerationMethod::VT_CODE:
+    catch (const std::exception &e)
     {
-        int a, b;
-        input_file >> a;
-        input_file >> b;
-        params.constraints = std::make_unique<VTCodeConstraints>(a, b);
-        break;
-    }
-    case GenerationMethod::RANDOM:
-    {
-        int num_candidates;
-        input_file >> num_candidates;
-        params.constraints = std::make_unique<RandomConstraints>(num_candidates);
-        break;
-    }
-    case GenerationMethod::ALL_STRINGS:
-    {
-        params.constraints = std::make_unique<AllStringsConstraints>();
-        break;
-    }
-    case GenerationMethod::DIFFERENTIAL_VT_CODE:
-    {
-        int syndrome;
-        input_file >> syndrome;
-        params.constraints = std::make_unique<DifferentialVTCodeConstraints>(syndrome);
-        break;
-    }
-    case GenerationMethod::RANDOM_LINEAR:
-    {
-        int min_hd, num_candidates;
-        input_file >> min_hd;
-        input_file >> num_candidates;
-        params.constraints = std::make_unique<RandomLinearConstraints>(min_hd, num_candidates);
-        break;
-    }
-    default:
-    {
-        throw std::runtime_error("Unknown generation method type found in file.");
-    }
+        input_file.close();
+        throw std::runtime_error(std::string("Error reading parameters: ") + e.what());
     }
 
     input_file.close();

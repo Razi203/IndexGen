@@ -278,44 +278,44 @@ inline int GKRHyyroSingleWordBand(const std::string &text, const PatternHandle &
     return (score <= k ? score : k + 1);
 }
 
-// Reference edit distance
-inline int FastEditDistance(const std::string &source, const std::string &target)
-{
-    if (source.size() > target.size())
-    {
-        return FastEditDistance(target, source);
-    }
+// // Reference edit distance
+// inline int FastEditDistance(const std::string &source, const std::string &target)
+// {
+//     if (source.size() > target.size())
+//     {
+//         return FastEditDistance(target, source);
+//     }
 
-    const int min_size = source.size(), max_size = target.size();
-    std::vector<int> lev_dist(min_size + 1);
+//     const int min_size = source.size(), max_size = target.size();
+//     std::vector<int> lev_dist(min_size + 1);
 
-    for (int i = 0; i <= min_size; ++i)
-    {
-        lev_dist[i] = i;
-    }
+//     for (int i = 0; i <= min_size; ++i)
+//     {
+//         lev_dist[i] = i;
+//     }
 
-    for (int j = 1; j <= max_size; ++j)
-    {
-        int previous_diagonal = lev_dist[0], previous_diagonal_save;
-        ++lev_dist[0];
+//     for (int j = 1; j <= max_size; ++j)
+//     {
+//         int previous_diagonal = lev_dist[0], previous_diagonal_save;
+//         ++lev_dist[0];
 
-        for (int i = 1; i <= min_size; ++i)
-        {
-            previous_diagonal_save = lev_dist[i];
-            if (source[i - 1] == target[j - 1])
-            {
-                lev_dist[i] = previous_diagonal;
-            }
-            else
-            {
-                lev_dist[i] = std::min(std::min(lev_dist[i - 1], lev_dist[i]), previous_diagonal) + 1;
-            }
-            previous_diagonal = previous_diagonal_save;
-        }
-    }
+//         for (int i = 1; i <= min_size; ++i)
+//         {
+//             previous_diagonal_save = lev_dist[i];
+//             if (source[i - 1] == target[j - 1])
+//             {
+//                 lev_dist[i] = previous_diagonal;
+//             }
+//             else
+//             {
+//                 lev_dist[i] = std::min(std::min(lev_dist[i - 1], lev_dist[i]), previous_diagonal) + 1;
+//             }
+//             previous_diagonal = previous_diagonal_save;
+//         }
+//     }
 
-    return lev_dist[min_size];
-}
+//     return lev_dist[min_size];
+// }
 
 // -------------------- Convenience wrappers --------------------
 inline PatternHandle MakePattern(const std::string &p)
@@ -359,14 +359,14 @@ inline int EditDistanceExact(const std::string &a, const std::string &b)
     return (H.m <= 64) ? MyersSingleWord(H, *txt) : MyersMultiWord(H, *txt);
 }
 
-inline bool EditDistanceExactAtLeast(const std::string &a, const std::string &b, int minED)
-{
-    int ed = EditDistanceExact(a, b);
-    return ed >= minED;
-}
-
 inline bool EditDistanceExactAtLeast(const std::string &text, const PatternHandle &H, int minED)
 {
     int ed = EditDistanceExact(text, H);
+    return ed >= minED;
+}
+
+inline bool EditDistanceBandedAtLeast(const std::string &text, const PatternHandle &H, int minED)
+{
+    int ed = EditDistanceBanded(text, H, minED - 1); // compute up to minED - 1
     return ed >= minED;
 }

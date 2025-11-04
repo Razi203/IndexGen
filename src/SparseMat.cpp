@@ -38,6 +38,14 @@ int AdjList::MinSumRow() const
     return *(minSumSet.begin());
 }
 
+int AdjList::MaxSumRow() const
+{
+    assert(not rowsBySum.empty());
+    const unordered_set<int> &maxSumSet = rowsBySum.rbegin()->second;
+    assert(not maxSumSet.empty());
+    return *(maxSumSet.begin());
+}
+
 void AdjList::DeleteRow(const int currentSum, const int row)
 {
     map<int, unordered_set<int>>::iterator currSumIt = rowsBySum.find(currentSum);
@@ -119,6 +127,22 @@ int AdjList::FindMinDel(unordered_set<int> &remaining, double &minSumRowTime, do
     delBallTime += chrono::duration<double>(db_end - db_start).count();
 
     return minSumRow;
+}
+
+int AdjList::FindMaxDel(unordered_set<int> &remaining, double &maxSumRowTime, double &delRowColTime)
+{
+    auto msr_start = chrono::steady_clock::now();
+    int maxSumRow = MaxSumRow();
+    auto msr_end = chrono::steady_clock::now();
+    maxSumRowTime += chrono::duration<double>(msr_end - msr_start).count();
+
+    auto drc_start = chrono::steady_clock::now();
+    DelRowCol(maxSumRow);
+    remaining.erase(maxSumRow);
+    auto drc_end = chrono::steady_clock::now();
+    delRowColTime += chrono::duration<double>(drc_end - drc_start).count();
+
+    return maxSumRow;
 }
 
 void AdjList::ToFile(const string &filename) const
@@ -230,7 +254,8 @@ void FillAdjListTH(vector<pair<int, int>> &pairVec, const vector<string> &candid
         {
             bool EDIsAtLeastMinED =
                 // FastEditDistance0123(candidates[i], candidates[j], minED, cand0123Cont[i], cand0123Cont[j]);
-                EditDistanceExactAtLeast(candidates[j], H, minED);
+                // EditDistanceExactAtLeast(candidates[j], H, minED);
+                EditDistanceBandedAtLeast(candidates[j], H, minED);
             if (!EDIsAtLeastMinED)
             {
                 pairVec.push_back(make_pair(i, j));
@@ -378,8 +403,14 @@ void Codebook(AdjList &adjList, vector<string> &codebook, const vector<string> &
 
     while (not adjList.empty())
     {
-        int minEntry = adjList.FindMinDel(remaining, minSumRowTime, delBallTime);
-        codebook.push_back(candidates[minEntry]);
+        // TODO: Replace with OOP design
+        // Uncomment the method for which to filter the candidates
+        // // Choose min sum row and delete its ball
+        // int minEntry = adjList.FindMinDel(remaining, minSumRowTime, delBallTime);
+        // codebook.push_back(candidates[minEntry]);
+
+        // Remove max sum row candidate without adding to codebook
+        adjList.FindMaxDel(remaining, minSumRowTime, delBallTime);
 
         auto currentTime = chrono::steady_clock::now();
         chrono::duration<double> elapsed_seconds = currentTime - lastSaveTime;
@@ -395,6 +426,7 @@ void Codebook(AdjList &adjList, vector<string> &codebook, const vector<string> &
     cout << "Find Min Sum Row Time:\t" << fixed << setprecision(2) << minSumRowTime << "\tseconds" << endl;
     cout << "Del Ball Time:\t\t" << fixed << setprecision(2) << delBallTime << "\tseconds" << endl;
 
+    // Once adjList is empty (no edges left), add all remaining vertices to codebook
     for (int num : remaining)
     {
         codebook.push_back(candidates[num]);
@@ -479,7 +511,8 @@ void GenerateCodebookAdj(const Params &params)
     std::chrono::duration<double> overAllTime = end - start;
     ToFile(codebook, params, candidateNum, matrixOnesNum, elapsed_secs_candidates, fillAdjListTime, processMatrixTime,
            overAllTime);
-    // VerifyDist(codebook, params.codeMinED, params.threadNum);
+    // TODO: Replace with if (flag) do
+    VerifyDist(codebook, params.codeMinED, params.threadNum);
     cout << "=====================================================" << endl;
     remove("progress_params.txt");
     remove("progress_cand.txt");
