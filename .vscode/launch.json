@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": false,
-      "cwd": "/home_nfs/razi.hleihil/IndexGen",
-      "program": "/home_nfs/razi.hleihil/IndexGen/build/Debug/outDebug",
+      "cwd": "/home_nfs/razi.hleihil/IndexGen/src",
+      "program": "/home_nfs/razi.hleihil/IndexGen/src/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [

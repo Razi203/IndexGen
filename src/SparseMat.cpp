@@ -65,6 +65,25 @@ void AdjList::DecreaseSum(const int currentSum, const int row)
     rowsBySum[currentSum - 1].insert(row);
 }
 
+// Helper function to remove empty rows (no edges left)
+// @return number of rows removed
+// TODO: check if implemented correctly (should be)
+int AdjList::RemoveEmptyRows()
+{
+    int removedRowsNum = 0;
+    map<int, unordered_set<int>>::iterator rowIt = rowsBySum.find(0);
+    if (rowIt != rowsBySum.end())
+    {
+        removedRowsNum = rowIt->second.size();
+        for (int row : rowIt->second)
+        {
+            m.erase(row);
+        }
+        rowsBySum.erase(rowIt);
+    }
+    return removedRowsNum;
+}
+
 bool AdjList::empty() const
 {
     return m.empty();
@@ -142,6 +161,8 @@ int AdjList::FindMaxDel(unordered_set<int> &remaining, double &maxSumRowTime, do
     auto drc_end = chrono::steady_clock::now();
     delRowColTime += chrono::duration<double>(drc_end - drc_start).count();
 
+    RemoveEmptyRows();
+
     return maxSumRow;
 }
 
@@ -151,7 +172,7 @@ void AdjList::ToFile(const string &filename) const
     output.open(filename.c_str());
     if (!output.is_open())
     {
-        cout << "Failed opening output file!" << endl;
+        std::cout << "Failed opening output file!" << endl;
         return;
     }
     for (const pair<const int, unordered_set<int>> &numSetPr : m)
@@ -170,7 +191,7 @@ void AdjList::FromFile(const string &filename)
     input.open(filename.c_str());
     if (!input.is_open())
     {
-        cout << "Failed opening input file!" << endl;
+        std::cout << "Failed opening input file!" << endl;
         return;
     }
     int a, b;
@@ -189,7 +210,7 @@ void PairsToFile(const string &filename, const vector<pair<int, int>> &vec)
     output.open(filename.c_str());
     if (!output.is_open())
     {
-        cout << "Failed opening output file!" << endl;
+        std::cout << "Failed opening output file!" << endl;
         return;
     }
     for (const pair<int, int> &pr : vec)
@@ -205,7 +226,7 @@ void PairsFromFile(const string &filename, vector<pair<int, int>> &vec)
     input.open(filename.c_str());
     if (!input.is_open())
     {
-        cout << "Failed opening input file!" << endl;
+        std::cout << "Failed opening input file!" << endl;
         return;
     }
     int a, b;
@@ -267,7 +288,7 @@ void FillAdjListTH(vector<pair<int, int>> &pairVec, const vector<string> &candid
         {
             SaveProgressAdjListComp(i, pairVec, threadIdx);
             lastSaveTime = currentTime;
-            cout << "Adj List Comp PROGRESS: i=" << i << " of " << candNum << "\tthreadId\t" << threadIdx << endl;
+            std::cout << "Adj List Comp PROGRESS: i=" << i << " of " << candNum << "\tthreadId\t" << threadIdx << endl;
         }
     }
 }
@@ -334,7 +355,7 @@ void USetIntToFile(const unordered_set<int> &uSet, const string &filename)
     output.open(filename.c_str());
     if (!output.is_open())
     {
-        cout << "Failed opening output file!" << endl;
+        std::cout << "Failed opening output file!" << std::endl;
         return;
     }
     for (const int &num : uSet)
@@ -350,7 +371,7 @@ void USetIntFromFile(unordered_set<int> &uSet, const string &filename)
     input.open(filename.c_str());
     if (!input.is_open())
     {
-        cout << "Failed opening input file!" << endl;
+        std::cout << "Failed opening input file!" << std::endl;
         return;
     }
     int a;
@@ -405,11 +426,12 @@ void Codebook(AdjList &adjList, vector<string> &codebook, const vector<string> &
     {
         // TODO: Replace with OOP design
         // Uncomment the method for which to filter the candidates
-        // // Choose min sum row and delete its ball
+
+        // // (1) Choose min sum row and delete its ball
         // int minEntry = adjList.FindMinDel(remaining, minSumRowTime, delBallTime);
         // codebook.push_back(candidates[minEntry]);
 
-        // Remove max sum row candidate without adding to codebook
+        // (2) Remove max sum row candidate without adding to codebook
         adjList.FindMaxDel(remaining, minSumRowTime, delBallTime);
 
         auto currentTime = chrono::steady_clock::now();
@@ -419,12 +441,12 @@ void Codebook(AdjList &adjList, vector<string> &codebook, const vector<string> &
         {
             SaveProgressCodebook(remaining, adjList, codebook);
             lastSaveTime = currentTime;
-            cout << "Codebook PROGRESS: Remaining Rows " << adjList.RowNum() << endl;
+            std::cout << "Codebook PROGRESS: Remaining Rows " << adjList.RowNum() << std::endl;
         }
     }
 
-    cout << "Find Min Sum Row Time:\t" << fixed << setprecision(2) << minSumRowTime << "\tseconds" << endl;
-    cout << "Del Ball Time:\t\t" << fixed << setprecision(2) << delBallTime << "\tseconds" << endl;
+    std::cout << "Find Min Sum Row Time:\t" << fixed << setprecision(2) << minSumRowTime << "\tseconds" << std::endl;
+    std::cout << "Del Ball Time:\t\t" << fixed << setprecision(2) << delBallTime << "\tseconds" << std::endl;
 
     // Once adjList is empty (no edges left), add all remaining vertices to codebook
     for (int num : remaining)
@@ -445,7 +467,7 @@ void CodebookAdjList(const vector<string> &candidates, vector<string> &codebook,
     FillAdjList(adjList, candidates, minED, threadNum, saveInterval, false, matrixOnesNum);
     auto enda = chrono::steady_clock::now();
     fillAdjListTime = enda - starta;
-    cout << "Fill AdjList Time:\t" << fixed << setprecision(2) << fillAdjListTime.count() << "\tseconds" << endl;
+    std::cout << "Fill AdjList Time:\t" << fixed << setprecision(2) << fillAdjListTime.count() << "\tseconds" << endl;
 
     NumToFile(2, "progress_stage.txt");
     LongLongIntToFile(matrixOnesNum, "matrix_ones_num.txt");
@@ -454,7 +476,8 @@ void CodebookAdjList(const vector<string> &candidates, vector<string> &codebook,
     Codebook(adjList, codebook, candidates, saveInterval, false);
     auto endc = chrono::steady_clock::now();
     processMatrixTime = endc - startc;
-    cout << "Process Matrix Time:\t" << fixed << setprecision(2) << processMatrixTime.count() << "\tseconds" << endl;
+    std::cout << "Process Matrix Time:\t" << fixed << setprecision(2) << processMatrixTime.count() << "\tseconds"
+              << endl;
 
     remove("progress_stage.txt");
     remove("matrix_ones_num.txt");
@@ -468,7 +491,7 @@ void CodebookAdjListResumeFromFile(const vector<string> &candidates, vector<stri
     FileToNum(stage, "progress_stage.txt");
     if (stage == 1)
     {
-        cout << "Resuming adj list comp" << endl;
+        std::cout << "Resuming adj list comp" << endl;
         FillAdjList(adjList, candidates, params.codeMinED, params.threadNum, params.saveInterval, true, matrixOnesNum);
         NumToFile(2, "progress_stage.txt");
         Codebook(adjList, codebook, candidates, params.saveInterval, false);
@@ -476,7 +499,7 @@ void CodebookAdjListResumeFromFile(const vector<string> &candidates, vector<stri
     else
     {
         assert(stage == 2);
-        cout << "Resuming codebook comp" << endl;
+        std::cout << "Resuming codebook comp" << endl;
         FileToLongLongInt(matrixOnesNum, "matrix_ones_num.txt");
         Codebook(adjList, codebook, candidates, params.saveInterval, true);
         remove("matrix_ones_num.txt");
@@ -495,7 +518,8 @@ void GenerateCodebookAdj(const Params &params)
     StrVecToFile(candidates, "progress_cand.txt");
     auto end_candidates = std::chrono::steady_clock::now();
     std::chrono::duration<double> elapsed_secs_candidates = end_candidates - start_candidates;
-    cout << "Candidates Time: " << fixed << setprecision(2) << elapsed_secs_candidates.count() << "\tseconds" << endl;
+    std::cout << "Candidates Time: " << fixed << setprecision(2) << elapsed_secs_candidates.count() << "\tseconds"
+              << std::endl;
 
     std::chrono::duration<double> fillAdjListTime, processMatrixTime;
 
@@ -513,12 +537,12 @@ void GenerateCodebookAdj(const Params &params)
            overAllTime);
     // TODO: Replace with if (flag) do
     VerifyDist(codebook, params.codeMinED, params.threadNum);
-    cout << "=====================================================" << endl;
+    std::cout << "=====================================================" << std::endl;
     remove("progress_params.txt");
     remove("progress_cand.txt");
 
-    cout << "Codebook Time: " << fixed << setprecision(2) << overAllTime.count() << "\tseconds" << endl;
-    cout << "=====================================================" << endl;
+    std::cout << "Codebook Time: " << fixed << setprecision(2) << overAllTime.count() << "\tseconds" << std::endl;
+    std::cout << "=====================================================" << std::endl;
 }
 
 void GenerateCodebookAdjResumeFromFile()
@@ -527,7 +551,7 @@ void GenerateCodebookAdjResumeFromFile()
     {
         Params params;
         FileToParams(params, "progress_params.txt");
-        cout << "Resuming Codebook Adj from file" << endl;
+        std::cout << "Resuming Codebook Adj from file" << std::endl;
         PrintTestParams(params);
         vector<string> candidates;
         FileToStrVec(candidates, "progress_cand.txt");
@@ -539,12 +563,12 @@ void GenerateCodebookAdjResumeFromFile()
         ToFile(codebook, params, candidateNum, matrixOnesNum, chrono::duration<double>::zero(),
                chrono::duration<double>::zero(), chrono::duration<double>::zero(), chrono::duration<double>::zero());
         //		VerifyDist(codebook, params.minED, params.maxCodeLen, params.threadNum);
-        cout << "=====================================================" << endl;
+        std::cout << "=====================================================" << std::endl;
         remove("progress_params.txt");
         remove("progress_cand.txt");
     }
     catch (const ifstream::failure &e)
     {
-        cout << "Read/Write progress files error! Aborted." << endl;
+        std::cout << "Read/Write progress files error! Aborted." << std::endl;
     }
 }

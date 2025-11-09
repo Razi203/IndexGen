@@ -187,8 +187,7 @@ void VerifyDistT(const vector<string> &vecs, const int minED, const int threadId
         PatternHandle handle = MakePattern(vecs[i]);
         for (unsigned j = i + 1; j < vecs.size(); j++)
         {
-            // TODO: Updated this to new distance calc
-            // int ED = FastEditDistance(vecs[i], vecs[j]);
+            // int ED = FastEditDistance(vecs[i], vecs[j]); // Old version
             int ED = EditDistanceBanded(vecs[j], handle, minED - 1);
             if (ED < minED)
             {

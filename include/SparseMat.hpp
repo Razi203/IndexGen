@@ -1,10 +1,13 @@
 /**
  * @file SparseMat.hpp
- * @brief Defines the data structures and algorithms for generating a codebook from candidate strings using a sparse matrix (adjacency list) representation of a conflict graph.
+ * @brief Defines the data structures and algorithms for generating a codebook from candidate strings using a sparse
+ * matrix (adjacency list) representation of a conflict graph.
  *
  * This file's primary purpose is to implement a workflow for DNA sequence codebook generation. The process involves:
- * 1.  Constructing a "conflict graph" where an edge exists between any two candidate strings if their edit distance is below a specified threshold. This graph is represented by the `AdjList` class.
- * 2.  Applying a greedy algorithm to find a maximal independent set of vertices in this graph. This set of vertices corresponds to a "codebook" of strings where every pair satisfies the minimum edit distance constraint.
+ * 1.  Constructing a "conflict graph" where an edge exists between any two candidate strings if their edit distance is
+ * below a specified threshold. This graph is represented by the `AdjList` class.
+ * 2.  Applying a greedy algorithm to find a maximal independent set of vertices in this graph. This set of vertices
+ * corresponds to a "codebook" of strings where every pair satisfies the minimum edit distance constraint.
  * 3.  Providing functionality to save and resume this potentially long-running computation.
  */
 
@@ -12,12 +15,12 @@
 #define SPARSEMAT_HPP_
 
 #include "IndexGen.hpp" // Assumed to contain the definition for Params struct
+#include <chrono>       // Use modern C++ time library
+#include <map>
 #include <string>
-#include <vector>
 #include <unordered_map>
 #include <unordered_set>
-#include <map>
-#include <chrono> // Use modern C++ time library
+#include <vector>
 
 // Forward declaration for the Params struct defined in IndexGen.hpp
 struct Params;
@@ -28,7 +31,8 @@ struct Params;
 
 /**
  * @class AdjList
- * @brief Implements a sparse symmetric matrix using an adjacency list, optimized for finding and removing nodes with the minimum degree.
+ * @brief Implements a sparse symmetric matrix using an adjacency list, optimized for finding and removing nodes with
+ * the minimum degree.
  *
  * This class is the core data structure for representing the conflict graph.
  * An edge (i, j) exists if the strings corresponding to indices i and j are too similar.
@@ -37,7 +41,7 @@ struct Params;
  */
 class AdjList
 {
-private:
+  private:
     /**
      * @brief The primary data structure for the adjacency list.
      * `m[i]` is an unordered_set containing the indices of all nodes adjacent to node `i`.
@@ -52,7 +56,7 @@ private:
      */
     std::map<int, std::unordered_set<int>> rowsBySum;
 
-public:
+  public:
     // --- Public Member Functions ---
 
     /**
@@ -86,6 +90,12 @@ public:
      * @param row The index of the row to remove.
      */
     void DeleteRow(const int currentSum, const int row);
+
+    /**
+     * @brief Removes all rows with zero degree from the graph.
+     * @return number of removed rows
+     */
+    int RemoveEmptyRows();
 
     /**
      * @brief Checks if the graph is empty.

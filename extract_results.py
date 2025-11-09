@@ -3,7 +3,7 @@ import sys
 
 # --- CONFIGURATION ---
 # 1. Set the main directory you want to scan
-START_DIRECTORY = "Test/VT_Params"
+START_DIRECTORY = "Test/MinMax/Max"
 
 # 2. Set the names of subfolders to EXCLUDE
 #    Any folder with these names will be skipped.
@@ -18,7 +18,7 @@ EXCLUDED_FOLDERS = {
 }
 
 # 3. Set the name for the final combined output file
-OUTPUT_FILE = "Results-1-11-25.txt"
+OUTPUT_FILE = "Results/Results-7-11-25-Max.txt"
 
 # 4. Define the start of the delimiter line
 DELIMITER_START = "=="

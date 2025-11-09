@@ -12,15 +12,15 @@
 EXECUTABLE="./IndexGen"
 
 # Output/Resume directory
-OUTPUT_DIR="TEMP/3"
+OUTPUT_DIR="TEMP"
 
 # To resume a previous run, uncomment the following line:
 # RESUME="--resume"
 RESUME=""
 
 # Codeword length range
-LEN_START=10
-LEN_END=10
+LEN_START=11
+LEN_END=11
 
 # Minimum edit distance
 EDIT_DIST=3
@@ -45,14 +45,14 @@ SAVE_INTERVAL=1800 # Set to 30 minutes, 80000 is > 22 hours
 # --- Method-Specific Parameters ---
 
 # Generation method: LinearCode, VTCode, Random, Diff_VTCode
-METHOD="LinearCode"
+METHOD="VTCode"
 
 # Min Hamming Distance (for LinearCode)
-MIN_HD=3
+MIN_HD=4
 
 # 'a' and 'b' parameters (for VTCode)
-VT_A=0
-VT_B=0
+VT_A=8
+VT_B=2
 
 # Number of candidates (for Random)
 RAND_CANDIDATES=50000
