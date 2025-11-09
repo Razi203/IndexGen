@@ -19,8 +19,8 @@ OUTPUT_DIR="TEMP"
 RESUME=""
 
 # Codeword length range
-LEN_START=11
-LEN_END=11
+LEN_START=5
+LEN_END=10
 
 # Minimum edit distance
 EDIT_DIST=3
@@ -45,10 +45,10 @@ SAVE_INTERVAL=1800 # Set to 30 minutes, 80000 is > 22 hours
 # --- Method-Specific Parameters ---
 
 # Generation method: LinearCode, VTCode, Random, Diff_VTCode
-METHOD="VTCode"
+METHOD="LinearCode"
 
 # Min Hamming Distance (for LinearCode)
-MIN_HD=4
+MIN_HD=3
 
 # 'a' and 'b' parameters (for VTCode)
 VT_A=8

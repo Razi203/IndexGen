@@ -23,6 +23,7 @@
 #include "Candidates.hpp"
 #include "Decode.hpp"
 #include "IndexGen.hpp"
+#include "MaxClique.hpp"
 #include "SparseMat.hpp"
 
 using namespace std;
@@ -33,6 +34,8 @@ string get_timestamp();
 
 /**
  * @brief The main function and entry point of the program.
+ * hereinafter 0=A, 1=C, 2=G, 3=T
+ *
  */
 int main(int argc, char *argv[])
 {
@@ -171,7 +174,10 @@ int main(int argc, char *argv[])
                 cout << "\n--- Starting Generation for Codeword Length " << len
                      << " (Current Time: " << put_time(&local_tm, "%Y-%m-%d %H:%M:%S") << ") ---" << endl;
                 params.codeLen = len;
-                GenerateCodebookAdj(params);
+
+                GenerateCodebookAdj(params); // TODO: update to OOP
+                // GenerateCodebookMaxClique(params);
+
                 auto finish_time = chrono::system_clock::now();
                 time_t finish_time_t = chrono::system_clock::to_time_t(finish_time);
                 tm finish_tm;
