@@ -6,8 +6,10 @@
 #include "Candidates/GF4.hpp"         // Contains functions for GF(4) arithmetic (e.g., MatMulGF4)
 #include "Candidates/GenMat.hpp"      // Contains pre-computed generator matrices
 #include "Utils.hpp"                  // For utility functions like NextBase4
+#include <algorithm>
 #include <cassert>
 #include <iostream>
+#include <random>
 
 // --- Internal Helper Functions ---
 
@@ -128,6 +130,20 @@ void CodeVecs(const vector<vector<int>> &rawVecs, vector<vector<int>> &codedVecs
     default:
         assert(0); // Should be unreachable
     }
+
+    vector<int> perm(n);
+    iota(perm.begin(), perm.end(), 0); // Fill with 0, 1, ..., n-1
+    // Use std::shuffle with a random engine instead of deprecated/removed random_shuffle
+    std::shuffle(perm.begin(), perm.end(), std::mt19937(std::random_device{}()));
+    vector<vector<int>> permutedGenMat(genMat.size(), vector<int>(genMat[0].size()));
+    for (int i = 0; i < (int)genMat.size(); i++)
+    {
+        for (int j = 0; j < (int)genMat[0].size(); j++)
+        {
+            permutedGenMat[i][j] = genMat[i][perm[j]];
+        }
+    }
+    genMat = permutedGenMat;
 
     // Multiply each raw data vector by the generator matrix to get the codeword
     for (const vector<int> &rawVec : rawVecs)

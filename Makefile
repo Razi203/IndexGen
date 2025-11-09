@@ -38,7 +38,11 @@ TEST_SOURCES = $(SRC_DIR)/testing.cpp \
                $(SRC_DIR)/Candidates/LinearCodes.cpp \
                $(SRC_DIR)/Candidates/GF4.cpp \
                $(SRC_DIR)/Candidates/GenMat.cpp \
-               $(SRC_DIR)/Utils.cpp
+               $(SRC_DIR)/Candidates/VTCodes.cpp \
+               $(SRC_DIR)/Candidates/DifferentialVTCodes.cpp \
+               $(SRC_DIR)/Candidates/RandomLinear.cpp \
+               $(SRC_DIR)/Utils.cpp \
+               $(SRC_DIR)/CandidateGenerator.cpp
 
 # Create lists of object files in the BUILD_DIR
 MAIN_OBJECTS = $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(MAIN_SOURCES))
@@ -66,7 +70,13 @@ $(TARGET): $(MAIN_OBJECTS)
 # Rule to link the testing executable from the object files
 $(TEST_TARGET): $(TEST_OBJECTS)
 	@echo "Linking $(TEST_TARGET)..."
-	$(CXX) $(CXXFLAGS) -o $@ $^
+	$(CXX) $(CXXFLAGS) -fopenmp -o $@ $^
+
+# Special rule for testing.cpp with OpenMP
+$(BUILD_DIR)/testing.o: $(SRC_DIR)/testing.cpp
+	@echo "Compiling $< (with OpenMP)..."
+	@mkdir -p $(@D)
+	$(CXX) $(CXXFLAGS) -fopenmp -c -o $@ $<
 
 # Pattern rule to compile a .cpp from src/ into a .o in build/
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp

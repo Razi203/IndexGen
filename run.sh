@@ -12,15 +12,15 @@
 EXECUTABLE="./IndexGen"
 
 # Output/Resume directory
-OUTPUT_DIR="TEMP"
+OUTPUT_DIR="TEMP/random_perm"
 
 # To resume a previous run, uncomment the following line:
 # RESUME="--resume"
 RESUME=""
 
 # Codeword length range
-LEN_START=5
-LEN_END=10
+LEN_START=11
+LEN_END=11
 
 # Minimum edit distance
 EDIT_DIST=3

@@ -1,7 +1,10 @@
 *.exe
 *.o
+*.txt
 build/*
 IndexGen
 Temp/
 TEMP/
 Test/
+!Results/*
+.nfs*
