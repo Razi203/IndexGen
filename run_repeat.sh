@@ -9,7 +9,7 @@
 # --- Repetition Parameter ---
 
 # Number of times to repeat the execution
-NUM_ITERATIONS=30
+NUM_ITERATIONS=3000
 
 # --- Core Parameters ---
 
@@ -17,7 +17,7 @@ NUM_ITERATIONS=30
 EXECUTABLE="./IndexGen"
 
 # Output/Resume directory (base directory - iterations will be saved in subdirectories)
-OUTPUT_DIR="TEMP/random_perm"
+OUTPUT_DIR="Test/perms"
 
 # To resume a previous run, uncomment the following line:
 # RESUME="--resume"
@@ -84,6 +84,7 @@ echo ""
 for ((i=1; i<=NUM_ITERATIONS; i++)); do
     # Create iteration-specific output directory
     ITERATION_OUTPUT_DIR="$OUTPUT_DIR/$i"
+    mkdir -p "$ITERATION_OUTPUT_DIR"
 
     echo "---"
     echo "Starting iteration $i of $NUM_ITERATIONS"
@@ -106,7 +107,7 @@ for ((i=1; i<=NUM_ITERATIONS; i++)); do
         --minHD $MIN_HD \
         --vt_a $VT_A \
         --vt_b $VT_B \
-        --rand_candidates $RAND_CANDIDATES\
+        --rand_candidates $RAND_CANDIDATES \
         --vt_synd $VT_SYND \
         --randlin_minHD $RANDLIN_MINHD \
         --randlin_candidates $RANDLIN_CANDIDATES"
@@ -116,8 +117,8 @@ for ((i=1; i<=NUM_ITERATIONS; i++)); do
     echo "$CMD"
     echo ""
 
-    # Run the command
-    $CMD
+    # Run the command with output redirection
+    $CMD >> $ITERATION_OUTPUT_DIR/log.txt 2>&1
 
     echo ""
     echo "Iteration $i finished."

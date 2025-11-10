@@ -131,10 +131,16 @@ void CodeVecs(const vector<vector<int>> &rawVecs, vector<vector<int>> &codedVecs
         assert(0); // Should be unreachable
     }
 
+    // TODO: encapsulate this
+    // TODO: print permutation vector
     vector<int> perm(n);
     iota(perm.begin(), perm.end(), 0); // Fill with 0, 1, ..., n-1
-    // Use std::shuffle with a random engine instead of deprecated/removed random_shuffle
     std::shuffle(perm.begin(), perm.end(), std::mt19937(std::random_device{}()));
+    std::cout << "Permutation vector: ";
+    for (const int &val : perm)
+        std::cout << val << " ";
+    std::cout << std::endl;
+
     vector<vector<int>> permutedGenMat(genMat.size(), vector<int>(genMat[0].size()));
     for (int i = 0; i < (int)genMat.size(); i++)
     {
@@ -145,11 +151,39 @@ void CodeVecs(const vector<vector<int>> &rawVecs, vector<vector<int>> &codedVecs
     }
     genMat = permutedGenMat;
 
+    bool useBias = false; // TODO: make this configurable
+    vector<int> Bias(n, 0);
+    if (useBias)
+    {
+        // Replace bias with all ones:
+        std::fill(Bias.begin(), Bias.end(), 1);
+        std::cout << "Using bias: ";
+        for (const int &b : Bias)
+            std::cout << b << " ";
+        std::cout << std::endl;
+    }
+    else
+    {
+        std::cout << "Not using bias addition." << std::endl;
+    }
+    std::cout << std::endl;
+
     // Multiply each raw data vector by the generator matrix to get the codeword
     for (const vector<int> &rawVec : rawVecs)
     {
         assert((int)rawVec.size() == k);
         vector<int> codedVec = MatMulGF4(rawVec, genMat, k, n);
+
+        // TODO: print bias addition info
+        // TODO: encapsulate bias addition
+        if (useBias)
+        {
+            for (int i = 0; i < n; i++)
+            {
+                codedVec[i] = AddGF4(codedVec[i], Bias[i]);
+            }
+        }
+
         codedVecs.push_back(codedVec);
     }
 }
