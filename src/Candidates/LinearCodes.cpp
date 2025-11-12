@@ -14,6 +14,68 @@
 // --- Internal Helper Functions ---
 
 /**
+ * @brief Shuffle the columns of a given matrix according to a random permutation.
+ * @param mat The input matrix to be permuted.
+ * @return The permuted matrix.
+ */
+vector<vector<int>> PermuteColumns(const vector<vector<int>> &mat)
+{
+    int rowNum = mat.size();
+    int colNum = mat[0].size();
+    vector<int> perm(colNum);
+    // Initialize permutation vector with 0, 1, ..., colNum-1
+    std::iota(perm.begin(), perm.end(), 0);
+    // Shuffle the permutation vector
+    std::shuffle(perm.begin(), perm.end(), std::mt19937(std::random_device{}()));
+    // Print the permutation vector
+    std::cout << "Permutation vector (columns): ";
+    for (const int &val : perm)
+        std::cout << val << " ";
+    std::cout << std::endl;
+    // Create the permuted matrix
+    vector<vector<int>> permutedMat(rowNum, vector<int>(colNum));
+    for (int i = 0; i < rowNum; i++)
+    {
+        for (int j = 0; j < colNum; j++)
+        {
+            permutedMat[i][j] = mat[i][perm[j]];
+        }
+    }
+    return permutedMat;
+}
+
+/**
+ * @brief Shuffle the rows of a given matrix according to a random permutation.
+ * @param mat The input matrix to be permuted.
+ * @return The permuted matrix.
+ */
+vector<vector<int>> PermuteRows(const vector<vector<int>> &mat)
+{
+    int rowNum = mat.size();
+    int colNum = mat[0].size();
+    vector<int> perm(rowNum);
+    // Initialize permutation vector with 0, 1, ..., rowNum-1
+    std::iota(perm.begin(), perm.end(), 0);
+    // Shuffle the permutation vector
+    std::shuffle(perm.begin(), perm.end(), std::mt19937(std::random_device{}()));
+    // Print the permutation vector
+    std::cout << "Permutation vector (rows): ";
+    for (const int &val : perm)
+        std::cout << val << " ";
+    std::cout << std::endl;
+    // Create the permuted matrix
+    vector<vector<int>> permutedMat(rowNum, vector<int>(colNum));
+    for (int i = 0; i < rowNum; i++)
+    {
+        for (int j = 0; j < colNum; j++)
+        {
+            permutedMat[i][j] = mat[perm[i]][j];
+        }
+    }
+    return permutedMat;
+}
+
+/**
  * @brief "Shortens" a linear code by removing the first `delNum` coordinates from its generator matrix.
  * @details Shortening is a standard technique in coding theory to derive a new code with slightly
  * different parameters from an existing one. Here, it effectively means we are only using a
@@ -24,6 +86,10 @@
  */
 vector<vector<int>> Shorten(const vector<vector<int>> &mat, const int delNum)
 {
+    // TODO: remove or change (results in bad performance and bad codes)
+    // vector<vector<int>> mat = PermuteRows(PermuteColumns(mat_org));
+    // vector<vector<int>> mat = PermuteColumns(mat_org);
+    // vector<vector<int>> mat = PermuteRows(mat_org);
     assert(delNum >= 0);
     assert(not mat.empty());
     int rowNum = mat.size();
@@ -131,25 +197,27 @@ void CodeVecs(const vector<vector<int>> &rawVecs, vector<vector<int>> &codedVecs
         assert(0); // Should be unreachable
     }
 
-    // TODO: encapsulate this
-    // TODO: print permutation vector
-    vector<int> perm(n);
-    iota(perm.begin(), perm.end(), 0); // Fill with 0, 1, ..., n-1
-    std::shuffle(perm.begin(), perm.end(), std::mt19937(std::random_device{}()));
-    std::cout << "Permutation vector: ";
-    for (const int &val : perm)
-        std::cout << val << " ";
-    std::cout << std::endl;
+    // // TODO: encapsulate this
+    // // TODO: print permutation vector
+    // genMat = PermuteColumns(genMat);
+    genMat = PermuteRows(genMat);
+    // vector<int> perm(n);
+    // iota(perm.begin(), perm.end(), 0); // Fill with 0, 1, ..., n-1
+    // std::shuffle(perm.begin(), perm.end(), std::mt19937(std::random_device{}()));
+    // std::cout << "Permutation vector: ";
+    // for (const int &val : perm)
+    //     std::cout << val << " ";
+    // std::cout << std::endl;
 
-    vector<vector<int>> permutedGenMat(genMat.size(), vector<int>(genMat[0].size()));
-    for (int i = 0; i < (int)genMat.size(); i++)
-    {
-        for (int j = 0; j < (int)genMat[0].size(); j++)
-        {
-            permutedGenMat[i][j] = genMat[i][perm[j]];
-        }
-    }
-    genMat = permutedGenMat;
+    // vector<vector<int>> permutedGenMat(genMat.size(), vector<int>(genMat[0].size()));
+    // for (int i = 0; i < (int)genMat.size(); i++)
+    // {
+    //     for (int j = 0; j < (int)genMat[0].size(); j++)
+    //     {
+    //         permutedGenMat[i][j] = genMat[i][perm[j]];
+    //     }
+    // }
+    // genMat = permutedGenMat;
 
     bool useBias = false; // TODO: make this configurable
     vector<int> Bias(n, 0);

@@ -17,7 +17,7 @@ NUM_ITERATIONS=3000
 EXECUTABLE="./IndexGen"
 
 # Output/Resume directory (base directory - iterations will be saved in subdirectories)
-OUTPUT_DIR="Test/perms"
+OUTPUT_DIR="Test/perms_row"
 
 # To resume a previous run, uncomment the following line:
 # RESUME="--resume"
@@ -81,7 +81,7 @@ echo "Starting repeated execution with $NUM_ITERATIONS iterations"
 echo "============================================================================="
 echo ""
 
-for ((i=1; i<=NUM_ITERATIONS; i++)); do
+for ((i=0; i<=(NUM_ITERATIONS); i++)); do
     # Create iteration-specific output directory
     ITERATION_OUTPUT_DIR="$OUTPUT_DIR/$i"
     mkdir -p "$ITERATION_OUTPUT_DIR"

@@ -121,5 +121,9 @@
       "binaryPath": "/home_nfs/razi.hleihil/IndexGen/IndexGen",
       "binaryArgs": []
     }
-  ]
+  ],
+  "files.watcherExclude": {
+    "**/Test/**": true,
+    "**/TEMP/**": true
+  }
 }
