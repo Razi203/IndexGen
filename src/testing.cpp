@@ -151,7 +151,7 @@ int main(int argc, char *argv[])
         cout << "----------------------------------------------\n";
 
         // Create generator and print info
-        unique_ptr<CandidateGenerator> generator = CreateGenerator(params);
+        shared_ptr<CandidateGenerator> generator = CreateGenerator(params);
         generator->printInfo(cout);
         cout << "----------------------------------------------\n";
 

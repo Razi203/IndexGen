@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Script to analyze log files in Test/perms/ directory.
+Script to analyze log files in directory.
 Finds the maximum number of code words and creates a visualization.
 """
 
@@ -184,9 +184,9 @@ def create_times_histogram(times_results, output_file="codebook_times_histogram.
 
 def main():
     """Main execution function."""
-    path = "Test/perms_row/"
-    time_hist_name = "12-11-25-Time-hist.png"
-    codewords_hist_name = "12-11-25-Codewords-hist.png"
+    path = "Test/new_bias_perms/"
+    time_hist_name = "18-11-25-Time-hist.png"
+    codewords_hist_name = "18-11-25-Codewords-hist.png"
 
     print(f"Analyzing log files in {path}...\n")
 
@@ -236,6 +236,18 @@ def main():
         print(f"  Std Dev: {np.std(times_list):.2f} seconds")
     else:
         print("\nNo codebook time data found in log files.")
+
+    # Print the log file contents for the maximum codewords folder
+    max_log_path = Path(path) / max_folder[0] / "log.txt"
+    if max_log_path.exists():
+        print(f"\n{'=' * 60}")
+        print(f"LOG FILE CONTENTS FOR MAXIMUM CODEWORDS (folder {max_folder[0]}):")
+        print(f"{'=' * 60}\n")
+        with open(max_log_path, "r") as f:
+            print(f.read())
+        print(f"\n{'=' * 60}")
+    else:
+        print(f"\nWarning: Could not find log file at {max_log_path}")
 
 
 if __name__ == "__main__":

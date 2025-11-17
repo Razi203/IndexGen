@@ -14,24 +14,26 @@
 // --- Internal Helper Functions ---
 
 /**
- * @brief Shuffle the columns of a given matrix according to a random permutation.
+ * @brief Shuffle the columns of a given matrix according to a permutation.
  * @param mat The input matrix to be permuted.
+ * @param perm The column permutation to apply.
  * @return The permuted matrix.
  */
-vector<vector<int>> PermuteColumns(const vector<vector<int>> &mat)
+vector<vector<int>> PermuteColumns(const vector<vector<int>> &mat, const vector<int> &perm)
 {
+    // If permutation is empty or identity, skip
+    if (perm.empty())
+        return mat;
+
     int rowNum = mat.size();
     int colNum = mat[0].size();
-    vector<int> perm(colNum);
-    // Initialize permutation vector with 0, 1, ..., colNum-1
-    std::iota(perm.begin(), perm.end(), 0);
-    // Shuffle the permutation vector
-    std::shuffle(perm.begin(), perm.end(), std::mt19937(std::random_device{}()));
+
     // Print the permutation vector
     std::cout << "Permutation vector (columns): ";
     for (const int &val : perm)
         std::cout << val << " ";
     std::cout << std::endl;
+
     // Create the permuted matrix
     vector<vector<int>> permutedMat(rowNum, vector<int>(colNum));
     for (int i = 0; i < rowNum; i++)
@@ -45,24 +47,26 @@ vector<vector<int>> PermuteColumns(const vector<vector<int>> &mat)
 }
 
 /**
- * @brief Shuffle the rows of a given matrix according to a random permutation.
+ * @brief Shuffle the rows of a given matrix according to a permutation.
  * @param mat The input matrix to be permuted.
+ * @param perm The row permutation to apply.
  * @return The permuted matrix.
  */
-vector<vector<int>> PermuteRows(const vector<vector<int>> &mat)
+vector<vector<int>> PermuteRows(const vector<vector<int>> &mat, const vector<int> &perm)
 {
+    // If permutation is empty or identity, skip
+    if (perm.empty())
+        return mat;
+
     int rowNum = mat.size();
     int colNum = mat[0].size();
-    vector<int> perm(rowNum);
-    // Initialize permutation vector with 0, 1, ..., rowNum-1
-    std::iota(perm.begin(), perm.end(), 0);
-    // Shuffle the permutation vector
-    std::shuffle(perm.begin(), perm.end(), std::mt19937(std::random_device{}()));
+
     // Print the permutation vector
     std::cout << "Permutation vector (rows): ";
     for (const int &val : perm)
         std::cout << val << " ";
     std::cout << std::endl;
+
     // Create the permuted matrix
     vector<vector<int>> permutedMat(rowNum, vector<int>(colNum));
     for (int i = 0; i < rowNum; i++)
@@ -73,6 +77,31 @@ vector<vector<int>> PermuteRows(const vector<vector<int>> &mat)
         }
     }
     return permutedMat;
+}
+
+/**
+ * @brief Adds a bias vector to a set of codewords.
+ * @param codewords The input codewords to which the bias will be added.
+ * @param bias The bias vector to be added to each codeword.
+ * @return The codewords after adding the bias.
+ */
+vector<vector<int>> AddBias(const vector<vector<int>> &codewords, const vector<int> &bias)
+{
+    vector<vector<int>> result = codewords; // Copy the original codewords
+    int n = bias.size();
+    std::cout << "Adding bias: ";
+    for (const int &b : bias)
+        std::cout << b << " ";
+    std::cout << std::endl;
+    for (auto &codeword : result)
+    {
+        assert(codeword.size() == static_cast<long unsigned int>(n));
+        for (int i = 0; i < n; i++)
+        {
+            codeword[i] = AddGF4(codeword[i], bias[i]);
+        }
+    }
+    return result;
 }
 
 /**
@@ -168,8 +197,12 @@ vector<vector<int>> GenMat5(const int n)
  * @param codedVecs The output vector to store the resulting codewords.
  * @param n The length of the output codewords.
  * @param minHammDist The target minimum Hamming distance.
+ * @param bias The bias vector to add to each codeword.
+ * @param row_perm The row permutation for the generator matrix.
+ * @param col_perm The column permutation for the generator matrix.
  */
-void CodeVecs(const vector<vector<int>> &rawVecs, vector<vector<int>> &codedVecs, const int n, const int minHammDist)
+void CodeVecs(const vector<vector<int>> &rawVecs, vector<vector<int>> &codedVecs, const int n, const int minHammDist,
+              const vector<int> &bias, const vector<int> &row_perm, const vector<int> &col_perm)
 {
     assert((minHammDist >= 2) && (minHammDist <= 5));
     vector<vector<int>> genMat;
@@ -197,36 +230,16 @@ void CodeVecs(const vector<vector<int>> &rawVecs, vector<vector<int>> &codedVecs
         assert(0); // Should be unreachable
     }
 
-    // // TODO: encapsulate this
-    // // TODO: print permutation vector
-    // genMat = PermuteColumns(genMat);
-    genMat = PermuteRows(genMat);
-    // vector<int> perm(n);
-    // iota(perm.begin(), perm.end(), 0); // Fill with 0, 1, ..., n-1
-    // std::shuffle(perm.begin(), perm.end(), std::mt19937(std::random_device{}()));
-    // std::cout << "Permutation vector: ";
-    // for (const int &val : perm)
-    //     std::cout << val << " ";
-    // std::cout << std::endl;
+    // Apply permutations using provided vectors
+    genMat = PermuteColumns(genMat, col_perm);
+    genMat = PermuteRows(genMat, row_perm);
 
-    // vector<vector<int>> permutedGenMat(genMat.size(), vector<int>(genMat[0].size()));
-    // for (int i = 0; i < (int)genMat.size(); i++)
-    // {
-    //     for (int j = 0; j < (int)genMat[0].size(); j++)
-    //     {
-    //         permutedGenMat[i][j] = genMat[i][perm[j]];
-    //     }
-    // }
-    // genMat = permutedGenMat;
-
-    bool useBias = false; // TODO: make this configurable
-    vector<int> Bias(n, 0);
+    // Determine if bias should be applied
+    bool useBias = !bias.empty();
     if (useBias)
     {
-        // Replace bias with all ones:
-        std::fill(Bias.begin(), Bias.end(), 1);
         std::cout << "Using bias: ";
-        for (const int &b : Bias)
+        for (const int &b : bias)
             std::cout << b << " ";
         std::cout << std::endl;
     }
@@ -242,13 +255,12 @@ void CodeVecs(const vector<vector<int>> &rawVecs, vector<vector<int>> &codedVecs
         assert((int)rawVec.size() == k);
         vector<int> codedVec = MatMulGF4(rawVec, genMat, k, n);
 
-        // TODO: print bias addition info
-        // TODO: encapsulate bias addition
+        // Apply bias if provided
         if (useBias)
         {
             for (int i = 0; i < n; i++)
             {
-                codedVec[i] = AddGF4(codedVec[i], Bias[i]);
+                codedVec[i] = AddGF4(codedVec[i], bias[i]);
             }
         }
 
@@ -281,7 +293,8 @@ vector<vector<int>> DataVecs(const int dataLen)
 // --- Public Function Implementation ---
 
 // See LinearCodes.hpp for function documentation.
-vector<vector<int>> CodedVecs(const int n, const int minHammDist)
+vector<vector<int>> CodedVecs(const int n, const int minHammDist, const vector<int> &bias, const vector<int> &row_perm,
+                              const vector<int> &col_perm)
 {
     assert((minHammDist >= 2) && (minHammDist <= 5));
     // Determine the dimension 'k' of the data vectors based on the desired
@@ -310,6 +323,42 @@ vector<vector<int>> CodedVecs(const int n, const int minHammDist)
     // 2. Encode these raw vectors into codewords of length n.
     vector<vector<int>> codedVecs;
     codedVecs.reserve(rawVecs.size()); // Pre-allocate memory for efficiency
-    CodeVecs(rawVecs, codedVecs, n, minHammDist);
+    CodeVecs(rawVecs, codedVecs, n, minHammDist, bias, row_perm, col_perm);
     return codedVecs;
+}
+
+// Backward compatibility overload with default parameters
+vector<vector<int>> CodedVecs(const int n, const int minHammDist)
+{
+    // Use default parameters: zero bias and identity permutations
+    vector<int> bias(n, 0);
+    vector<int> row_perm, col_perm;
+
+    // Calculate row permutation size
+    int k = 0;
+    switch (minHammDist)
+    {
+    case 2:
+        k = n - 1;
+        break;
+    case 3:
+        k = n - 3;
+        break;
+    case 4:
+        k = n - 5;
+        break;
+    case 5:
+        k = n - 7;
+        break;
+    }
+
+    // Generate identity permutations
+    row_perm.resize(k);
+    col_perm.resize(n);
+    for (int i = 0; i < k; ++i)
+        row_perm[i] = i;
+    for (int i = 0; i < n; ++i)
+        col_perm[i] = i;
+
+    return CodedVecs(n, minHammDist, bias, row_perm, col_perm);
 }

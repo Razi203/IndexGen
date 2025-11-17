@@ -25,6 +25,7 @@
 #include "IndexGen.hpp"
 #include "MaxClique.hpp"
 #include "SparseMat.hpp"
+#include "Utils.hpp"
 
 using namespace std;
 
@@ -115,7 +116,49 @@ int main(int argc, char *argv[])
             {
                 params.method = GenerationMethod::LINEAR_CODE;
                 int minHD = result["minHD"].as<int>();
-                params.constraints = make_unique<LinearCodeConstraints>(minHD);
+
+                // Parse modes
+                VectorMode bias_mode = parseVectorMode(result["lc_bias_mode"].as<string>(), "bias");
+                VectorMode row_perm_mode = parseVectorMode(result["lc_row_perm_mode"].as<string>(), "row_perm");
+                VectorMode col_perm_mode = parseVectorMode(result["lc_col_perm_mode"].as<string>(), "col_perm");
+
+                // Parse manual vectors (if provided)
+                vector<int> bias_vec, row_perm_vec, col_perm_vec;
+
+                if (bias_mode == VectorMode::MANUAL)
+                {
+                    if (!result.count("lc_bias"))
+                    {
+                        throw runtime_error("--lc_bias required when lc_bias_mode=manual");
+                    }
+                    bias_vec = parseCSVVector(result["lc_bias"].as<string>(), "bias");
+                }
+
+                if (row_perm_mode == VectorMode::MANUAL)
+                {
+                    if (!result.count("lc_row_perm"))
+                    {
+                        throw runtime_error("--lc_row_perm required when lc_row_perm_mode=manual");
+                    }
+                    row_perm_vec = parseCSVVector(result["lc_row_perm"].as<string>(), "row_perm");
+                }
+
+                if (col_perm_mode == VectorMode::MANUAL)
+                {
+                    if (!result.count("lc_col_perm"))
+                    {
+                        throw runtime_error("--lc_col_perm required when lc_col_perm_mode=manual");
+                    }
+                    col_perm_vec = parseCSVVector(result["lc_col_perm"].as<string>(), "col_perm");
+                }
+
+                // Get random seed
+                unsigned int random_seed = result["lc_random_seed"].as<unsigned int>();
+
+                // Create constraints
+                params.constraints = make_unique<LinearCodeConstraints>(minHD, bias_mode, row_perm_mode, col_perm_mode,
+                                                                        bias_vec, row_perm_vec, col_perm_vec,
+                                                                        random_seed);
             }
             else if (method_str == "VTCode")
             {
@@ -141,20 +184,13 @@ int main(int argc, char *argv[])
                 int syndrome = result["vt_synd"].as<int>();
                 params.constraints = make_unique<DifferentialVTCodeConstraints>(syndrome);
             }
-            else if (method_str == "RandomLinear")
-            {
-                params.method = GenerationMethod::RANDOM_LINEAR;
-                int minHD = result["randlin_minHD"].as<int>();
-                int num_candidates = result["randlin_candidates"].as<int>();
-                params.constraints = make_unique<RandomLinearConstraints>(minHD, num_candidates);
-            }
             else
             {
                 cerr << "Error: Unknown generation method '" << method_str << "'." << endl;
                 cout << options.help() << endl;
                 return 1;
             }
-            std::unique_ptr<CandidateGenerator> generator = CreateGenerator(params);
+            std::shared_ptr<CandidateGenerator> generator = CreateGenerator(params);
             generator->printInfo(cout);
 
             // --- Execution Loop ---
@@ -233,7 +269,7 @@ void configure_parser(cxxopts::Options &options)
         ("t,threads", "Number of threads to use", cxxopts::value<int>()->default_value("16"))(
             "saveInterval", "Interval in seconds to save progress", cxxopts::value<int>()->default_value("80000"))
         // Generation Method
-        ("m,method", "Generation method: LinearCode, VTCode, Random, Diff_VTCode, AllStrings, RandomLinear",
+        ("m,method", "Generation method: LinearCode, VTCode, Random, Diff_VTCode, AllStrings",
          cxxopts::value<string>()->default_value("LinearCode"))
         // Method-specific parameters
         ("minHD", "Min Hamming Distance for LinearCode method", cxxopts::value<int>()->default_value("3"))(
@@ -241,10 +277,19 @@ void configure_parser(cxxopts::Options &options)
             "vt_b", "Parameter 'b' for VTCode method", cxxopts::value<int>()->default_value("0"))(
             "rand_candidates", "Number of random candidates for Random method",
             cxxopts::value<int>()->default_value("50000"))("vt_synd", "Syndrome for Differential VTCode method",
-                                                           cxxopts::value<int>()->default_value("0"))(
-            "randlin_minHD", "Min Hamming Distance for RandomLinear method", cxxopts::value<int>()->default_value("3"))(
-            "randlin_candidates", "Number of random candidates for RandomLinear method",
-            cxxopts::value<int>()->default_value("50000"));
+                                                           cxxopts::value<int>()->default_value("0"))
+        // LinearCode vector control
+        ("lc_bias_mode", "Bias vector mode: default, random, manual",
+         cxxopts::value<string>()->default_value("default"))(
+            "lc_row_perm_mode", "Row permutation mode: identity, random, manual",
+            cxxopts::value<string>()->default_value("identity"))(
+            "lc_col_perm_mode", "Column permutation mode: identity, random, manual",
+            cxxopts::value<string>()->default_value("identity"))(
+            "lc_bias", "Bias vector (CSV, GF(4) values 0-3)", cxxopts::value<string>())(
+            "lc_row_perm", "Row permutation (CSV, 0-indexed)", cxxopts::value<string>())(
+            "lc_col_perm", "Column permutation (CSV, 0-indexed)", cxxopts::value<string>())(
+            "lc_random_seed", "Random seed for LinearCode vectors",
+            cxxopts::value<unsigned int>()->default_value("0"));
 }
 
 /**

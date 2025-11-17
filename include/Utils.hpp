@@ -299,6 +299,75 @@ void LongLongIntToFile(const long long int num, const string &fileName);
 void FileToLongLongInt(long long int &num, const string &fileName);
 
 // =================================================================================
+// SECTION: LINEAR CODE VECTOR MANAGEMENT
+// =================================================================================
+
+/**
+ * @brief Parse mode string to VectorMode enum.
+ * @param mode_str The mode string from command line.
+ * @param vector_name The name of the vector (for error messages).
+ * @return The parsed VectorMode enum value.
+ */
+VectorMode parseVectorMode(const string &mode_str, const string &vector_name);
+
+/**
+ * @brief Parse CSV string to vector.
+ * @param csv_str The CSV string from command line.
+ * @param vector_name The name of the vector (for error messages).
+ * @return The parsed vector.
+ */
+vector<int> parseCSVVector(const string &csv_str, const string &vector_name);
+
+/**
+ * @brief Generate identity permutation [0, 1, 2, ..., size-1].
+ * @param size The size of the permutation.
+ * @return Identity permutation vector.
+ */
+vector<int> generateIdentityPerm(int size);
+
+/**
+ * @brief Generate random permutation.
+ * @param size The size of the permutation.
+ * @param rng Random number generator.
+ * @return Random permutation vector.
+ */
+vector<int> generateRandomPerm(int size, mt19937 &rng);
+
+/**
+ * @brief Generate random bias vector (GF(4) = {0,1,2,3}).
+ * @param size The size of the bias vector.
+ * @param rng Random number generator.
+ * @return Random bias vector.
+ */
+vector<int> generateRandomBias(int size, mt19937 &rng);
+
+/**
+ * @brief Validate permutation vector.
+ * @param perm The permutation to validate.
+ * @param expected_size The expected size.
+ * @param vector_name The name of the vector (for error messages).
+ * @throws runtime_error if validation fails.
+ */
+void validatePermutation(const vector<int> &perm, int expected_size, const string &vector_name);
+
+/**
+ * @brief Validate bias vector (all values must be in GF(4) = {0,1,2,3}).
+ * @param bias The bias vector to validate.
+ * @param expected_size The expected size.
+ * @throws runtime_error if validation fails.
+ */
+void validateBias(const vector<int> &bias, int expected_size);
+
+/**
+ * @brief Calculate row permutation size (k = dimension) based on code length and minHD.
+ * @param code_len The code length.
+ * @param min_hd The minimum Hamming distance (2-5).
+ * @return The dimension k (row permutation size).
+ * @throws runtime_error if min_hd is not in range [2,5].
+ */
+int calculateRowPermSize(int code_len, int min_hd);
+
+// =================================================================================
 // SECTION: DNA-LIKE SEQUENCE ('0123') ANALYSIS
 // =================================================================================
 

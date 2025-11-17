@@ -428,11 +428,11 @@ void Codebook(AdjList &adjList, vector<string> &codebook, const vector<string> &
         // Uncomment the method for which to filter the candidates
 
         // // (1) Choose min sum row and delete its ball
-        // int minEntry = adjList.FindMinDel(remaining, minSumRowTime, delBallTime);
-        // codebook.push_back(candidates[minEntry]);
+        int minEntry = adjList.FindMinDel(remaining, minSumRowTime, delBallTime);
+        codebook.push_back(candidates[minEntry]);
 
         // (2) Remove max sum row candidate without adding to codebook
-        adjList.FindMaxDel(remaining, minSumRowTime, delBallTime);
+        // adjList.FindMaxDel(remaining, minSumRowTime, delBallTime);
 
         auto currentTime = chrono::steady_clock::now();
         chrono::duration<double> elapsed_seconds = currentTime - lastSaveTime;

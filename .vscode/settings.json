@@ -113,7 +113,9 @@
     "streambuf": "cpp",
     "thread": "cpp",
     "typeinfo": "cpp",
-    "bit": "cpp"
+    "bit": "cpp",
+    "set": "cpp",
+    "mutex": "cpp"
   },
   "makefile.launchConfigurations": [
     {

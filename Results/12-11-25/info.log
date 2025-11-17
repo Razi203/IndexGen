@@ -5,3 +5,33 @@ Edit Distance: 3
 Code Length : 11
 
 Permutations: Col+Row (on the final gen matrix)
+
+
+
+
+============================================================
+MAXIMUM NUMBER OF CODE WORDS: 34,290
+Found in folder: 985
+
+MINIMUM NUMBER OF CODE WORDS: 22,690
+Found in folder: 2352
+============================================================
+
+
+Code words histogram saved to: 12-11-25-Codewords-hist.png
+Codebook times histogram saved to: 12-11-25-Time-hist.png
+
+Code Words Summary Statistics:
+  Total runs analyzed: 3001
+  Maximum: 34,290
+  Minimum: 22,690
+  Mean: 31,450.50
+  Median: 31,846.00
+  Std Dev: 1,653.52
+
+Codebook Time Summary Statistics:
+  Total runs with time data: 3001
+  Maximum: 6.73 seconds (folder 2212)
+  Minimum: 5.97 seconds (folder 2273)
+  Mean: 6.36 seconds
+  Median: 6.37 seconds

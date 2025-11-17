@@ -7,7 +7,6 @@
 #include "CandidateGenerator.hpp"
 #include "Candidates/DifferentialVTCodes.hpp"
 #include "Candidates/LinearCodes.hpp"
-#include "Candidates/RandomLinear.hpp"
 #include "Candidates/VTCodes.hpp"
 #include "Utils.hpp"
 #include <cassert>
@@ -179,7 +178,7 @@ void FilterGCMaxRun(const vector<string> &strs, vector<string> &filteredStrs, co
 std::vector<std::string> Candidates(const Params &params)
 {
     // Step 1: Create the appropriate generator using the factory function
-    std::unique_ptr<CandidateGenerator> generator = CreateGenerator(params);
+    std::shared_ptr<CandidateGenerator> generator = CreateGenerator(params);
 
     // Step 2: Generate candidates
     std::vector<std::string> unfiltered = generator->generate();

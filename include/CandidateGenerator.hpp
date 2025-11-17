@@ -94,6 +94,26 @@ class LinearCodeGenerator : public CandidateGenerator
   private:
     int candMinHD; ///< Minimum Hamming distance for candidate generation
 
+    // Vector values
+    std::vector<int> bias;        ///< Bias vector
+    std::vector<int> row_perm;    ///< Row permutation vector
+    std::vector<int> col_perm;    ///< Column permutation vector
+
+    // Vector modes (for lazy initialization)
+    VectorMode bias_mode;         ///< How to initialize bias
+    VectorMode row_perm_mode;     ///< How to initialize row permutation
+    VectorMode col_perm_mode;     ///< How to initialize column permutation
+
+    // Random seed and initialization flag
+    unsigned int random_seed;     ///< Random seed (0 = use time-based)
+    bool vectors_initialized;     ///< Whether vectors have been initialized
+
+    /**
+     * @brief Initialize vectors based on modes (called when code_len is known).
+     * @param code_len The code length to determine vector sizes.
+     */
+    void initializeVectors(int code_len);
+
   public:
     /**
      * @brief Constructor for LinearCodeGenerator.
@@ -203,36 +223,13 @@ class DifferentialVTCodeGenerator : public CandidateGenerator
 };
 
 /**
- * @class RandomLinearGenerator
- * @brief Generator that randomly samples from linear code codewords.
- */
-class RandomLinearGenerator : public CandidateGenerator
-{
-  private:
-    int candMinHD;     ///< Minimum Hamming distance for the linear code
-    int numCandidates; ///< Number of candidates to randomly select
-
-  public:
-    /**
-     * @brief Constructor for RandomLinearGenerator.
-     * @param params The parameters structure.
-     * @param constraints The random linear specific constraints.
-     */
-    RandomLinearGenerator(const Params &params, const RandomLinearConstraints &constraints);
-
-    std::vector<std::string> generate() override;
-    void printInfo(std::ostream &output_stream) const override;
-    std::string getMethodName() const override;
-    void printParams(std::ofstream &output_file) const override;
-    void readParams(std::ifstream &input_file, GenerationConstraints *constraints) override;
-};
-
-/**
- * @brief Factory function to create the appropriate generator based on params.
+ * @brief Factory function to create the appropriate generator based on params (singleton pattern).
  * @param params The parameters structure containing method and constraints.
- * @return A unique pointer to the created generator.
+ * @return A shared pointer to the cached generator instance.
  * @throws std::runtime_error if constraints are invalid or method is unknown.
+ * @note This function caches the generator instance based on the params pointer address.
+ *       Calling it multiple times with the same params object returns the same generator.
  */
-std::unique_ptr<CandidateGenerator> CreateGenerator(const Params &params);
+std::shared_ptr<CandidateGenerator> CreateGenerator(const Params &params);
 
 #endif /* CANDIDATEGENERATOR_HPP_ */

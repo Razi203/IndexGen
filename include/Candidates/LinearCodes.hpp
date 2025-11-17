@@ -31,8 +31,23 @@ using namespace std;
  * @param n The desired length of the output codewords.
  * @param minHammDist The desired minimum Hamming distance between any pair of codewords.
  * Supported values are 2, 3, 4, and 5.
+ * @param bias The bias vector to add to each codeword (length n, values in {0,1,2,3}).
+ * @param row_perm The row permutation vector for the generator matrix.
+ * @param col_perm The column permutation vector for the generator matrix.
  * @return A std::vector of std::vector<int>, where each inner vector is a codeword of length `n`
  * with elements in {0, 1, 2, 3}.
+ */
+vector<vector<int>> CodedVecs(const int n, const int minHammDist, const vector<int> &bias, const vector<int> &row_perm,
+                              const vector<int> &col_perm);
+
+/**
+ * @brief Generates codewords with default parameters (backward compatibility).
+ *
+ * This overload uses default parameters: zero bias and identity permutations.
+ *
+ * @param n The desired length of the output codewords.
+ * @param minHammDist The desired minimum Hamming distance (2-5).
+ * @return A std::vector of std::vector<int>, where each inner vector is a codeword.
  */
 vector<vector<int>> CodedVecs(const int n, const int minHammDist);
 

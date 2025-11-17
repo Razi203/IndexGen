@@ -6,7 +6,6 @@
 #include "CandidateGenerator.hpp"
 #include "Candidates/DifferentialVTCodes.hpp"
 #include "Candidates/LinearCodes.hpp"
-#include "Candidates/RandomLinear.hpp"
 #include "Candidates/VTCodes.hpp"
 #include "Utils.hpp"
 #include <fstream>
@@ -53,13 +52,113 @@ std::vector<std::string> CandidateGenerator::applyFilters(const std::vector<std:
 // ============================================================================
 
 LinearCodeGenerator::LinearCodeGenerator(const Params &params, const LinearCodeConstraints &constraints)
-    : CandidateGenerator(params), candMinHD(constraints.candMinHD)
+    : CandidateGenerator(params), candMinHD(constraints.candMinHD), bias(constraints.bias), row_perm(constraints.row_perm),
+      col_perm(constraints.col_perm), bias_mode(constraints.bias_mode), row_perm_mode(constraints.row_perm_mode),
+      col_perm_mode(constraints.col_perm_mode), random_seed(constraints.random_seed), vectors_initialized(false)
 {
+}
+
+void LinearCodeGenerator::initializeVectors(int code_len)
+{
+    // Calculate expected sizes for this code length
+    int col_perm_size = code_len;
+    int row_perm_size = calculateRowPermSize(code_len, candMinHD);
+    int bias_size = code_len;
+
+    // Check if vectors are already initialized and have the correct size
+    bool correct_size = vectors_initialized &&
+                        (bias.empty() || (int)bias.size() == bias_size) &&
+                        (row_perm.empty() || (int)row_perm.size() == row_perm_size) &&
+                        (col_perm.empty() || (int)col_perm.size() == col_perm_size);
+
+    if (correct_size)
+        return; // Already initialized with correct sizes
+
+    // Setup random number generator
+    mt19937 rng;
+    if (random_seed == 0)
+    {
+        // Generate a seed from current time and store it for reproducibility
+        random_seed = static_cast<unsigned int>(chrono::system_clock::now().time_since_epoch().count());
+    }
+    rng.seed(random_seed);
+
+    // Initialize bias
+    if (bias_mode == VectorMode::DEFAULT)
+    {
+        bias.assign(bias_size, 0); // Zero vector
+    }
+    else if (bias_mode == VectorMode::RANDOM)
+    {
+        bias = generateRandomBias(bias_size, rng);
+    }
+    else
+    { // MANUAL
+        // For manual mode, if size doesn't match, this is an error
+        if ((int)bias.size() != bias_size)
+        {
+            throw std::runtime_error("Manual bias vector has size " + std::to_string(bias.size()) +
+                                   " but code length " + std::to_string(code_len) +
+                                   " requires size " + std::to_string(bias_size) +
+                                   ". Please provide vectors for each code length.");
+        }
+        validateBias(bias, bias_size);
+    }
+
+    // Initialize row permutation
+    if (row_perm_mode == VectorMode::DEFAULT)
+    {
+        row_perm = generateIdentityPerm(row_perm_size);
+    }
+    else if (row_perm_mode == VectorMode::RANDOM)
+    {
+        row_perm = generateRandomPerm(row_perm_size, rng);
+    }
+    else
+    { // MANUAL
+        if ((int)row_perm.size() != row_perm_size)
+        {
+            throw std::runtime_error("Manual row_perm has size " + std::to_string(row_perm.size()) +
+                                   " but code length " + std::to_string(code_len) +
+                                   " with minHD " + std::to_string(candMinHD) +
+                                   " requires size " + std::to_string(row_perm_size));
+        }
+        validatePermutation(row_perm, row_perm_size, "row_perm");
+    }
+
+    // Initialize column permutation
+    if (col_perm_mode == VectorMode::DEFAULT)
+    {
+        col_perm = generateIdentityPerm(col_perm_size);
+    }
+    else if (col_perm_mode == VectorMode::RANDOM)
+    {
+        col_perm = generateRandomPerm(col_perm_size, rng);
+    }
+    else
+    { // MANUAL
+        if ((int)col_perm.size() != col_perm_size)
+        {
+            throw std::runtime_error("Manual col_perm has size " + std::to_string(col_perm.size()) +
+                                   " but code length " + std::to_string(code_len) +
+                                   " requires size " + std::to_string(col_perm_size));
+        }
+        validatePermutation(col_perm, col_perm_size, "col_perm");
+    }
+
+    vectors_initialized = true;
+
+    // Note: The actual seed used (if it was 0) is now stored in random_seed
+    // and will be saved via printParams() for reproducibility
 }
 
 std::vector<std::string> LinearCodeGenerator::generate()
 {
-    vector<vector<int>> codeVecs = CodedVecs(params.codeLen, candMinHD);
+    // Initialize vectors now that we know code_len
+    initializeVectors(params.codeLen);
+
+    // Generate code with vectors
+    vector<vector<int>> codeVecs = CodedVecs(params.codeLen, candMinHD, bias, row_perm, col_perm);
     vector<string> codeWords;
     for (const vector<int> &vec : codeVecs)
     {
@@ -71,6 +170,57 @@ std::vector<std::string> LinearCodeGenerator::generate()
 void LinearCodeGenerator::printInfo(std::ostream &output_stream) const
 {
     output_stream << "Using Generation Method: LinearCode (minHD=" << candMinHD << ")" << endl;
+
+    // Print bias vector
+    if (!bias.empty())
+    {
+        output_stream << "Bias vector: [";
+        for (size_t i = 0; i < bias.size(); ++i)
+        {
+            output_stream << bias[i];
+            if (i < bias.size() - 1)
+                output_stream << ", ";
+        }
+        output_stream << "]" << endl;
+    }
+    else
+    {
+        output_stream << "Bias vector: (not initialized)" << endl;
+    }
+
+    // Print row permutation vector
+    if (!row_perm.empty())
+    {
+        output_stream << "Row permutation: [";
+        for (size_t i = 0; i < row_perm.size(); ++i)
+        {
+            output_stream << row_perm[i];
+            if (i < row_perm.size() - 1)
+                output_stream << ", ";
+        }
+        output_stream << "]" << endl;
+    }
+    else
+    {
+        output_stream << "Row permutation: (not initialized)" << endl;
+    }
+
+    // Print column permutation vector
+    if (!col_perm.empty())
+    {
+        output_stream << "Column permutation: [";
+        for (size_t i = 0; i < col_perm.size(); ++i)
+        {
+            output_stream << col_perm[i];
+            if (i < col_perm.size() - 1)
+                output_stream << ", ";
+        }
+        output_stream << "]" << endl;
+    }
+    else
+    {
+        output_stream << "Column permutation: (not initialized)" << endl;
+    }
 }
 
 std::string LinearCodeGenerator::getMethodName() const
@@ -81,14 +231,115 @@ std::string LinearCodeGenerator::getMethodName() const
 void LinearCodeGenerator::printParams(std::ofstream &output_file) const
 {
     output_file << candMinHD << '\n';
+
+    // Write vector modes (as integers)
+    output_file << static_cast<int>(bias_mode) << '\n';
+    output_file << static_cast<int>(row_perm_mode) << '\n';
+    output_file << static_cast<int>(col_perm_mode) << '\n';
+
+    // Write random seed
+    output_file << random_seed << '\n';
+
+    // Write bias vector: size,val1,val2,...
+    output_file << bias.size();
+    for (int val : bias)
+        output_file << "," << val;
+    output_file << '\n';
+
+    // Write row permutation: size,val1,val2,...
+    output_file << row_perm.size();
+    for (int val : row_perm)
+        output_file << "," << val;
+    output_file << '\n';
+
+    // Write column permutation: size,val1,val2,...
+    output_file << col_perm.size();
+    for (int val : col_perm)
+        output_file << "," << val;
+    output_file << '\n';
 }
 
 void LinearCodeGenerator::readParams(std::ifstream &input_file, GenerationConstraints *constraints)
 {
     input_file >> candMinHD;
+    input_file.ignore(); // Skip newline
+
+    // Read vector modes
+    int bias_mode_int, row_perm_mode_int, col_perm_mode_int;
+    input_file >> bias_mode_int;
+    input_file >> row_perm_mode_int;
+    input_file >> col_perm_mode_int;
+    bias_mode = static_cast<VectorMode>(bias_mode_int);
+    row_perm_mode = static_cast<VectorMode>(row_perm_mode_int);
+    col_perm_mode = static_cast<VectorMode>(col_perm_mode_int);
+
+    // Read random seed
+    input_file >> random_seed;
+    input_file.ignore(); // Skip newline
+
+    // Read vectors
+    string line;
+
+    // Read bias
+    getline(input_file, line);
+    if (!line.empty())
+    {
+        size_t comma_pos = line.find(',');
+        if (comma_pos != string::npos)
+        {
+            bias = parseCSVVector(line.substr(comma_pos + 1), "bias");
+        }
+        else
+        {
+            bias.clear();
+        }
+    }
+
+    // Read row_perm
+    getline(input_file, line);
+    if (!line.empty())
+    {
+        size_t comma_pos = line.find(',');
+        if (comma_pos != string::npos)
+        {
+            row_perm = parseCSVVector(line.substr(comma_pos + 1), "row_perm");
+        }
+        else
+        {
+            row_perm.clear();
+        }
+    }
+
+    // Read col_perm
+    getline(input_file, line);
+    if (!line.empty())
+    {
+        size_t comma_pos = line.find(',');
+        if (comma_pos != string::npos)
+        {
+            col_perm = parseCSVVector(line.substr(comma_pos + 1), "col_perm");
+        }
+        else
+        {
+            col_perm.clear();
+        }
+    }
+
+    // Mark as initialized so initializeVectors won't regenerate
+    // But if code length changes, we'll need to reinitialize
+    vectors_initialized = false; // Set to false to allow re-initialization for new code length
+
+    // Update constraints if provided
     if (auto *lc = dynamic_cast<LinearCodeConstraints *>(constraints))
     {
         lc->candMinHD = candMinHD;
+        lc->bias = bias;
+        lc->row_perm = row_perm;
+        lc->col_perm = col_perm;
+        lc->bias_mode = bias_mode;
+        lc->row_perm_mode = row_perm_mode;
+        lc->col_perm_mode = col_perm_mode;
+        lc->random_seed = random_seed;
     }
 }
 
@@ -306,57 +557,29 @@ void DifferentialVTCodeGenerator::readParams(std::ifstream &input_file, Generati
 }
 
 // ============================================================================
-// RandomLinearGenerator Implementation
+// Factory Function Implementation (Singleton Pattern)
 // ============================================================================
 
-RandomLinearGenerator::RandomLinearGenerator(const Params &params, const RandomLinearConstraints &constraints)
-    : CandidateGenerator(params), candMinHD(constraints.candMinHD), numCandidates(constraints.num_candidates)
+std::shared_ptr<CandidateGenerator> CreateGenerator(const Params &params)
 {
-}
+    // Static cache to store the singleton instance
+    static std::shared_ptr<CandidateGenerator> cached_generator = nullptr;
+    static const Params* cached_params = nullptr;
 
-std::vector<std::string> RandomLinearGenerator::generate()
-{
-    return GenerateRandomLinearCandidates(params.codeLen, candMinHD, numCandidates);
-}
-
-void RandomLinearGenerator::printInfo(std::ostream &output_stream) const
-{
-    output_stream << "Using Generation Method: RandomLinear (minHD=" << candMinHD << ", candidates=" << numCandidates << ")"
-                  << endl;
-}
-
-std::string RandomLinearGenerator::getMethodName() const
-{
-    return "RandomLinear";
-}
-
-void RandomLinearGenerator::printParams(std::ofstream &output_file) const
-{
-    output_file << candMinHD << '\n';
-    output_file << numCandidates << '\n';
-}
-
-void RandomLinearGenerator::readParams(std::ifstream &input_file, GenerationConstraints *constraints)
-{
-    input_file >> candMinHD;
-    input_file >> numCandidates;
-    if (auto *rlc = dynamic_cast<RandomLinearConstraints *>(constraints))
+    // If we already have a cached generator for the same params object, return it
+    // We compare pointer addresses since Params objects should be stable during a run
+    if (cached_generator && cached_params == &params)
     {
-        rlc->candMinHD = candMinHD;
-        rlc->num_candidates = numCandidates;
+        return cached_generator;
     }
-}
 
-// ============================================================================
-// Factory Function Implementation
-// ============================================================================
-
-std::unique_ptr<CandidateGenerator> CreateGenerator(const Params &params)
-{
     if (!params.constraints)
     {
         throw std::runtime_error("Cannot create generator: constraints object is null.");
     }
+
+    // Create new generator
+    std::shared_ptr<CandidateGenerator> new_generator;
 
     switch (params.method)
     {
@@ -367,12 +590,14 @@ std::unique_ptr<CandidateGenerator> CreateGenerator(const Params &params)
         {
             throw std::runtime_error("Invalid constraints provided for LINEAR_CODE method.");
         }
-        return std::make_unique<LinearCodeGenerator>(params, *constraints);
+        new_generator = std::make_shared<LinearCodeGenerator>(params, *constraints);
+        break;
     }
 
     case GenerationMethod::ALL_STRINGS:
     {
-        return std::make_unique<AllStringsGenerator>(params);
+        new_generator = std::make_shared<AllStringsGenerator>(params);
+        break;
     }
 
     case GenerationMethod::RANDOM:
@@ -382,7 +607,8 @@ std::unique_ptr<CandidateGenerator> CreateGenerator(const Params &params)
         {
             throw std::runtime_error("Invalid constraints provided for RANDOM method.");
         }
-        return std::make_unique<RandomGenerator>(params, *constraints);
+        new_generator = std::make_shared<RandomGenerator>(params, *constraints);
+        break;
     }
 
     case GenerationMethod::VT_CODE:
@@ -392,7 +618,8 @@ std::unique_ptr<CandidateGenerator> CreateGenerator(const Params &params)
         {
             throw std::runtime_error("Invalid constraints provided for VT_CODE method.");
         }
-        return std::make_unique<VTCodeGenerator>(params, *constraints);
+        new_generator = std::make_shared<VTCodeGenerator>(params, *constraints);
+        break;
     }
 
     case GenerationMethod::DIFFERENTIAL_VT_CODE:
@@ -402,17 +629,8 @@ std::unique_ptr<CandidateGenerator> CreateGenerator(const Params &params)
         {
             throw std::runtime_error("Invalid constraints provided for DIFFERENTIAL_VT_CODE method.");
         }
-        return std::make_unique<DifferentialVTCodeGenerator>(params, *constraints);
-    }
-
-    case GenerationMethod::RANDOM_LINEAR:
-    {
-        auto *constraints = dynamic_cast<RandomLinearConstraints *>(params.constraints.get());
-        if (!constraints)
-        {
-            throw std::runtime_error("Invalid constraints provided for RANDOM_LINEAR method.");
-        }
-        return std::make_unique<RandomLinearGenerator>(params, *constraints);
+        new_generator = std::make_shared<DifferentialVTCodeGenerator>(params, *constraints);
+        break;
     }
 
     default:
@@ -420,4 +638,10 @@ std::unique_ptr<CandidateGenerator> CreateGenerator(const Params &params)
         throw std::runtime_error("Unknown or unsupported candidate generation method.");
     }
     }
+
+    // Cache the new generator and params pointer
+    cached_generator = new_generator;
+    cached_params = &params;
+
+    return cached_generator;
 }

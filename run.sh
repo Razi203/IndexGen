@@ -50,6 +50,22 @@ METHOD="LinearCode"
 # Min Hamming Distance (for LinearCode)
 MIN_HD=3
 
+# LinearCode vector control parameters
+# Bias vector mode: default, random, manual
+LC_BIAS_MODE="manual"
+# Row permutation mode: identity, random, manual
+LC_ROW_PERM_MODE="identity"
+# Column permutation mode: identity, random, manual
+LC_COL_PERM_MODE="identity"
+# Bias vector (CSV, GF(4) values 0-3) - only used when LC_BIAS_MODE=manual
+LC_BIAS="1,0,0,0,0,0,0,0,0,0,0"
+# Row permutation (CSV, 0-indexed) - only used when LC_ROW_PERM_MODE=manual
+LC_ROW_PERM=""
+# Column permutation (CSV, 0-indexed) - only used when LC_COL_PERM_MODE=manual
+LC_COL_PERM=""
+# Random seed for LinearCode vectors
+LC_RANDOM_SEED=0
+
 # 'a' and 'b' parameters (for VTCode)
 VT_A=8
 VT_B=2
@@ -59,11 +75,6 @@ RAND_CANDIDATES=50000
 
 # Syndrome (for Differential VTCode)
 VT_SYND=0
-
-# Min Hamming Distance (for RandomLinear)
-RANDLIN_MINHD=3
-# Number of candidates (for RandomLinear)
-RANDLIN_CANDIDATES=2000000
 
 
 # =============================================================================
@@ -85,12 +96,25 @@ CMD="$EXECUTABLE \
     --saveInterval $SAVE_INTERVAL \
     --method $METHOD \
     --minHD $MIN_HD \
+    --lc_bias_mode $LC_BIAS_MODE \
+    --lc_row_perm_mode $LC_ROW_PERM_MODE \
+    --lc_col_perm_mode $LC_COL_PERM_MODE \
+    --lc_random_seed $LC_RANDOM_SEED \
     --vt_a $VT_A \
     --vt_b $VT_B \
-    --rand_candidates $RAND_CANDIDATES\
-    --vt_synd $VT_SYND \
-    --randlin_minHD $RANDLIN_MINHD \
-    --randlin_candidates $RANDLIN_CANDIDATES"
+    --rand_candidates $RAND_CANDIDATES \
+    --vt_synd $VT_SYND"
+
+# Add optional manual vectors if provided
+if [ -n "$LC_BIAS" ]; then
+    CMD="$CMD --lc_bias $LC_BIAS"
+fi
+if [ -n "$LC_ROW_PERM" ]; then
+    CMD="$CMD --lc_row_perm $LC_ROW_PERM"
+fi
+if [ -n "$LC_COL_PERM" ]; then
+    CMD="$CMD --lc_col_perm $LC_COL_PERM"
+fi
 
 # Print the command to the console so you know what's being run
 echo "Executing command:"

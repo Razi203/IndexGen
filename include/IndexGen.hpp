@@ -27,8 +27,18 @@ enum class GenerationMethod
     ALL_STRINGS,          ///< Generates all possible strings of the specified length (brute-force).
     RANDOM,               ///< Generates candidates using a randomization approach.
     VT_CODE,              ///< Uses Varshamov-Tenengolts codes for candidate generation.
-    DIFFERENTIAL_VT_CODE, ///< Uses Differential Varshamov-Tenengolts codes for candidate generation.
-    RANDOM_LINEAR         ///< Generates random samples from linear codes.
+    DIFFERENTIAL_VT_CODE  ///< Uses Differential Varshamov-Tenengolts codes for candidate generation.
+};
+
+/**
+ * @enum VectorMode
+ * @brief Specifies how vectors (bias, row_perm, col_perm) should be initialized.
+ */
+enum class VectorMode
+{
+    DEFAULT,   ///< Zero for bias, identity for permutations
+    RANDOM,    ///< Randomly generated
+    MANUAL     ///< User-specified
 };
 
 /**
@@ -60,11 +70,38 @@ struct LinearCodeConstraints : public GenerationConstraints
      */
     int candMinHD;
 
-    LinearCodeConstraints() : GenerationConstraints(), candMinHD()
+    // --- Vector Values ---
+    std::vector<int> bias;        ///< Bias vector (length = code length)
+    std::vector<int> row_perm;    ///< Row permutation vector
+    std::vector<int> col_perm;    ///< Column permutation vector
+
+    // --- Vector Modes ---
+    VectorMode bias_mode;         ///< How to initialize bias
+    VectorMode row_perm_mode;     ///< How to initialize row permutation
+    VectorMode col_perm_mode;     ///< How to initialize column permutation
+
+    // --- Random Seed ---
+    unsigned int random_seed;     ///< Random seed (0 = use time-based)
+
+    LinearCodeConstraints()
+        : GenerationConstraints(), candMinHD(), bias(), row_perm(), col_perm(),
+          bias_mode(VectorMode::DEFAULT), row_perm_mode(VectorMode::DEFAULT), col_perm_mode(VectorMode::DEFAULT),
+          random_seed(0)
     {
     }
 
-    LinearCodeConstraints(int min_hd) : GenerationConstraints(), candMinHD(min_hd)
+    LinearCodeConstraints(int min_hd)
+        : GenerationConstraints(), candMinHD(min_hd), bias(), row_perm(), col_perm(),
+          bias_mode(VectorMode::DEFAULT), row_perm_mode(VectorMode::DEFAULT), col_perm_mode(VectorMode::DEFAULT),
+          random_seed(0)
+    {
+    }
+
+    LinearCodeConstraints(int min_hd, VectorMode bias_m, VectorMode row_perm_m, VectorMode col_perm_m,
+                         std::vector<int> biasVec, std::vector<int> rowPerm, std::vector<int> colPerm,
+                         unsigned int seed)
+        : GenerationConstraints(), candMinHD(min_hd), bias(biasVec), row_perm(rowPerm), col_perm(colPerm),
+          bias_mode(bias_m), row_perm_mode(row_perm_m), col_perm_mode(col_perm_m), random_seed(seed)
     {
     }
 };
@@ -128,27 +165,6 @@ struct DifferentialVTCodeConstraints : public GenerationConstraints
     DifferentialVTCodeConstraints(int syndrome) : syndrome(syndrome)
     {
         // Assuming BaseConstraints has a virtual destructor or function
-    }
-};
-
-/**
- * @struct RandomLinearConstraints
- * @brief Constraints for the Random Linear method.
- */
-struct RandomLinearConstraints : public GenerationConstraints
-{
-    /** @brief The minimum Hamming distance for the linear code generation. */
-    int candMinHD;
-
-    /** @brief The number of random candidates to select from the linear code. */
-    int num_candidates;
-
-    RandomLinearConstraints() : GenerationConstraints(), candMinHD(), num_candidates()
-    {
-    }
-
-    RandomLinearConstraints(int min_hd, int num) : GenerationConstraints(), candMinHD(min_hd), num_candidates(num)
-    {
     }
 };
 

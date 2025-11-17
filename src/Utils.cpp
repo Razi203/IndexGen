@@ -242,7 +242,7 @@ void PrintParamsToFile(std::ofstream &out, const int candidateNum, const int cod
     // --- Generation Method & Specifics ---
     try
     {
-        std::unique_ptr<CandidateGenerator> generator = CreateGenerator(params);
+        std::shared_ptr<CandidateGenerator> generator = CreateGenerator(params);
         generator->printInfo(out);
     }
     catch (const std::exception &e)
@@ -574,7 +574,7 @@ void PrintTestParams(const Params &params)
     // --- Use the generator's printInfo() method ---
     try
     {
-        std::unique_ptr<CandidateGenerator> generator = CreateGenerator(params);
+        std::shared_ptr<CandidateGenerator> generator = CreateGenerator(params);
         generator->printInfo(cout);
     }
     catch (const std::exception &e)
@@ -612,7 +612,7 @@ void ParamsToFile(const Params &params, const std::string &fileName)
     // 3. Write the method-specific parameters using the generator's printParams method
     try
     {
-        std::unique_ptr<CandidateGenerator> generator = CreateGenerator(params);
+        std::shared_ptr<CandidateGenerator> generator = CreateGenerator(params);
         generator->printParams(output_file);
     }
     catch (const std::exception &e)
@@ -665,15 +665,12 @@ void FileToParams(Params &params, const std::string &fileName)
         case GenerationMethod::DIFFERENTIAL_VT_CODE:
             params.constraints = std::make_unique<DifferentialVTCodeConstraints>();
             break;
-        case GenerationMethod::RANDOM_LINEAR:
-            params.constraints = std::make_unique<RandomLinearConstraints>();
-            break;
         default:
             throw std::runtime_error("Unknown generation method type found in file.");
         }
 
         // Create generator and use its readParams method to populate constraints
-        std::unique_ptr<CandidateGenerator> generator = CreateGenerator(params);
+        std::shared_ptr<CandidateGenerator> generator = CreateGenerator(params);
         generator->readParams(input_file, params.constraints.get());
     }
     catch (const std::exception &e)
@@ -820,4 +817,136 @@ string MakeStrand0123(const unsigned length, mt19937 &generator)
         strand += letters[distribution(generator)];
     }
     return strand;
+}
+
+// =================================================================================
+// SECTION: LINEAR CODE VECTOR MANAGEMENT
+// =================================================================================
+
+VectorMode parseVectorMode(const string &mode_str, const string &vector_name)
+{
+    string lower_mode = mode_str;
+    transform(lower_mode.begin(), lower_mode.end(), lower_mode.begin(), ::tolower);
+
+    if (lower_mode == "default" || lower_mode == "identity")
+        return VectorMode::DEFAULT;
+    if (lower_mode == "random")
+        return VectorMode::RANDOM;
+    if (lower_mode == "manual")
+        return VectorMode::MANUAL;
+
+    throw runtime_error("Invalid mode '" + mode_str + "' for " + vector_name +
+                        ". Must be: default/identity, random, or manual");
+}
+
+vector<int> parseCSVVector(const string &csv_str, const string &vector_name)
+{
+    vector<int> result;
+    stringstream ss(csv_str);
+    string token;
+
+    while (getline(ss, token, ','))
+    {
+        // Trim whitespace
+        token.erase(0, token.find_first_not_of(" \t"));
+        token.erase(token.find_last_not_of(" \t") + 1);
+
+        if (token.empty())
+            continue;
+
+        try
+        {
+            result.push_back(stoi(token));
+        }
+        catch (...)
+        {
+            throw runtime_error("Invalid integer '" + token + "' in " + vector_name);
+        }
+    }
+
+    return result;
+}
+
+vector<int> generateIdentityPerm(int size)
+{
+    vector<int> perm(size);
+    iota(perm.begin(), perm.end(), 0); // [0, 1, 2, ..., size-1]
+    return perm;
+}
+
+vector<int> generateRandomPerm(int size, mt19937 &rng)
+{
+    vector<int> perm = generateIdentityPerm(size);
+    shuffle(perm.begin(), perm.end(), rng);
+    return perm;
+}
+
+vector<int> generateRandomBias(int size, mt19937 &rng)
+{
+    vector<int> bias(size);
+    uniform_int_distribution<int> dist(0, 3);
+    for (int i = 0; i < size; ++i)
+    {
+        bias[i] = dist(rng);
+    }
+    return bias;
+}
+
+void validatePermutation(const vector<int> &perm, int expected_size, const string &vector_name)
+{
+    if ((int)perm.size() != expected_size)
+    {
+        throw runtime_error(vector_name + " has size " + to_string(perm.size()) + ", expected " +
+                            to_string(expected_size));
+    }
+
+    vector<bool> seen(expected_size, false);
+    for (int val : perm)
+    {
+        if (val < 0 || val >= expected_size)
+        {
+            throw runtime_error(vector_name + " contains invalid value " + to_string(val) + ", must be in [0, " +
+                                to_string(expected_size - 1) + "]");
+        }
+        if (seen[val])
+        {
+            throw runtime_error(vector_name + " contains duplicate value " + to_string(val));
+        }
+        seen[val] = true;
+    }
+}
+
+void validateBias(const vector<int> &bias, int expected_size)
+{
+    if ((int)bias.size() != expected_size)
+    {
+        throw runtime_error("Bias vector has size " + to_string(bias.size()) + ", expected " +
+                            to_string(expected_size));
+    }
+
+    for (int val : bias)
+    {
+        if (val < 0 || val > 3)
+        {
+            throw runtime_error("Bias contains invalid GF(4) value " + to_string(val) + ", must be in [0, 3]");
+        }
+    }
+}
+
+int calculateRowPermSize(int code_len, int min_hd)
+{
+    // k = dimension of code
+    switch (min_hd)
+    {
+    case 2:
+        return code_len - 1;
+    case 3:
+        return code_len - 3;
+    case 4:
+        return code_len - 5;
+    case 5:
+        return code_len - 7;
+    default:
+        throw runtime_error("Invalid minHD " + to_string(min_hd) + ", must be 2-5");
+    }
 }
