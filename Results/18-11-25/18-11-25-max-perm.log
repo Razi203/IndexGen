@@ -1,34 +1,24 @@
-Analyzing log files in Test/new_bias_perms/...
+Analyzing log files in Test/18-11-25/max_perm...
 
-Warning: Could not extract data from Test/new_bias_perms/939/log.txt
 
 ============================================================
 MAXIMUM NUMBER OF CODE WORDS: 35,604
 Found in folder: 153
 
-MINIMUM NUMBER OF CODE WORDS: 25,483
-Found in folder: 702
+MINIMUM NUMBER OF CODE WORDS: 35,485
+Found in folder: 77
 ============================================================
 
 
-Code words histogram saved to: 18-11-25-Codewords-hist.png
-Codebook times histogram saved to: 18-11-25-Time-hist.png
+Code words histogram saved to: 18-11-25-max-perm.png
 
 Code Words Summary Statistics:
-  Total runs analyzed: 939
+  Total runs analyzed: 500
   Maximum: 35,604
-  Minimum: 25,483
-  Mean: 34,298.14
-  Median: 35,519.00
-  Std Dev: 1,831.68
-
-Codebook Time Summary Statistics:
-  Total runs with time data: 939
-  Maximum: 7.67 seconds (folder 680)
-  Minimum: 6.01 seconds (folder 565)
-  Mean: 6.55 seconds
-  Median: 6.59 seconds
-  Std Dev: 0.18 seconds
+  Minimum: 35,485
+  Mean: 35,553.57
+  Median: 35,558.00
+  Std Dev: 23.66
 
 ============================================================
 LOG FILE CONTENTS FOR MAXIMUM CODEWORDS (folder 153):

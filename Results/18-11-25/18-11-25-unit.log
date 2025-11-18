@@ -1,0 +1,68 @@
+Analyzing log files in Test/18-11-25/unit...
+
+
+============================================================
+MAXIMUM NUMBER OF CODE WORDS: 35,590
+Found in folder: 13
+
+MINIMUM NUMBER OF CODE WORDS: 35,499
+Found in folder: 1
+============================================================
+
+
+Code words histogram saved to: 18-11-25-unit.png
+
+Code Words Summary Statistics:
+  Total runs analyzed: 33
+  Maximum: 35,590
+  Minimum: 35,499
+  Mean: 35,554.58
+  Median: 35,564.00
+  Std Dev: 26.34
+
+============================================================
+LOG FILE CONTENTS FOR MAXIMUM CODEWORDS (folder 13):
+============================================================
+
+Warning: Directory 'Test/new_bias_perms/13' already exists. Files may be overwritten.
+Output will be saved in directory: /home_nfs/razi.hleihil/IndexGen/Test/new_bias_perms/13
+Using Generation Method: LinearCode (minHD=3)
+Bias vector: [0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0]
+Row permutation: [4, 0, 5, 1, 6, 3, 7, 2]
+Column permutation: [8, 9, 6, 10, 3, 5, 0, 4, 7, 2, 1]
+
+--- Starting Generation for Codeword Length 11 (Current Time: 2025-11-17 20:09:47) ---
+--- Common Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+Max Homopolymer Run:		0
+Min GC Content:			0
+Max GC Content:			0
+
+Using Generation Method: LinearCode (minHD=3)
+Bias vector: [0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0]
+Row permutation: [4, 0, 5, 1, 6, 3, 7, 2]
+Column permutation: [8, 9, 6, 10, 3, 5, 0, 4, 7, 2, 1]
+
+Permutation vector (columns): 8 9 6 10 3 5 0 4 7 2 1 
+Permutation vector (rows): 4 0 5 1 6 3 7 2 
+Using bias: 0 0 0 0 2 0 0 0 0 0 0 
+
+Candidates Time: 0.04	seconds
+Fill AdjList Time:	6.45	seconds
+Find Min Sum Row Time:	0.00	seconds
+Del Ball Time:		0.07	seconds
+Process Matrix Time:	0.17	seconds
+Number of Candidate Words:	65536
+Number of Ones in Matrix:	172032
+Number of Code Words:		35590
+Vector distance SUCCESS
+=====================================================
+Codebook Time: 6.68	seconds
+=====================================================
+--- Finished Generation for Codeword Length 11 (Current Time: 2025-11-17 20:09:55) ---
+
+Total Execution Time: 8.68 seconds
+
+
+============================================================

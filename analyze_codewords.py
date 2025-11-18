@@ -184,9 +184,9 @@ def create_times_histogram(times_results, output_file="codebook_times_histogram.
 
 def main():
     """Main execution function."""
-    path = "Test/new_bias_perms/"
-    time_hist_name = "18-11-25-Time-hist.png"
-    codewords_hist_name = "18-11-25-Codewords-hist.png"
+    path = "Test/18-11-25/random"
+    # time_hist_name = "18-11-25-Time-hist.png"
+    codewords_hist_name = "18-11-25-random.png"
 
     print(f"Analyzing log files in {path}...\n")
 
@@ -209,7 +209,7 @@ def main():
 
     # Create visualizations
     create_codewords_histogram(codewords_results, codewords_hist_name)
-    create_times_histogram(times_results, time_hist_name)
+    # create_times_histogram(times_results, time_hist_name)
 
     # Print summary statistics for code words
     codewords_list = list(codewords_results.values())
@@ -221,21 +221,21 @@ def main():
     print(f"  Median: {np.median(codewords_list):,.2f}")
     print(f"  Std Dev: {np.std(codewords_list):,.2f}")
 
-    # Print summary statistics for codebook times
-    if times_results:
-        times_list = list(times_results.values())
-        max_time_folder = max(times_results.items(), key=lambda x: x[1])
-        min_time_folder = min(times_results.items(), key=lambda x: x[1])
+    # # Print summary statistics for codebook times
+    # if times_results:
+    #     times_list = list(times_results.values())
+    #     max_time_folder = max(times_results.items(), key=lambda x: x[1])
+    #     min_time_folder = min(times_results.items(), key=lambda x: x[1])
 
-        print(f"\nCodebook Time Summary Statistics:")
-        print(f"  Total runs with time data: {len(times_list)}")
-        print(f"  Maximum: {max(times_list):.2f} seconds (folder {max_time_folder[0]})")
-        print(f"  Minimum: {min(times_list):.2f} seconds (folder {min_time_folder[0]})")
-        print(f"  Mean: {np.mean(times_list):.2f} seconds")
-        print(f"  Median: {np.median(times_list):.2f} seconds")
-        print(f"  Std Dev: {np.std(times_list):.2f} seconds")
-    else:
-        print("\nNo codebook time data found in log files.")
+    #     print(f"\nCodebook Time Summary Statistics:")
+    #     print(f"  Total runs with time data: {len(times_list)}")
+    #     print(f"  Maximum: {max(times_list):.2f} seconds (folder {max_time_folder[0]})")
+    #     print(f"  Minimum: {min(times_list):.2f} seconds (folder {min_time_folder[0]})")
+    #     print(f"  Mean: {np.mean(times_list):.2f} seconds")
+    #     print(f"  Median: {np.median(times_list):.2f} seconds")
+    #     print(f"  Std Dev: {np.std(times_list):.2f} seconds")
+    # else:
+    #     print("\nNo codebook time data found in log files.")
 
     # Print the log file contents for the maximum codewords folder
     max_log_path = Path(path) / max_folder[0] / "log.txt"
