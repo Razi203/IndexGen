@@ -12,15 +12,16 @@
 EXECUTABLE="./IndexGen"
 
 # Output/Resume directory
-OUTPUT_DIR="TEMP"
+OUTPUT_DIR="Test/19-11-25/2"
+mkdir -p $OUTPUT_DIR
 
 # To resume a previous run, uncomment the following line:
 # RESUME="--resume"
 RESUME=""
 
 # Codeword length range
-LEN_START=11
-LEN_END=11
+LEN_START=14
+LEN_END=14
 
 # Minimum edit distance
 EDIT_DIST=3
@@ -54,15 +55,16 @@ MIN_HD=3
 # Bias vector mode: default, random, manual
 LC_BIAS_MODE="manual"
 # Row permutation mode: identity, random, manual
-LC_ROW_PERM_MODE="identity"
+LC_ROW_PERM_MODE="manual"
 # Column permutation mode: identity, random, manual
-LC_COL_PERM_MODE="identity"
+LC_COL_PERM_MODE="manual"
 # Bias vector (CSV, GF(4) values 0-3) - only used when LC_BIAS_MODE=manual
-LC_BIAS="1,0,0,0,0,0,0,0,0,0,0"
+LC_BIAS="3,0,2,3,1,1,1,3,2,3,3,1,1,2"
 # Row permutation (CSV, 0-indexed) - only used when LC_ROW_PERM_MODE=manual
-LC_ROW_PERM=""
+LC_ROW_PERM="4,0,5,1,6,3,7,2,9,10,8"
 # Column permutation (CSV, 0-indexed) - only used when LC_COL_PERM_MODE=manual
-LC_COL_PERM=""
+LC_COL_PERM="8,9,6,10,3,5,0,4,7,2,1,13,11,12"
+
 # Random seed for LinearCode vectors
 LC_RANDOM_SEED=0
 

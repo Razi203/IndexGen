@@ -1,0 +1,68 @@
+Analyzing log files in Test/18-11-25/org_unit...
+
+
+============================================================
+MAXIMUM NUMBER OF CODE WORDS: 28,171
+Found in folder: 32
+
+MINIMUM NUMBER OF CODE WORDS: 28,049
+Found in folder: 21
+============================================================
+
+
+Code words histogram saved to: 18-11-25-org-unit.png
+
+Code Words Summary Statistics:
+  Total runs analyzed: 33
+  Maximum: 28,171
+  Minimum: 28,049
+  Mean: 28,106.48
+  Median: 28,104.00
+  Std Dev: 32.09
+
+============================================================
+LOG FILE CONTENTS FOR MAXIMUM CODEWORDS (folder 32):
+============================================================
+
+Warning: Directory 'Test/18-11-25/org_unit/32' already exists. Files may be overwritten.
+Output will be saved in directory: /home_nfs/razi.hleihil/IndexGen/Test/18-11-25/org_unit/32
+Using Generation Method: LinearCode (minHD=3)
+Bias vector: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3]
+Row permutation: (not initialized)
+Column permutation: (not initialized)
+
+--- Starting Generation for Codeword Length 11 (Current Time: 2025-11-18 20:05:05) ---
+--- Common Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+Max Homopolymer Run:		0
+Min GC Content:			0
+Max GC Content:			0
+
+Using Generation Method: LinearCode (minHD=3)
+Bias vector: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3]
+Row permutation: (not initialized)
+Column permutation: (not initialized)
+
+Permutation vector (columns): 0 1 2 3 4 5 6 7 8 9 10 
+Permutation vector (rows): 0 1 2 3 4 5 6 7 
+Using bias: 0 0 0 0 0 0 0 0 0 0 3 
+
+Candidates Time: 0.04	seconds
+Fill AdjList Time:	6.07	seconds
+Find Min Sum Row Time:	0.00	seconds
+Del Ball Time:		0.09	seconds
+Process Matrix Time:	0.20	seconds
+Number of Candidate Words:	65536
+Number of Ones in Matrix:	261108
+Number of Code Words:		28171
+Vector distance SUCCESS
+=====================================================
+Codebook Time: 6.33	seconds
+=====================================================
+--- Finished Generation for Codeword Length 11 (Current Time: 2025-11-18 20:05:13) ---
+
+Total Execution Time: 7.59 seconds
+
+
+============================================================
