@@ -99,6 +99,15 @@ clean:
 -include $(MAIN_DEPS)
 -include $(TEST_DEPS)
 
+# --- Clangd Configuration ---
+
+# Generate compile_flags.txt for clangd
+# This splits the CXXFLAGS by space and puts each flag on a new line
+compile_flags: Makefile
+	@echo "Generating compile_flags.txt..."
+	@echo $(CXXFLAGS) | tr ' ' '\n' > compile_flags.txt
+
+
 # --- Help Target ---
 
 .PHONY: help
