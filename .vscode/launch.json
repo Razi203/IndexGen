@@ -19,6 +19,14 @@
           "ignoreFailures": true
         }
       ]
+    },
+    {
+      "name": "Python: Benchmark GPU",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/Testing/EditDistance/benchmark_gpu.py",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}/Testing/EditDistance"
     }
   ]
 }

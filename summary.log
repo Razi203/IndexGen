@@ -1,0 +1,55 @@
+Running: L=14 ED=3 GC=0-0 Run=0 Iter=1 Mode=manual Perm=manual
+Running: L=14 ED=3 GC=0-0 Run=0 Iter=2 Mode=random Perm=manual
+Running: L=14 ED=3 GC=0-0 Run=0 Iter=3 Mode=random Perm=random
+Running: L=14 ED=3 GC=0-0 Run=0 Iter=4 Mode=random Perm=random
+Running: L=14 ED=3 GC=0-0 Run=0 Iter=5 Mode=random Perm=random
+{"id":"3lW05OJoSUJc","time":1764674761,"expires":1764717961,"event":"message","topic":"IndexGen-Lambda","message":"Completed: L=14 ED=3 GC=0-0 Run=0 (5 iterations)"}
+Running: L=14 ED=3 GC=0-0 Run=3 Iter=1 Mode=manual Perm=manual
+Running: L=14 ED=3 GC=0-0 Run=3 Iter=2 Mode=random Perm=manual
+Running: L=14 ED=3 GC=0-0 Run=3 Iter=3 Mode=random Perm=random
+Running: L=14 ED=3 GC=0-0 Run=3 Iter=4 Mode=random Perm=random
+Running: L=14 ED=3 GC=0-0 Run=3 Iter=5 Mode=random Perm=random
+{"id":"GhXbIbQWgsB5","time":1764677463,"expires":1764720663,"event":"message","topic":"IndexGen-Lambda","message":"Completed: L=14 ED=3 GC=0-0 Run=3 (5 iterations)"}
+Running: L=14 ED=3 GC=0-0 Run=4 Iter=1 Mode=manual Perm=manual
+Running: L=14 ED=3 GC=0-0 Run=4 Iter=2 Mode=random Perm=manual
+Running: L=14 ED=3 GC=0-0 Run=4 Iter=3 Mode=random Perm=random
+Running: L=14 ED=3 GC=0-0 Run=4 Iter=4 Mode=random Perm=random
+Running: L=14 ED=3 GC=0-0 Run=4 Iter=5 Mode=random Perm=random
+{"id":"4QYYRBVAf4Ia","time":1764680752,"expires":1764723952,"event":"message","topic":"IndexGen-Lambda","message":"Completed: L=14 ED=3 GC=0-0 Run=4 (5 iterations)"}
+Running: L=14 ED=3 GC=0.3-0.7 Run=0 Iter=1 Mode=manual Perm=manual
+Running: L=14 ED=3 GC=0.3-0.7 Run=0 Iter=2 Mode=random Perm=manual
+Running: L=14 ED=3 GC=0.3-0.7 Run=0 Iter=3 Mode=random Perm=random
+Running: L=14 ED=3 GC=0.3-0.7 Run=0 Iter=4 Mode=random Perm=random
+Running: L=14 ED=3 GC=0.3-0.7 Run=0 Iter=5 Mode=random Perm=random
+{"id":"DPpqVwVuZQv2","time":1764683163,"expires":1764726363,"event":"message","topic":"IndexGen-Lambda","message":"Completed: L=14 ED=3 GC=0.3-0.7 Run=0 (5 iterations)"}
+Running: L=14 ED=3 GC=0.3-0.7 Run=3 Iter=1 Mode=manual Perm=manual
+Running: L=14 ED=3 GC=0.3-0.7 Run=3 Iter=2 Mode=random Perm=manual
+Running: L=14 ED=3 GC=0.3-0.7 Run=3 Iter=3 Mode=random Perm=random
+Running: L=14 ED=3 GC=0.3-0.7 Run=3 Iter=4 Mode=random Perm=random
+Running: L=14 ED=3 GC=0.3-0.7 Run=3 Iter=5 Mode=random Perm=random
+{"id":"IaaDCoxkgZPf","time":1764685113,"expires":1764728313,"event":"message","topic":"IndexGen-Lambda","message":"Completed: L=14 ED=3 GC=0.3-0.7 Run=3 (5 iterations)"}
+Running: L=14 ED=3 GC=0.3-0.7 Run=4 Iter=1 Mode=manual Perm=manual
+Running: L=14 ED=3 GC=0.3-0.7 Run=4 Iter=2 Mode=random Perm=manual
+Running: L=14 ED=3 GC=0.3-0.7 Run=4 Iter=3 Mode=random Perm=random
+Running: L=14 ED=3 GC=0.3-0.7 Run=4 Iter=4 Mode=random Perm=random
+Running: L=14 ED=3 GC=0.3-0.7 Run=4 Iter=5 Mode=random Perm=random
+{"id":"ifDfRCv1CvSI","time":1764687436,"expires":1764730636,"event":"message","topic":"IndexGen-Lambda","message":"Completed: L=14 ED=3 GC=0.3-0.7 Run=4 (5 iterations)"}
+Running: L=14 ED=4 GC=0-0 Run=0 Iter=1 Mode=manual Perm=manual
+Running: L=14 ED=4 GC=0-0 Run=0 Iter=2 Mode=random Perm=manual
+Running: L=14 ED=4 GC=0-0 Run=0 Iter=3 Mode=random Perm=random
+Running: L=14 ED=4 GC=0-0 Run=0 Iter=4 Mode=random Perm=random
+Running: L=14 ED=4 GC=0-0 Run=0 Iter=5 Mode=random Perm=random
+{"id":"1SJwU5kblokq","time":1764714452,"expires":1764757652,"event":"message","topic":"IndexGen-Lambda","message":"Completed: L=14 ED=4 GC=0-0 Run=0 (5 iterations)"}
+Running: L=14 ED=4 GC=0-0 Run=3 Iter=1 Mode=manual Perm=manual
+Running: L=14 ED=4 GC=0-0 Run=3 Iter=2 Mode=random Perm=manual
+Running: L=14 ED=4 GC=0-0 Run=3 Iter=3 Mode=random Perm=random
+Running: L=14 ED=4 GC=0-0 Run=3 Iter=4 Mode=random Perm=random
+Running: L=14 ED=4 GC=0-0 Run=3 Iter=5 Mode=random Perm=random
+{"id":"PgCqaStPYmWw","time":1764734085,"expires":1764777285,"event":"message","topic":"IndexGen-Lambda","message":"Completed: L=14 ED=4 GC=0-0 Run=3 (5 iterations)"}
+Running: L=14 ED=4 GC=0-0 Run=4 Iter=1 Mode=manual Perm=manual
+Running: L=14 ED=4 GC=0-0 Run=4 Iter=2 Mode=random Perm=manual
+Running: L=14 ED=4 GC=0-0 Run=4 Iter=3 Mode=random Perm=random
+Running: L=14 ED=4 GC=0-0 Run=4 Iter=4 Mode=random Perm=random
+Running: L=14 ED=4 GC=0-0 Run=4 Iter=5 Mode=random Perm=random
+{"id":"li2RnCFJr4jt","time":1764759087,"expires":1764802287,"event":"message","topic":"IndexGen-Lambda","message":"Completed: L=14 ED=4 GC=0-0 Run=4 (5 iterations)"}
+Running: L=14 ED=4 GC=0.3-0.7 Run=0 Iter=1 Mode=manual Perm=manual

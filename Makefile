@@ -89,7 +89,7 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
 .PHONY: clean
 clean:
 	@echo "Cleaning up..."
-	rm -rf $(BUILD_DIR)/* $(TARGET) $(TEST_TARGET)
+	rm -rf $(BUILD_DIR)/* $(TARGET)
 
 # --- Dependency Handling ---
 
@@ -97,6 +97,15 @@ clean:
 # The '-' tells 'make' not to error if the file doesn't exist (e.g., on first build)
 -include $(MAIN_DEPS)
 -include $(TEST_DEPS)
+
+# --- Clangd Configuration ---
+
+# Generate compile_flags.txt for clangd
+# This splits the CXXFLAGS by space and puts each flag on a new line
+compile_flags: Makefile
+	@echo "Generating compile_flags.txt..."
+	@echo $(CXXFLAGS) | tr ' ' '\n' > compile_flags.txt
+
 
 # --- Help Target ---
 

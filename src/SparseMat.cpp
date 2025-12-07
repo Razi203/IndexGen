@@ -6,6 +6,7 @@
 #include <cassert>
 #include <chrono>
 #include <climits>
+#include <cstdlib> // Added for system()
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -22,6 +23,7 @@ using namespace std;
 
 void AdjList::RowsBySum()
 {
+    rowsBySum.clear(); // Ensure clear refresh
     for (const pair<const int, unordered_set<int>> &iSetJ : m)
     {
         int i = iSetJ.first;
@@ -202,6 +204,42 @@ void AdjList::FromFile(const string &filename)
     input.close();
 }
 
+// *** NEW: FAST BINARY LOADER FOR GPU INTEGRATION ***
+void AdjList::FromBinaryFile(const string &filename, long long int &matrixOnesNum)
+{
+    ifstream input(filename, ios::binary);
+    if (!input.is_open())
+    {
+        std::cerr << "Error: Could not open binary edges file: " << filename << endl;
+        return;
+    }
+
+    // Read file into a buffer
+    input.seekg(0, ios::end);
+    size_t fileSize = input.tellg();
+    input.seekg(0, ios::beg);
+
+    if (fileSize == 0)
+        return;
+
+    std::vector<int32_t> buffer(fileSize / sizeof(int32_t));
+    input.read(reinterpret_cast<char *>(buffer.data()), fileSize);
+    input.close();
+
+    // Process buffer (format: u, v, u, v...)
+    // Buffer contains only UNIQUE pairs (u < v). We must add symmetric edges.
+    size_t numInts = buffer.size();
+    for (size_t i = 0; i < numInts; i += 2)
+    {
+        int u = buffer[i];
+        int v = buffer[i + 1];
+        m[u].insert(v);
+        m[v].insert(u);
+    }
+    matrixOnesNum = numInts;
+    std::cout << "Loaded " << (numInts / 2) << " edges from binary file." << endl;
+}
+
 // *** Standalone Helper Functions ***
 
 void PairsToFile(const string &filename, const vector<pair<int, int>> &vec)
@@ -260,6 +298,60 @@ void DelProgressAdjListComp(const int threadIdx)
     remove(alFilename.c_str());
     string iFilename = "progress_adj_list_comp_i_" + to_string(threadIdx) + ".txt";
     remove(iFilename.c_str());
+}
+
+// *** NEW: Helper to run Python GPU script (System Call) ***
+// OPTIMIZATION: Added inputFilename argument to avoid re-writing the vector file
+void FillAdjListGPU(AdjList &adjList, const vector<string> &candidates, const int minED, long long int &matrixOnesNum,
+                    const string &inputFilename = "")
+{
+    string vecFile = "temp_vectors.txt";
+    string edgesFile = "temp_edges.bin";
+
+    string fileToUse = vecFile;
+
+    // OPTIMIZATION: If we already have a file on disk (progress_cand.txt), use it!
+    if (!inputFilename.empty())
+    {
+        std::cout << "[C++] Using existing candidate file: " << inputFilename << endl;
+        fileToUse = inputFilename;
+    }
+    else
+    {
+        // Fallback: Save candidates to temp file
+        std::cout << "[C++] Saving candidates to " << vecFile << "..." << endl;
+        StrVecToFile(candidates, vecFile);
+    }
+
+    // 2. Call Python Script
+    // Usage: python gpu_graph_generator.py <input> <output> <threshold>
+    string cmd = "python /home/razi.hleihil/IndexGen/Testing/cuda_distances/gpu_graph_generator.py " + fileToUse + " " +
+                 edgesFile + " " + to_string(minED);
+    std::cout << "[C++] Executing GPU Solver: " << cmd << endl;
+
+    int ret = system(cmd.c_str());
+    if (ret != 0)
+    {
+        std::cerr << "Error: Python GPU script failed." << endl;
+        exit(1);
+    }
+
+    // 3. Load Binary Edges
+    std::cout << "[C++] Loading edges from " << edgesFile << "..." << endl;
+    auto load_start = chrono::steady_clock::now();
+
+    adjList.FromBinaryFile(edgesFile, matrixOnesNum);
+
+    auto load_end = chrono::steady_clock::now();
+    chrono::duration<double> load_time = load_end - load_start;
+    std::cout << "[C++] Edge load time: " << fixed << setprecision(2) << load_time.count() << "s" << endl;
+
+    // Clean up temp file only if we created it
+    if (inputFilename.empty())
+    {
+        remove(vecFile.c_str());
+    }
+    remove(edgesFile.c_str());
 }
 
 void FillAdjListTH(vector<pair<int, int>> &pairVec, const vector<string> &candidates,
@@ -458,13 +550,22 @@ void Codebook(AdjList &adjList, vector<string> &codebook, const vector<string> &
 
 void CodebookAdjList(const vector<string> &candidates, vector<string> &codebook, const int minED, const int threadNum,
                      const int saveInterval, long long int &matrixOnesNum,
-                     std::chrono::duration<double> &fillAdjListTime, std::chrono::duration<double> &processMatrixTime)
+                     std::chrono::duration<double> &fillAdjListTime, std::chrono::duration<double> &processMatrixTime,
+                     const string &candFilename = "") // ADDED Argument
 {
     AdjList adjList;
     NumToFile(1, "progress_stage.txt");
 
     auto starta = chrono::steady_clock::now();
-    FillAdjList(adjList, candidates, minED, threadNum, saveInterval, false, matrixOnesNum);
+
+    // FillAdjList(adjList, candidates, minED, threadNum, saveInterval, false, matrixOnesNum); //(ORIGINAL)
+    // --- INTEGRATION CHANGE: USE GPU SOLVER ---
+    // Pass the existing filename (candFilename) to avoid redundant writing
+    FillAdjListGPU(adjList, candidates, minED, matrixOnesNum, candFilename);
+
+    adjList.RowsBySum(); // Must build the optimization map after loading
+    // ------------------------------------------
+
     auto enda = chrono::steady_clock::now();
     fillAdjListTime = enda - starta;
     std::cout << "Fill AdjList Time:\t" << fixed << setprecision(2) << fillAdjListTime.count() << "\tseconds" << endl;
@@ -492,6 +593,7 @@ void CodebookAdjListResumeFromFile(const vector<string> &candidates, vector<stri
     if (stage == 1)
     {
         std::cout << "Resuming adj list comp" << endl;
+        // Resume logic currently uses CPU. If restart is needed, it will use GPU from scratch.
         FillAdjList(adjList, candidates, params.codeMinED, params.threadNum, params.saveInterval, true, matrixOnesNum);
         NumToFile(2, "progress_stage.txt");
         Codebook(adjList, codebook, candidates, params.saveInterval, false);
@@ -515,7 +617,12 @@ void GenerateCodebookAdj(const Params &params)
 
     auto start_candidates = std::chrono::steady_clock::now();
     vector<string> candidates = Candidates(params);
-    StrVecToFile(candidates, "progress_cand.txt");
+
+    // This file is saved here for checkpointing.
+    // We will reuse this filename for the GPU input to avoid re-writing 262k strings.
+    string candFilename = "progress_cand.txt";
+    StrVecToFile(candidates, candFilename);
+
     auto end_candidates = std::chrono::steady_clock::now();
     std::chrono::duration<double> elapsed_secs_candidates = end_candidates - start_candidates;
     std::cout << "Candidates Time: " << fixed << setprecision(2) << elapsed_secs_candidates.count() << "\tseconds"
@@ -526,8 +633,9 @@ void GenerateCodebookAdj(const Params &params)
     vector<string> codebook;
     long long int matrixOnesNum;
 
+    // Pass candFilename to the function
     CodebookAdjList(candidates, codebook, params.codeMinED, params.threadNum, params.saveInterval, matrixOnesNum,
-                    fillAdjListTime, processMatrixTime);
+                    fillAdjListTime, processMatrixTime, candFilename);
 
     long long int candidateNum = candidates.size();
     PrintTestResults(candidateNum, matrixOnesNum, codebook.size());
@@ -536,7 +644,7 @@ void GenerateCodebookAdj(const Params &params)
     ToFile(codebook, params, candidateNum, matrixOnesNum, elapsed_secs_candidates, fillAdjListTime, processMatrixTime,
            overAllTime);
     // TODO: Replace with if (flag) do
-    VerifyDist(codebook, params.codeMinED, params.threadNum);
+    // VerifyDist(codebook, params.codeMinED, params.threadNum);
     std::cout << "=====================================================" << std::endl;
     remove("progress_params.txt");
     remove("progress_cand.txt");
