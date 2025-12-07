@@ -1,6 +1,11 @@
 import numpy as np
 from numba import cuda, uint32, int32, uint8
 import math
+import warnings
+from numba.core.errors import NumbaPerformanceWarning
+
+# Suppress Numba performance warnings
+warnings.simplefilter('ignore', category=NumbaPerformanceWarning)
 
 # -------------------------------------------------------------------------
 # CUDA Kernel: Clear Buffer (Reset Counter)
@@ -13,18 +18,21 @@ def reset_counter_kernel(counter):
 # CUDA Kernel: Myers' Bit-Parallel (Atomic Sparse Output)
 # -------------------------------------------------------------------------
 @cuda.jit
-def compute_chunk_kernel(peq_flat,       # (N, 256 * n_blocks)
-                         seq_transposed, # Transposed Sequence Data (L, N)
+def compute_chunk_kernel(peq_flat,       # (BATCH_ROWS, 256)
+                         seq_transposed, # (L, BATCH_COLS) flattened
                          L,              # Length of strings
                          threshold,      # Distance threshold D
-                         start_row,      # Global Row Offset
-                         start_col,      # Global Col Offset
-                         num_rows,       # Number of rows in this chunk
-                         num_cols,       # Number of cols in this chunk
-                         N,              # Total Number of sequences
+                         start_row,      # Global Row Offset of this TILE
+                         start_col,      # Global Col Offset of this TILE
+                         num_rows,       # Number of rows in this TILE
+                         num_cols,       # Number of cols in this TILE
+                         N,              # Total Number of sequences (Global)
                          global_counter, # Device array [1] for atomic count
                          edge_buffer,    # Device array [MAX_EDGES, 2] for coords
-                         max_edges):     # Capacity of edge_buffer
+                         max_edges,      # Capacity of edge_buffer
+                         peq_batch_start, # Global index of the first row in peq_flat
+                         seq_batch_start, # Global index of the first col in seq_transposed
+                         seq_batch_width):# Width of the current sequence batch (for stride)
     
     # Block Configuration: 16x16 threads
     # Each thread computes 1 Row x 4 Columns
@@ -45,7 +53,7 @@ def compute_chunk_kernel(peq_flat,       # (N, 256 * n_blocks)
     global_col_base = start_col + block_col_start + local_col_base
 
     # ---------------------------------------------------------------------
-    # Shared Memory Allocation & Loading (Same as before)
+    # Shared Memory Allocation & Loading
     # ---------------------------------------------------------------------
     smem_peq = cuda.shared.array((16, 4), uint32)
     smem_seq = cuda.shared.array((64, 33), uint8) 
@@ -54,7 +62,9 @@ def compute_chunk_kernel(peq_flat,       # (N, 256 * n_blocks)
     if tx < 4:
         g_r_load = start_row + block_row_start + ty
         if g_r_load < N:
-            smem_peq[ty, tx] = peq_flat[g_r_load * 256 + tx]
+            # Map global row to local PEQ index
+            local_r = g_r_load - peq_batch_start
+            smem_peq[ty, tx] = peq_flat[local_r * 256 + tx]
         else:
             smem_peq[ty, tx] = 0
 
@@ -69,7 +79,12 @@ def compute_chunk_kernel(peq_flat,       # (N, 256 * n_blocks)
         g_c_load = start_col + block_col_start + c_idx
         
         if g_c_load < N:
-            smem_seq[c_idx, char_idx] = seq_transposed[char_idx * N + g_c_load]
+            # Map global col to local Seq index
+            local_c = g_c_load - seq_batch_start
+            # Sequence Batch is flattened (L, seq_batch_width). 
+            # Stride is seq_batch_width.
+            # Index = char_idx * seq_batch_width + local_c
+            smem_seq[c_idx, char_idx] = seq_transposed[char_idx * seq_batch_width + local_c]
         else:
             smem_seq[c_idx, char_idx] = 99 
             
@@ -95,6 +110,11 @@ def compute_chunk_kernel(peq_flat,       # (N, 256 * n_blocks)
     else:       hb_mask = uint32(1) << (L - 1)
 
     for k in range(L):
+        # We need to access smem_seq in a stride=1 way if possible, but c1..c4 are from different columns?
+        # local_col_base = tx * 4. 
+        # c1 is from column (local_col_base + 0). 
+        # smem_seq shape (64, 33). row=col_idx, col=char_idx.
+        # So smem_seq[col_idx, k]. This is correct.
         c1 = smem_seq[local_col_base + 0, k]
         c2 = smem_seq[local_col_base + 1, k]
         c3 = smem_seq[local_col_base + 2, k]
@@ -223,8 +243,8 @@ def build_peq_tables(seq_flat, N, L):
             
     return peq_table
 
-def pack_and_transpose_sequences(strings):
-    """ Optimized packing + TRANSPOSE for "0123" strings. """
+def pack_sequences(strings):
+    """ Pack strings into flat 'latin1' bytes, no transpose yet. """
     N = len(strings)
     if N == 0: return np.array([], dtype=np.uint8), 0
     L = len(strings[0])
@@ -232,38 +252,83 @@ def pack_and_transpose_sequences(strings):
     raw_bytes = huge_string.encode('latin1')
     seq_flat = np.frombuffer(raw_bytes, dtype=np.uint8).copy()
     seq_flat -= 48 
-    seq_matrix = seq_flat.reshape(N, L)
-    return seq_matrix.T.copy().ravel(), L
+    return seq_flat, L, N
 
-def solve_edit_distance_cuda(strings, threshold, tile_size=16384):
+def transpose_batch(seq_flat, batch_start, batch_size, L, N_total):
+    """ 
+    Extract a batch of sequences from the flat array and TRANSPOSE them.
+    Returns: flattened array of shape (batch_size, L).T -> (L, batch_size) 
+    """
+    if batch_size == 0: return np.zeros(0, dtype=np.uint8)
+    
+    # seq_flat is (N_total * L)
+    start_idx = batch_start * L
+    end_idx = start_idx + batch_size * L
+    
+    # Extract chunk
+    chunk = seq_flat[start_idx:end_idx]
+    
+    # Reshape to (BatchSize, L)
+    seq_matrix = chunk.reshape(batch_size, L)
+    
+    # Transpose to (L, BatchSize)
+    # Ravel for GPU (col-major logically)
+    return seq_matrix.T.copy().ravel()
+
+def solve_edit_distance_cuda(strings, threshold, tile_size=16384, max_gpu_memory_gb=9.0):
     N = len(strings)
     if N == 0: return []
 
-    print("Preprocessing data for GPU (Sparse Output)...")
-    seq_transposed, L = pack_and_transpose_sequences(strings)
-    if L > 32: raise ValueError("This optimized 32-bit kernel only supports lengths <= 32.")
-    peq_flat = build_peq_tables(seq_transposed, N, L)
-
-    d_peq = cuda.to_device(peq_flat)
-    d_seq = cuda.to_device(seq_transposed)
+    print(f"[Python GPU] Preprocessing data for GPU (Memory Limit: {max_gpu_memory_gb} GB)...")
     
+    # 1. Flatten all strings on Host (This still requires Host RAM)
+    seq_flat_all, L, _ = pack_sequences(strings)
+    
+    if L > 32: raise ValueError("[Python GPU] This optimized 32-bit kernel only supports lengths <= 32.")
+
+    # 2. Calculate Batch Size
+    # Memory Usage Formula:
+    # PEQ (per item) = 256 * 4 bytes = 1 KB
+    # Seq Transposed (per item) = L (32) bytes = 0.03 KB
+    # Buffer Overhead = 80 MB (fixed)
+    # Safely: BatchSize * 1.1 KB < (Limit - 100MB)
+    
+    limit_bytes = max_gpu_memory_gb * 1024**3
+    buffer_bytes = 200 * 1024**2 # 200 MB reserve for buffers/overhead
+    
+    mem_per_row = 1024 + 64 # Peaucellier + Seq + margin
+    
+    available_for_batch = limit_bytes - buffer_bytes
+    if available_for_batch < 0: available_for_batch = 100 * 1024**2 # Minimal fallback
+    
+    # We need PEQ for Batch_Rows and Seq for Batch_Cols. 
+    # If we assume we process square batches BatchSize x BatchSize.
+    # We load BatchSize items (PEQ) and BatchSize items (Seq).
+    # Total items loaded: 2 * BatchSize?
+    # Actually, we can just load one Batch of PEQ (Rows) and iterate over chunks of Cols.
+    # The 'Col Chunk' can be smaller if needed, but simplest is square blocks.
+    
+    batch_size = int(available_for_batch // mem_per_row)
+    # Clamp batch size to reasonable limits / alignment
+    batch_size = min(batch_size, N)
+    batch_size = (batch_size // 64) * 64 # Align to 64
+    if batch_size < 1024: batch_size = 1024
+    
+    print(f"[Python GPU] Calculated Batch Size: {batch_size} sequences (Target VRAM Usage per batch)")
+
     # Sparse output config
-    # 5 million edges per tile buffer (~40MB). 
-    # Adjust based on expected density. For random strings + low threshold, this is plenty.
     MAX_EDGES_PER_BUFFER = 5_000_000 
     
-    print(f"Allocating Adjacency List for N={N}...")
+    print(f"[Python GPU] Allocating Adjacency List for N={N}...")
     adj_list = [[] for _ in range(N)]
 
     num_streams = 2
     streams = [cuda.stream() for _ in range(num_streams)]
     
-    # Buffers now store (ROW, COL) pairs instead of dense matrix
-    # Pinned memory for fast transfer
+    # Buffers
     h_counters = [cuda.pinned_array(1, dtype=np.int32) for _ in range(num_streams)]
     h_edges    = [cuda.pinned_array((MAX_EDGES_PER_BUFFER, 2), dtype=np.int32) for _ in range(num_streams)]
     
-    # Device memory
     d_counters = [cuda.device_array(1, dtype=np.int32) for _ in range(num_streams)]
     d_edges    = [cuda.device_array((MAX_EDGES_PER_BUFFER, 2), dtype=np.int32) for _ in range(num_streams)]
 
@@ -272,69 +337,111 @@ def solve_edit_distance_cuda(strings, threshold, tile_size=16384):
     blockspergrid_y = (tile_size + 15) // 16
     blockspergrid = (blockspergrid_x, blockspergrid_y)
 
-    print(f"Starting Computation: Sparse N={N}")
+    print(f"[Python GPU] Starting Computation: {N} strings, BatchSize={batch_size}")
     
-    tiles = []
-    for r_start in range(0, N, tile_size):
-        for c_start in range(r_start, N, tile_size):
-            tiles.append((r_start, c_start))
-            
-    active_tasks = [] 
-
-    def process_completed_tile(task_info):
-        s_idx, _, _ = task_info
-        streams[s_idx].synchronize()
+    # ---------------------------------------------------------------------
+    # Outer Loop: Row Batches (PEQ loaded once per row-batch)
+    # ---------------------------------------------------------------------
+    for r_batch_start in range(0, N, batch_size):
+        r_batch_end = min(r_batch_start + batch_size, N)
+        r_batch_len = r_batch_end - r_batch_start
         
-        # 1. Read how many edges were found
-        count = h_counters[s_idx][0]
+        # 1. Build and Upload PEQ for this Row Batch
+        # We need to extract the 'transposed' version of this batch just for PEQ build
+        # or build PEQ from the flat linear strings?
+        # Our build_peq_tables expects transposed input. 
+        batch_seq_transposed = transpose_batch(seq_flat_all, r_batch_start, r_batch_len, L, N)
+        peq_flat_batch = build_peq_tables(batch_seq_transposed, r_batch_len, L)
+        d_peq = cuda.to_device(peq_flat_batch) # Moved to GPU
         
-        if count > MAX_EDGES_PER_BUFFER:
-            print(f"WARNING: Edge buffer overflow! Found {count} but cap is {MAX_EDGES_PER_BUFFER}. Results truncated.")
-            count = MAX_EDGES_PER_BUFFER
+        # -----------------------------------------------------------------
+        # Inner Loop: Col Batches (Seq loaded once per col-batch)
+        # -----------------------------------------------------------------
+        # Optimization: We only care about upper triangle (c > r).
+        # So begin c_batch from r_batch_start.
+        
+        for c_batch_start in range(r_batch_start, N, batch_size):
+            c_batch_end = min(c_batch_start + batch_size, N)
+            c_batch_len = c_batch_end - c_batch_start
             
-        if count > 0:
-            # 2. Process edges (Sparse read from pinned memory)
-            # Only read the valid 'count' rows
-            valid_edges = h_edges[s_idx][:count]
+            # 2. Build and Upload Seq for this Col Batch
+            # (Reuse batch_seq_transposed if r_batch == c_batch? Optimization for later)
+            if c_batch_start == r_batch_start and r_batch_len == c_batch_len:
+                 d_seq = cuda.to_device(batch_seq_transposed)
+            else:
+                 c_seq_transposed = transpose_batch(seq_flat_all, c_batch_start, c_batch_len, L, N)
+                 d_seq = cuda.to_device(c_seq_transposed)
+                 
+            # -------------------------------------------------------------
+            # Tiling Loop: Process this (RowBatch x ColBatch) block
+            # -------------------------------------------------------------
+            # We tile within the global coordinates, but restricted to this batch intersection
             
-            for i in range(count):
-                r, c = valid_edges[i]
-                adj_list[r].append(int(c))
-                adj_list[c].append(int(r)) # Symmetry
+            tiles = []
+            
+            # Iterate tiles within this batch window
+            # Range: [r_batch_start, r_batch_end)
+            for t_r in range(r_batch_start, r_batch_end, tile_size):
+                # Ensure we only process upper triangle
+                # Start col must be at least t_r (actually max(t_r, c_batch_start))
+                start_c_scan = max(t_r, c_batch_start)
+                
+                for t_c in range(start_c_scan, c_batch_end, tile_size):
+                    tiles.append((t_r, t_c))
+            
+            if not tiles: continue
+            
+            active_tasks = [] 
+            
+            # Helper to process results
+            def process_completed_tile(task_info):
+                s_idx, _, _ = task_info
+                streams[s_idx].synchronize()
+                count = h_counters[s_idx][0]
+                if count > MAX_EDGES_PER_BUFFER:
+                    count = MAX_EDGES_PER_BUFFER
+                if count > 0:
+                    valid_edges = h_edges[s_idx][:count]
+                    for i in range(count):
+                        r, c = valid_edges[i]
+                        adj_list[r].append(int(c))
+                        adj_list[c].append(int(r))
 
-    tile_idx = 0
-    while tile_idx < len(tiles) or len(active_tasks) > 0:
-        while len(active_tasks) < num_streams and tile_idx < len(tiles):
-            stream_id = tile_idx % num_streams
-            stream = streams[stream_id]
-            r_start, c_start = tiles[tile_idx]
-            
-            # 1. Reset Counter on GPU
-            reset_counter_kernel[1, 1, stream](d_counters[stream_id])
-            
-            r_len = min(r_start + tile_size, N) - r_start
-            c_len = min(c_start + tile_size, N) - c_start
-            
-            # 2. Launch Compute
-            compute_chunk_kernel[blockspergrid, threadsperblock, stream](
-                d_peq, d_seq, L, threshold,
-                r_start, c_start, r_len, c_len, N, 
-                d_counters[stream_id], d_edges[stream_id], MAX_EDGES_PER_BUFFER
-            )
-            
-            # 3. Async Copy Back
-            # Copy counter first
-            d_counters[stream_id].copy_to_host(h_counters[stream_id], stream=stream)
-            # Copy edge buffer (We copy the whole buffer because we don't know size yet on host, 
-            # unless we sync. Copying 40MB is still way faster than 256MB dense)
-            # Optimization: If we trust PCIe speed, copying 40MB is fine.
-            d_edges[stream_id].copy_to_host(h_edges[stream_id], stream=stream)
-            
-            active_tasks.append((stream_id, (r_start, c_start), stream_id))
-            tile_idx += 1
+            tile_idx = 0
+            while tile_idx < len(tiles) or len(active_tasks) > 0:
+                while len(active_tasks) < num_streams and tile_idx < len(tiles):
+                    stream_id = tile_idx % num_streams
+                    stream = streams[stream_id]
+                    t_r, t_c = tiles[tile_idx]
+                    
+                    # Compute lengths for this specific tile
+                    # Must be clamped to both Batch End and Global N (redundant but safe)
+                    cur_r_len = min(t_r + tile_size, r_batch_end) - t_r
+                    cur_c_len = min(t_c + tile_size, c_batch_end) - t_c
+                    
+                    if cur_r_len > 0 and cur_c_len > 0:
+                        reset_counter_kernel[1, 1, stream](d_counters[stream_id])
+                        
+                        compute_chunk_kernel[blockspergrid, threadsperblock, stream](
+                            d_peq, d_seq, L, threshold,
+                            t_r, t_c, cur_r_len, cur_c_len, N, 
+                            d_counters[stream_id], d_edges[stream_id], MAX_EDGES_PER_BUFFER,
+                            r_batch_start, c_batch_start, c_batch_len
+                        )
+                        d_counters[stream_id].copy_to_host(h_counters[stream_id], stream=stream)
+                        d_edges[stream_id].copy_to_host(h_edges[stream_id], stream=stream)
+                        active_tasks.append((stream_id, (t_r, t_c), stream_id))
+                    
+                    tile_idx += 1
 
-        if active_tasks:
-            task = active_tasks.pop(0)
-            process_completed_tile(task)
+                if active_tasks:
+                    task = active_tasks.pop(0)
+                    process_completed_tile(task)
+            
+            # Cleanup Device Memory for this Col Batch
+            d_seq = None # Allow GC/Recycle
+            
+        # Cleanup Device Memory for this Row Batch
+        d_peq = None
 
     return adj_list

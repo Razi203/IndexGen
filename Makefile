@@ -90,7 +90,7 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
 .PHONY: clean
 clean:
 	@echo "Cleaning up..."
-	rm -rf $(BUILD_DIR)/* $(TARGET) $(TEST_TARGET)
+	rm -rf $(BUILD_DIR)/* $(TARGET)
 
 # --- Dependency Handling ---
 
