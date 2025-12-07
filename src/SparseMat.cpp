@@ -303,7 +303,7 @@ void DelProgressAdjListComp(const int threadIdx)
 // *** NEW: Helper to run Python GPU script (System Call) ***
 // OPTIMIZATION: Added inputFilename argument to avoid re-writing the vector file
 void FillAdjListGPU(AdjList &adjList, const vector<string> &candidates, const int minED, long long int &matrixOnesNum,
-                    const string &inputFilename = "")
+                    const string &inputFilename = "", double maxGPUMemoryGB = 10.0)
 {
     string vecFile = "temp_vectors.txt";
     string edgesFile = "temp_edges.bin";
@@ -325,8 +325,13 @@ void FillAdjListGPU(AdjList &adjList, const vector<string> &candidates, const in
 
     // 2. Call Python Script
     // Usage: python gpu_graph_generator.py <input> <output> <threshold>
-    string cmd = "python /home/razi.hleihil/IndexGen/Testing/cuda_distances/gpu_graph_generator.py " + fileToUse + " " +
-                 edgesFile + " " + to_string(minED);
+    // Determine script path: allow env override, else assume relative to CWD
+    const char* env_root = std::getenv("INDEXGEN_ROOT");
+    string project_root = (env_root) ? string(env_root) : ".";
+    string script_path = project_root + "/scripts/gpu_graph_generator.py";
+
+    string cmd = "python " + script_path + " " + fileToUse + " " +
+                 edgesFile + " " + to_string(minED) + " " + to_string(maxGPUMemoryGB);
     std::cout << "[C++] Executing GPU Solver: " << cmd << endl;
 
     int ret = system(cmd.c_str());
@@ -548,20 +553,30 @@ void Codebook(AdjList &adjList, vector<string> &codebook, const vector<string> &
     DelProgressCodebook();
 }
 
+// Updated signature to include useGPU flag
 void CodebookAdjList(const vector<string> &candidates, vector<string> &codebook, const int minED, const int threadNum,
                      const int saveInterval, long long int &matrixOnesNum,
                      std::chrono::duration<double> &fillAdjListTime, std::chrono::duration<double> &processMatrixTime,
-                     const string &candFilename = "") // ADDED Argument
+                     const bool useGPU, double maxGPUMemoryGB, const string &candFilename = "") // ADDED Argument
 {
     AdjList adjList;
     NumToFile(1, "progress_stage.txt");
 
     auto starta = chrono::steady_clock::now();
 
-    // FillAdjList(adjList, candidates, minED, threadNum, saveInterval, false, matrixOnesNum); //(ORIGINAL)
-    // --- INTEGRATION CHANGE: USE GPU SOLVER ---
-    // Pass the existing filename (candFilename) to avoid redundant writing
-    FillAdjListGPU(adjList, candidates, minED, matrixOnesNum, candFilename);
+    if (useGPU)
+    {
+        // --- INTEGRATION CHANGE: USE GPU SOLVER ---
+        // Pass the existing filename (candFilename) to avoid redundant writing
+        std::cout << "[C++] Mode: GPU Accelerated (Max Mem: " << maxGPUMemoryGB << " GB)" << endl;
+        FillAdjListGPU(adjList, candidates, minED, matrixOnesNum, candFilename, maxGPUMemoryGB);
+    }
+    else
+    {
+        // --- ORIGINAL: CPU THREADED SOLVER ---
+        std::cout << "[C++] Mode: CPU Threaded" << endl;
+        FillAdjList(adjList, candidates, minED, threadNum, saveInterval, false, matrixOnesNum);
+    }
 
     adjList.RowsBySum(); // Must build the optimization map after loading
     // ------------------------------------------
@@ -635,7 +650,7 @@ void GenerateCodebookAdj(const Params &params)
 
     // Pass candFilename to the function
     CodebookAdjList(candidates, codebook, params.codeMinED, params.threadNum, params.saveInterval, matrixOnesNum,
-                    fillAdjListTime, processMatrixTime, candFilename);
+                    fillAdjListTime, processMatrixTime, params.useGPU, params.maxGPUMemoryGB, candFilename);
 
     long long int candidateNum = candidates.size();
     PrintTestResults(candidateNum, matrixOnesNum, codebook.size());
@@ -643,8 +658,10 @@ void GenerateCodebookAdj(const Params &params)
     std::chrono::duration<double> overAllTime = end - start;
     ToFile(codebook, params, candidateNum, matrixOnesNum, elapsed_secs_candidates, fillAdjListTime, processMatrixTime,
            overAllTime);
-    // TODO: Replace with if (flag) do
-    // VerifyDist(codebook, params.codeMinED, params.threadNum);
+    if (params.verify)
+    {
+        VerifyDist(codebook, params.codeMinED, params.threadNum);
+    }
     std::cout << "=====================================================" << std::endl;
     remove("progress_params.txt");
     remove("progress_cand.txt");

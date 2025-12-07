@@ -18,6 +18,9 @@
 
 // This is a header-only library for command-line argument parsing.
 #include "cxxopts.hpp"
+#include "json.hpp"
+
+using json = nlohmann::json;
 
 #include "CandidateGenerator.hpp"
 #include "Candidates.hpp"
@@ -52,6 +55,30 @@ int main(int argc, char *argv[])
             return 0;
         }
 
+        // Resolve config path before changing directory
+        string config_file_path;
+        if (result.count("config")) {
+            config_file_path = filesystem::absolute(result["config"].as<string>()).string();
+        }
+
+        // Parse JSON early to get directory if needed
+        string json_dir;
+        if (!config_file_path.empty())
+        {
+            try {
+                std::ifstream f(config_file_path);
+                if (f.is_open()) {
+                    json j;
+                    f >> j;
+                    if (j.contains("dir")) {
+                        json_dir = j["dir"].get<string>();
+                    }
+                }
+            } catch (const std::exception& e) {
+                // Ignore errors here, they will be caught later when loading params properly
+            }
+        }
+
         auto start_time = chrono::steady_clock::now();
 
         if (result.count("resume"))
@@ -82,7 +109,11 @@ int main(int argc, char *argv[])
             string dir_name = result["dir"].as<string>();
             if (dir_name.empty())
             {
-                dir_name = get_timestamp();
+                if (!json_dir.empty()) {
+                    dir_name = json_dir;
+                } else {
+                    dir_name = get_timestamp();
+                }
             }
 
             filesystem::path work_dir(dir_name);
@@ -92,7 +123,7 @@ int main(int argc, char *argv[])
             }
             else
             {
-                if (!filesystem::create_directory(work_dir))
+                if (!filesystem::create_directories(work_dir))
                 {
                     cerr << "Error: Could not create directory '" << dir_name << "'." << endl;
                     return 1;
@@ -103,92 +134,101 @@ int main(int argc, char *argv[])
 
             // --- Parameter Configuration ---
             Params params;
-            params.codeMinED = result["editDist"].as<int>();
-            params.maxRun = result["maxRun"].as<int>();
-            params.minGCCont = result["minGC"].as<double>();
-            params.maxGCCont = result["maxGC"].as<double>();
-            params.threadNum = result["threads"].as<int>();
-            params.saveInterval = result["saveInterval"].as<int>();
 
-            string method_str = result["method"].as<string>();
-
-            if (method_str == "LinearCode")
+            // Load from JSON Config if provided
+            if (!config_file_path.empty())
             {
-                params.method = GenerationMethod::LINEAR_CODE;
-                int minHD = result["minHD"].as<int>();
-
-                // Parse modes
-                VectorMode bias_mode = parseVectorMode(result["lc_bias_mode"].as<string>(), "bias");
-                VectorMode row_perm_mode = parseVectorMode(result["lc_row_perm_mode"].as<string>(), "row_perm");
-                VectorMode col_perm_mode = parseVectorMode(result["lc_col_perm_mode"].as<string>(), "col_perm");
-
-                // Parse manual vectors (if provided)
-                vector<int> bias_vec, row_perm_vec, col_perm_vec;
-
-                if (bias_mode == VectorMode::MANUAL)
-                {
-                    if (!result.count("lc_bias"))
-                    {
-                        throw runtime_error("--lc_bias required when lc_bias_mode=manual");
-                    }
-                    bias_vec = parseCSVVector(result["lc_bias"].as<string>(), "bias");
-                }
-
-                if (row_perm_mode == VectorMode::MANUAL)
-                {
-                    if (!result.count("lc_row_perm"))
-                    {
-                        throw runtime_error("--lc_row_perm required when lc_row_perm_mode=manual");
-                    }
-                    row_perm_vec = parseCSVVector(result["lc_row_perm"].as<string>(), "row_perm");
-                }
-
-                if (col_perm_mode == VectorMode::MANUAL)
-                {
-                    if (!result.count("lc_col_perm"))
-                    {
-                        throw runtime_error("--lc_col_perm required when lc_col_perm_mode=manual");
-                    }
-                    col_perm_vec = parseCSVVector(result["lc_col_perm"].as<string>(), "col_perm");
-                }
-
-                // Get random seed
-                unsigned int random_seed = result["lc_random_seed"].as<unsigned int>();
-
-                // Create constraints
-                params.constraints = make_unique<LinearCodeConstraints>(minHD, bias_mode, row_perm_mode, col_perm_mode,
-                                                                        bias_vec, row_perm_vec, col_perm_vec,
-                                                                        random_seed);
-            }
-            else if (method_str == "VTCode")
-            {
-                params.method = GenerationMethod::VT_CODE;
-                int rem_a = result["vt_a"].as<int>();
-                int rem_b = result["vt_b"].as<int>();
-                params.constraints = make_unique<VTCodeConstraints>(rem_a, rem_b);
-            }
-            else if (method_str == "Random")
-            {
-                params.method = GenerationMethod::RANDOM;
-                int num_candidates = result["rand_candidates"].as<int>();
-                params.constraints = make_unique<RandomConstraints>(num_candidates);
-            }
-            else if (method_str == "AllStrings")
-            {
-                params.method = GenerationMethod::ALL_STRINGS;
-                params.constraints = make_unique<AllStringsConstraints>();
-            }
-            else if (method_str == "Diff_VTCode")
-            {
-                params.method = GenerationMethod::DIFFERENTIAL_VT_CODE;
-                int syndrome = result["vt_synd"].as<int>();
-                params.constraints = make_unique<DifferentialVTCodeConstraints>(syndrome);
+                cout << "Loading configuration from: " << config_file_path << endl;
+                LoadParamsFromJson(params, config_file_path);
             }
             else
             {
-                cerr << "Error: Unknown generation method '" << method_str << "'." << endl;
-                cout << options.help() << endl;
-                return 1;
+                // Fallback to CLI arguments
+                params.codeMinED = result["editDist"].as<int>();
+                params.maxRun = result["maxRun"].as<int>();
+                params.minGCCont = result["minGC"].as<double>();
+                params.maxGCCont = result["maxGC"].as<double>();
+                params.threadNum = result["threads"].as<int>();
+                params.saveInterval = result["saveInterval"].as<int>();
+                params.verify = result["verify"].as<bool>();
+                params.useGPU = result["gpu"].as<bool>();
+                params.maxGPUMemoryGB = result["maxGPUMemory"].as<double>();
+
+                string method_str = result["method"].as<string>();
+
+                if (method_str == "LinearCode")
+                {
+                    params.method = GenerationMethod::LINEAR_CODE;
+                    int minHD = result["minHD"].as<int>();
+
+                    // Parse modes
+                    VectorMode bias_mode = parseVectorMode(result["lc_bias_mode"].as<string>(), "bias");
+                    VectorMode row_perm_mode = parseVectorMode(result["lc_row_perm_mode"].as<string>(), "row_perm");
+                    VectorMode col_perm_mode = parseVectorMode(result["lc_col_perm_mode"].as<string>(), "col_perm");
+
+                    // Parse manual vectors (if provided)
+                    vector<int> bias_vec, row_perm_vec, col_perm_vec;
+
+                    if (bias_mode == VectorMode::MANUAL)
+                    {
+                        if (config_file_path.empty())
+                        {
+                            if (!result.count("lc_bias"))
+                                throw runtime_error("--lc_bias required when lc_bias_mode=manual");
+                        }
+                        bias_vec = parseCSVVector(result["lc_bias"].as<string>(), "bias");
+                    }
+
+                    if (row_perm_mode == VectorMode::MANUAL)
+                    {
+                        if (!result.count("lc_row_perm"))
+                            throw runtime_error("--lc_row_perm required when lc_row_perm_mode=manual");
+                        row_perm_vec = parseCSVVector(result["lc_row_perm"].as<string>(), "row_perm");
+                    }
+
+                    if (col_perm_mode == VectorMode::MANUAL)
+                    {
+                        if (!result.count("lc_col_perm"))
+                            throw runtime_error("--lc_col_perm required when lc_col_perm_mode=manual");
+                        col_perm_vec = parseCSVVector(result["lc_col_perm"].as<string>(), "col_perm");
+                    }
+
+                    unsigned int random_seed = result["lc_random_seed"].as<unsigned int>();
+
+                    params.constraints = make_unique<LinearCodeConstraints>(minHD, bias_mode, row_perm_mode, col_perm_mode,
+                                                                            bias_vec, row_perm_vec, col_perm_vec,
+                                                                            random_seed);
+                }
+                else if (method_str == "VTCode")
+                {
+                    params.method = GenerationMethod::VT_CODE;
+                    int rem_a = result["vt_a"].as<int>();
+                    int rem_b = result["vt_b"].as<int>();
+                    params.constraints = make_unique<VTCodeConstraints>(rem_a, rem_b);
+                }
+                else if (method_str == "Random")
+                {
+                    params.method = GenerationMethod::RANDOM;
+                    int num_candidates = result["rand_candidates"].as<int>();
+                    params.constraints = make_unique<RandomConstraints>(num_candidates);
+                }
+                else if (method_str == "AllStrings")
+                {
+                    params.method = GenerationMethod::ALL_STRINGS;
+                    params.constraints = make_unique<AllStringsConstraints>();
+                }
+                else if (method_str == "Diff_VTCode")
+                {
+                    params.method = GenerationMethod::DIFFERENTIAL_VT_CODE;
+                    int syndrome = result["vt_synd"].as<int>();
+                    params.constraints = make_unique<DifferentialVTCodeConstraints>(syndrome);
+                }
+                else
+                {
+                    cerr << "Error: Unknown generation method '" << method_str << "'." << endl;
+                    cout << options.help() << endl;
+                    return 1;
+                }
             }
             std::shared_ptr<CandidateGenerator> generator = CreateGenerator(params);
             generator->printInfo(cout);
@@ -196,6 +236,24 @@ int main(int argc, char *argv[])
             // --- Execution Loop ---
             int start_len = result["lenStart"].as<int>();
             int end_len = result["lenEnd"].as<int>();
+
+            // If config file is present, try to read start/end len from it
+            if (!config_file_path.empty())
+            {
+                try {
+                    std::ifstream f(config_file_path);
+                    if (f.is_open()) {
+                        json j;
+                        f >> j;
+                        if (j.contains("core")) {
+                            if (j["core"].contains("lenStart")) start_len = j["core"]["lenStart"];
+                            if (j["core"].contains("lenEnd")) end_len = j["core"]["lenEnd"];
+                        }
+                    }
+                } catch (const std::exception& e) {
+                    cerr << "Warning: Failed to read loop bounds from config file: " << e.what() << endl;
+                }
+            }
 
             for (int len = start_len; len <= end_len; len++)
             {
@@ -267,7 +325,11 @@ void configure_parser(cxxopts::Options &options)
             "maxGC", "Maximum GC-content (0.0 to 1.0)", cxxopts::value<double>()->default_value("0.7"))
         // Performance
         ("t,threads", "Number of threads to use", cxxopts::value<int>()->default_value("16"))(
-            "saveInterval", "Interval in seconds to save progress", cxxopts::value<int>()->default_value("80000"))
+            "saveInterval", "Interval in seconds to save progress", cxxopts::value<int>()->default_value("80000"))(
+            "verify", "Verify the codebook distance after generation", cxxopts::value<bool>()->default_value("false"))(
+            "gpu", "Use GPU for adjacency list generation", cxxopts::value<bool>()->default_value("true"))(
+            "maxGPUMemory", "Maximum GPU memory to use in GB", cxxopts::value<double>()->default_value("10.0"))(
+            "c,config", "JSON configuration file", cxxopts::value<string>())
         // Generation Method
         ("m,method", "Generation method: LinearCode, VTCode, Random, Diff_VTCode, AllStrings",
          cxxopts::value<string>()->default_value("LinearCode"))

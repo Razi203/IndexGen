@@ -22,8 +22,9 @@ def main():
     input_file = sys.argv[1]
     output_file = sys.argv[2]
     threshold = int(sys.argv[3])
-    max_gpu_gb = 9.0
     
+    max_gpu_gb = 9.0
+
     if len(sys.argv) > 4:
         max_gpu_gb = float(sys.argv[4])
     

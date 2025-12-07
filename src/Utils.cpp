@@ -605,6 +605,9 @@ void ParamsToFile(const Params &params, const std::string &fileName)
     output_file << params.maxGCCont << '\n';
     output_file << params.threadNum << '\n';
     output_file << params.saveInterval << '\n';
+    output_file << params.verify << '\n';
+    output_file << params.useGPU << '\n';
+    output_file << params.maxGPUMemoryGB << '\n';
 
     // 2. Write the generation method type identifier (as an integer)
     output_file << static_cast<int>(params.method) << '\n';
@@ -638,6 +641,9 @@ void FileToParams(Params &params, const std::string &fileName)
     input_file >> params.maxGCCont;
     input_file >> params.threadNum;
     input_file >> params.saveInterval;
+    input_file >> params.verify;
+    input_file >> params.useGPU;
+    input_file >> params.maxGPUMemoryGB;
 
     // 2. Read the integer, then cast it back to the GenerationMethod enum
     int method_type_int;
@@ -948,5 +954,93 @@ int calculateRowPermSize(int code_len, int min_hd)
         return code_len - 7;
     default:
         throw runtime_error("Invalid minHD " + to_string(min_hd) + ", must be 2-5");
+    }
+}
+#include "json.hpp"
+using json = nlohmann::json;
+
+void LoadParamsFromJson(Params &params, const std::string &filename)
+{
+    std::ifstream f(filename);
+    if (!f.is_open())
+        throw std::runtime_error("Could not open config file: " + filename);
+
+    json j;
+    f >> j;
+
+    // Core
+    if (j.contains("core")) {
+        auto& c = j["core"];
+        if (c.contains("lenStart")) params.codeLen = c["lenStart"]; // Note: logic in main sets loops, here we just set base struct
+        if (c.contains("editDist")) params.codeMinED = c["editDist"];
+    }
+
+    // Constraints
+    if (j.contains("constraints")) {
+        auto& c = j["constraints"];
+        if (c.contains("maxRun")) params.maxRun = c["maxRun"];
+        if (c.contains("minGC")) params.minGCCont = c["minGC"];
+        if (c.contains("maxGC")) params.maxGCCont = c["maxGC"];
+    }
+
+    // Performance
+    if (j.contains("performance")) {
+        auto& p = j["performance"];
+        if (p.contains("threads")) params.threadNum = p["threads"];
+        if (p.contains("saveInterval")) params.saveInterval = p["saveInterval"];
+        if (p.contains("use_gpu")) params.useGPU = p["use_gpu"];
+        if (p.contains("max_gpu_memory_gb")) params.maxGPUMemoryGB = p["max_gpu_memory_gb"];
+    }
+    
+    // Verify
+    if (j.contains("verify")) params.verify = j["verify"];
+
+    // Method
+    if (j.contains("method")) {
+        auto& m = j["method"];
+        std::string name = m["name"];
+        
+        if (name == "LinearCode") {
+            params.method = GenerationMethod::LINEAR_CODE;
+            auto& lc = m["linearCode"];
+            int minHD = lc.contains("minHD") ? (int)lc["minHD"] : 3;
+            
+            VectorMode biasMode = VectorMode::DEFAULT;
+            VectorMode rowMode = VectorMode::DEFAULT;
+            VectorMode colMode = VectorMode::DEFAULT;
+            
+            if (lc.contains("biasMode")) biasMode = parseVectorMode(lc["biasMode"], "bias");
+            if (lc.contains("rowPermMode")) rowMode = parseVectorMode(lc["rowPermMode"], "row_perm");
+            if (lc.contains("colPermMode")) colMode = parseVectorMode(lc["colPermMode"], "col_perm");
+            
+            std::vector<int> bias, row, col;
+            if (lc.contains("bias")) bias = lc["bias"].get<std::vector<int>>();
+            if (lc.contains("rowPerm")) row = lc["rowPerm"].get<std::vector<int>>();
+            if (lc.contains("colPerm")) col = lc["colPerm"].get<std::vector<int>>();
+            
+            unsigned int seed = lc.contains("randomSeed") ? (unsigned int)lc["randomSeed"] : 0;
+            
+            params.constraints = std::make_unique<LinearCodeConstraints>(minHD, biasMode, rowMode, colMode, bias, row, col, seed);
+        }
+        else if (name == "VTCode") {
+            params.method = GenerationMethod::VT_CODE;
+            int a = m["vtCode"].contains("a") ? (int)m["vtCode"]["a"] : 0;
+            int b = m["vtCode"].contains("b") ? (int)m["vtCode"]["b"] : 0;
+            params.constraints = std::make_unique<VTCodeConstraints>(a, b);
+        }
+        else if (name == "Random") {
+            params.method = GenerationMethod::RANDOM;
+            int c = m["random"].contains("candidates") ? (int)m["random"]["candidates"] : 10000;
+            params.constraints = std::make_unique<RandomConstraints>(c);
+        }
+        else if (name == "Diff_VTCode") {
+            params.method = GenerationMethod::DIFFERENTIAL_VT_CODE;
+            int s = m["diffVtCode"].contains("syndrome") ? (int)m["diffVtCode"]["syndrome"] : 0;
+            params.constraints = std::make_unique<DifferentialVTCodeConstraints>(s);
+        }
+        else if (name == "AllStrings") {
+            params.method = GenerationMethod::ALL_STRINGS;
+            params.constraints = std::make_unique<AllStringsConstraints>();
+        }
     }
 }

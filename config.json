@@ -1,0 +1,76 @@
+{
+    "dir": "Temp",
+    "core": {
+        "lenStart": 18,
+        "lenEnd": 18,
+        "editDist": 5
+    },
+    "constraints": {
+        "maxRun": 3,
+        "minGC": 0.3,
+        "maxGC": 0.7
+    },
+    "performance": {
+        "threads": 32,
+        "saveInterval": 1800,
+        "use_gpu": true,
+        "max_gpu_memory_gb": 40
+    },
+    "method": {
+        "name": "LinearCode",
+        "linearCode": {
+            "minHD": 5,
+            "biasMode": "random",
+            "rowPermMode": "random",
+            "colPermMode": "random",
+            "bias": [
+                3,
+                0,
+                2,
+                3,
+                1,
+                1,
+                1,
+                3,
+                2,
+                3,
+                3
+            ],
+            "rowPerm": [
+                4,
+                0,
+                5,
+                1,
+                6,
+                3,
+                7,
+                2
+            ],
+            "colPerm": [
+                8,
+                9,
+                6,
+                10,
+                3,
+                5,
+                0,
+                4,
+                7,
+                2,
+                1
+            ],
+            "randomSeed": 0
+        },
+        "vtCode": {
+            "a": 0,
+            "b": 0
+        },
+        "random": {
+            "candidates": 50000
+        },
+        "diffVtCode": {
+            "syndrome": 0
+        }
+    },
+    "verify": false
+}

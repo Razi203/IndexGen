@@ -226,19 +226,29 @@ struct Params
      */
     int saveInterval;
 
+    /** @brief Whether to verify the codebook distance after generation. */
+    bool verify;
+
+    /** @brief Whether to use GPU acceleration for adjacency list generation. */
+    bool useGPU;
+
+    /** @brief Maximum GPU memory to use in GB. */
+    double maxGPUMemoryGB;
+
     /** @brief Default constructor. Initializes all members to zero/default values. */
     Params()
         : codeLen(), codeMinED(), method(), constraints(), maxRun(), minGCCont(), maxGCCont(), threadNum(),
-          saveInterval() {};
+          saveInterval(), verify(false), useGPU(true), maxGPUMemoryGB(10.0) {};
 
     /**
      * @brief Parameterized constructor for easy initialization.
      */
     Params(const int codeLen, const int minED, const int maxRun, const double minGCCont, const double maxGCCont,
            const int threadNum, const int saveInterval, GenerationMethod gen_method,
-           std::unique_ptr<GenerationConstraints> &&constraints)
+           std::unique_ptr<GenerationConstraints> &&constraints, bool verify = false, bool useGPU = true, double maxGPUMemoryGB = 10.0)
         : codeLen(codeLen), codeMinED(minED), method(gen_method), constraints(std::move(constraints)), maxRun(maxRun),
-          minGCCont(minGCCont), maxGCCont(maxGCCont), threadNum(threadNum), saveInterval(saveInterval)
+          minGCCont(minGCCont), maxGCCont(maxGCCont), threadNum(threadNum), saveInterval(saveInterval), verify(verify),
+          useGPU(useGPU), maxGPUMemoryGB(maxGPUMemoryGB)
     {
     }
 };

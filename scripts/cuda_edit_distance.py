@@ -311,7 +311,7 @@ def solve_edit_distance_cuda(strings, threshold, tile_size=16384, max_gpu_memory
     batch_size = int(available_for_batch // mem_per_row)
     # Clamp batch size to reasonable limits / alignment
     batch_size = min(batch_size, N)
-    batch_size = (batch_size // 64) * 64 # Align to 64
+    batch_size = ((batch_size + 63) // 64) * 64 # Align to 64 (Ceiling)
     if batch_size < 1024: batch_size = 1024
     
     print(f"[Python GPU] Calculated Batch Size: {batch_size} sequences (Target VRAM Usage per batch)")

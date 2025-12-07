@@ -402,4 +402,12 @@ vector<vector<char>> Cont0123(const vector<string> &vec);
  */
 string MakeStrand0123(const unsigned length, mt19937 &generator);
 
+/**
+ * @brief Loads Params from a JSON configuration file.
+ * @param params The struct to load data into.
+ * @param filename The name of the JSON file.
+ * @throws std::runtime_error If file cannot be opened or parsing fails.
+ */
+void LoadParamsFromJson(Params &params, const std::string &filename);
+
 #endif /* UTILS_HPP_ */
