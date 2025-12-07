@@ -40,7 +40,6 @@ TEST_SOURCES = $(SRC_DIR)/testing.cpp \
                $(SRC_DIR)/Candidates/GenMat.cpp \
                $(SRC_DIR)/Candidates/VTCodes.cpp \
                $(SRC_DIR)/Candidates/DifferentialVTCodes.cpp \
-               $(SRC_DIR)/Candidates/RandomLinear.cpp \
                $(SRC_DIR)/Utils.cpp \
                $(SRC_DIR)/CandidateGenerator.cpp
 
@@ -108,3 +107,10 @@ help:
 	@echo "  testing   - Build the Testing executable for LinearCodes testing"
 	@echo "  clean     - Remove all build artifacts and executables"
 	@echo "  help      - Show this help message"
+
+# --- Tools ---
+
+# Generate compile_flags.txt for clangd
+compile_flags.txt: Makefile
+	@echo "Generating compile_flags.txt..."
+	@echo $(CXXFLAGS) | tr ' ' '\n' > compile_flags.txt

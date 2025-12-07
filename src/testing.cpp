@@ -124,13 +124,6 @@ int main(int argc, char *argv[])
             int syndrome = result["vt_synd"].as<int>();
             params.constraints = make_unique<DifferentialVTCodeConstraints>(syndrome);
         }
-        else if (method_str == "RandomLinear")
-        {
-            params.method = GenerationMethod::RANDOM_LINEAR;
-            int minHD = result["randlin_minHD"].as<int>();
-            int num_candidates = result["randlin_candidates"].as<int>();
-            params.constraints = make_unique<RandomLinearConstraints>(minHD, num_candidates);
-        }
         else
         {
             cerr << "Error: Unknown generation method '" << method_str << "'." << endl;
@@ -180,6 +173,8 @@ int main(int argc, char *argv[])
         }
         candidates_file.close();
         cout << "Candidates saved successfully!" << endl;
+
+        /**
 
         // Build adjacency list based on edit distance
         cout << "----------------------------------------------\n";
@@ -260,6 +255,7 @@ int main(int argc, char *argv[])
         graph_file.close();
         cout << "Graph saved successfully!" << endl;
         cout << "==============================================\n";
+        */
     }
     catch (const cxxopts::exceptions::exception &e)
     {
