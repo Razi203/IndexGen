@@ -11,4 +11,5 @@ Length (L),Edit Distance (ED),GC Range,Run 0 Size,Run 3 Size,Run 4 Size,Run 0 It
 13,3,0.3-0.7,419634,380716,410308,Iter3_Random,Iter3_Random,Iter10_Random
 13,4,0-0,27234,25026,26714,Iter4_Random,Iter9_Random,Iter10_Random
 13,4,0.3-0.7,25848,23933,25607,Iter4_Random,Iter3_Random,Iter6_Random
-14,3,0-0,1692184,,,Iter2_RandomBias,,
+14,3,0-0,1692184,1473169,1649965,Iter2_RandomBias,Iter2_RandomBias,Iter3_Random
+14,3,0.3-0.7,1395989,1277863,1367268,Iter1,Iter3_Random,Iter1
