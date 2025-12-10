@@ -6,6 +6,7 @@ IndexGen
 Temp/
 TEMP/
 Test/
-!Results/*
+!Results/**
 .nfs*
 Archive/DNA-online-pipeline-2.zip
+!DNA-online-pipeline-2/.gitignore

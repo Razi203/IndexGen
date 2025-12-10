@@ -3,8 +3,12 @@
 # function to send notifications
 function pingme() {
     local msg="${1:-Job Done!}"
-    curl -d "$msg" ntfy.sh/IndexGen-Lambda
+    curl -d "$msg" ntfy.sh/IndexGen-Newton
 }
+
+
+# Set INDEXGEN_ROOT to the directory containing this script
+export INDEXGEN_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
 
 # =============================================================================
@@ -21,21 +25,21 @@ BASE_OUTPUT_DIR="Test/25-11-25"
 NUM_ITERATIONS=5
 
 # Parameter Ranges
-LENGTHS=(14)
-EDIT_DISTS=(4)
+LENGTHS=(11 12 13 14)
+EDIT_DISTS=(5)
 MAX_RUNS=(0 3 4)
 
 # GC Combinations "MIN,MAX"
-GC_COMBS=("0.3,0.7")
+GC_COMBS=("0,0" "0.3,0.7")
 
 # Base Vectors (for Length 14)
 BASE_LC_BIAS="3,0,2,3,1,1,1,3,2,3,3,0,0,0"
-BASE_LC_ROW_PERM="4,0,5,1,6,3,7,2,8,9,10"
+BASE_LC_ROW_PERM="4,0,5,1,2,3,6,7,8"
 BASE_LC_COL_PERM="8,9,6,10,3,5,0,4,7,2,1,11,12,13"
 
 # Other Fixed Parameters
 METHOD="LinearCode"
-MIN_HD=3
+MIN_HD=4
 LC_BIAS_MODE="manual"
 LC_ROW_PERM_MODE="manual"
 LC_COL_PERM_MODE="manual"
@@ -71,9 +75,10 @@ count_csv() {
 for LEN in "${LENGTHS[@]}"; do
     # Determine iterations based on length
     case $LEN in
+        11) NUM_ITERATIONS=100 ;;
         12) NUM_ITERATIONS=50 ;;
-        13) NUM_ITERATIONS=10 ;;
-        14) NUM_ITERATIONS=5 ;;
+        13) NUM_ITERATIONS=20 ;;
+        14) NUM_ITERATIONS=10 ;;
         *) NUM_ITERATIONS=1 ;;
     esac
 

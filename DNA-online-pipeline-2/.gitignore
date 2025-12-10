@@ -1,0 +1,13 @@
+# Ignore everything
+*
+
+!.gitignore
+
+!utils.cpp
+!utils.hpp
+
+!EditDistanceClustering/
+!EditDistanceClustering/*
+
+!CPL/
+!CPL/*

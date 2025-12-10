@@ -1,15 +1,15 @@
-#include <vector>
-#include <string>
-#include <unordered_map>
 #include <algorithm>
-#include <random>
+#include <chrono>
 #include <climits>
-#include <iostream>
-#include <numeric>
+#include <cmath>
 #include <fstream>
 #include <iomanip>
-#include <cmath>
-#include <chrono>
+#include <iostream>
+#include <numeric>
+#include <random>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
 #include "../CPL/DNAV8_amir.hpp"
 #include "../utils.hpp"
@@ -17,9 +17,11 @@
 
 using namespace std;
 
-const string CENTROID_TYPE = "HDEQEDMinSumOfCorrectedClusterFast"; // CPL or min_edit_distance or HDEQEDFixMinSumFast or HDEQEDMinSumOfCorrectedClusterFast
-const int INDEX_LEN = 18;
-const string INDICES_FILE_PATH = "/home/anat/dna/DNA-online-pipeline-2/testClusteringThouroughly/codebooks/indices_MinED-5.txt";
+const string CENTROID_TYPE = "HDEQEDMinSumOfCorrectedClusterFast"; // CPL or min_edit_distance or HDEQEDFixMinSumFast or
+                                                                   // HDEQEDMinSumOfCorrectedClusterFast
+int INDEX_LEN = 18;                                                // Will be overwritten
+const string INDICES_FILE_PATH =
+    "/home/anat/dna/DNA-online-pipeline-2/testClusteringThouroughly/codebooks/indices_MinED-5.txt";
 
 std::vector<std::string> read_lines(const std::string &filepath)
 {
@@ -72,7 +74,7 @@ std::vector<std::string> read_lines(const std::string &filepath)
 
 class StringKMeans
 {
-private:
+  private:
     int k;
     int max_iterations;
     std::vector<std::string> data;
@@ -83,9 +85,10 @@ private:
     // Timing variables
     mutable std::vector<double> centroid_calculation_times;
 
-public:
-    StringKMeans(int k, int max_iter = 100, int seed = 42)
-        : k(k), max_iterations(max_iter), rng(seed) {}
+  public:
+    StringKMeans(int k, int max_iter = 100, int seed = 42) : k(k), max_iterations(max_iter), rng(seed)
+    {
+    }
 
     std::string calculateCentroid_min_edit_distance(const std::vector<std::string> &cluster_strings)
     {
@@ -288,13 +291,14 @@ struct SimpleCluster
     string centroid;          // Centroid of this cluster
 
     SimpleCluster() = default;
-    SimpleCluster(const vector<int> &indices, const string &cent)
-        : data_indices(indices), centroid(cent) {}
+    SimpleCluster(const vector<int> &indices, const string &cent) : data_indices(indices), centroid(cent)
+    {
+    }
 };
 
 class GeneralizedHierarchicalStringKMeans
 {
-private:
+  private:
     vector<int> hierarchy; // h = [k1, k2, k3, ...] for h levels
     int max_iterations;
     mt19937 rng;
@@ -305,7 +309,7 @@ private:
     vector<double> all_centroid_calculation_times;
     size_t total_centroid_calculations;
 
-public:
+  public:
     GeneralizedHierarchicalStringKMeans(const vector<int> &h, int max_iter = 100, int seed = 42)
         : hierarchy(h), max_iterations(max_iter), rng(seed), total_centroid_calculations(0)
     {
@@ -345,8 +349,8 @@ public:
         for (int level = 0; level < hierarchy.size(); ++level)
         {
             int k = hierarchy[level];
-            cout << "Processing level " << level << " with k=" << k << " on "
-                 << current_clusters.size() << " clusters" << endl;
+            cout << "Processing level " << level << " with k=" << k << " on " << current_clusters.size() << " clusters"
+                 << endl;
 
             vector<SimpleCluster> next_clusters;
 
@@ -381,8 +385,8 @@ public:
 
                 // Collect timing data from this k-means run
                 vector<double> kmeans_times = kmeans.getCentroidCalculationTimes();
-                all_centroid_calculation_times.insert(all_centroid_calculation_times.end(),
-                                                      kmeans_times.begin(), kmeans_times.end());
+                all_centroid_calculation_times.insert(all_centroid_calculation_times.end(), kmeans_times.begin(),
+                                                      kmeans_times.end());
                 total_centroid_calculations += kmeans.getCentroidCalculationCount();
 
                 // Create new clusters from k-means results
@@ -417,8 +421,7 @@ public:
         // Store final result
         final_clusters = move(current_clusters);
 
-        cout << "Hierarchical clustering completed with " << final_clusters.size()
-             << " final clusters!" << endl;
+        cout << "Hierarchical clustering completed with " << final_clusters.size() << " final clusters!" << endl;
     }
 
     double getAverageCentroidCalculationTime() const
@@ -519,7 +522,8 @@ public:
         if (count > 0)
         {
             double avg_distance = total_distance / count;
-            std::cout << "Min/Max/Avg distance to centroid: " << min_distance << "/" << max_distance << "/" << avg_distance << std::endl;
+            std::cout << "Min/Max/Avg distance to centroid: " << min_distance << "/" << max_distance << "/"
+                      << avg_distance << std::endl;
         }
 
         // calculate and print min,max,avg distance between centroids
@@ -543,9 +547,11 @@ public:
             }
         }
 
-        double avg_centroid_distance = (centroid_distance_count > 0) ? (total_centroid_distance / centroid_distance_count) : 0.0;
+        double avg_centroid_distance =
+            (centroid_distance_count > 0) ? (total_centroid_distance / centroid_distance_count) : 0.0;
 
-        std::cout << "Centroid distances (min/max/avg): " << min_centroid_distance << "/" << max_centroid_distance << "/" << avg_centroid_distance << "\n\n";
+        std::cout << "Centroid distances (min/max/avg): " << min_centroid_distance << "/" << max_centroid_distance
+                  << "/" << avg_centroid_distance << "\n\n";
 
         // Print histogram- make bin for each distance value
         int num_bins = max_centroid_distance - min_centroid_distance + 1;
@@ -563,13 +569,13 @@ public:
         std::cout << "Histogram of centroid distances:\n";
         for (int i = 0; i < num_bins; ++i)
         {
-            std::cout << (min_centroid_distance + i) << ": "
-                      << histogram[i] << "\n";
+            std::cout << (min_centroid_distance + i) << ": " << histogram[i] << "\n";
         }
 
         int x = 10; // number of closest centroid pairs to consider
 
-        // take top x couples of closest centroids, and for each couple find the closest indexes from the clusters (1 from each cluster), report the min distance between them
+        // take top x couples of closest centroids, and for each couple find the closest indexes from the clusters (1
+        // from each cluster), report the min distance between them
         std::vector<std::pair<int, int>> closest_centroid_pairs;
         for (int i = 0; i < n_clusters; ++i)
         {
@@ -599,7 +605,8 @@ public:
                     double distance;
                     if (min_distance_between_samples != std::numeric_limits<double>::max())
                     {
-                        distance = FastEditDistanceWithThresholdBanded(data[data_idx1], data[data_idx2], min_distance_between_samples);
+                        distance = FastEditDistanceWithThresholdBanded(data[data_idx1], data[data_idx2],
+                                                                       min_distance_between_samples);
                     }
                     else
                     {
@@ -612,16 +619,26 @@ public:
                 }
             }
         }
-        std::cout << "Min distance between closest samples from closest centroids: " << min_distance_between_samples << "\n\n";
+        std::cout << "Min distance between closest samples from closest centroids: " << min_distance_between_samples
+                  << "\n\n";
     }
 };
 
-void testGeneralizedHierarchicalStringKMeans()
+void testGeneralizedHierarchicalStringKMeans(const std::string &input_file)
 {
-    vector<string> strings = read_lines(INDICES_FILE_PATH);
+    vector<string> strings = read_lines(input_file);
+
+    if (strings.empty())
+    {
+        cerr << "Error: No strings loaded from " << input_file << endl;
+        return;
+    }
+
+    // Set global INDEX_LEN based on input
+    INDEX_LEN = strings[0].length();
+    cout << "Dynamically set INDEX_LEN to " << INDEX_LEN << endl;
 
     vector<int> h = {500};
-
     GeneralizedHierarchicalStringKMeans hkmeans(h);
 
     auto start_time = chrono::high_resolution_clock::now();
@@ -639,13 +656,22 @@ void testGeneralizedHierarchicalStringKMeans()
     std::cout << std::fixed << std::setprecision(6);
     std::cout << "Centroid calculation statistics:" << std::endl;
     std::cout << "  Total centroid calculations: " << hkmeans.getTotalCentroidCalculationCount() << std::endl;
-    std::cout << "  Average time per centroid calculation: " << hkmeans.getAverageCentroidCalculationTime() << " seconds" << std::endl;
+    std::cout << "  Average time per centroid calculation: " << hkmeans.getAverageCentroidCalculationTime()
+              << " seconds" << std::endl;
 
     cout << "Done generalized hierarchical clustering!" << endl;
 }
 
-int main()
+int main(int argc, char *argv[])
 {
-    testGeneralizedHierarchicalStringKMeans();
+    std::string input_file = INDICES_FILE_PATH;
+    if (argc > 1)
+    {
+        input_file = argv[1];
+    }
+
+    std::cout << "Using input file: " << input_file << std::endl;
+
+    testGeneralizedHierarchicalStringKMeans(input_file);
     return 0;
 }

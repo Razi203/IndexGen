@@ -1,14 +1,14 @@
 {
     "dir": "Temp",
     "core": {
-        "lenStart": 18,
-        "lenEnd": 18,
-        "editDist": 5
+        "lenStart": 14,
+        "lenEnd": 14,
+        "editDist": 3
     },
     "constraints": {
-        "maxRun": 3,
-        "minGC": 0.3,
-        "maxGC": 0.7
+        "maxRun": 0,
+        "minGC": 0,
+        "maxGC": 0
     },
     "performance": {
         "threads": 32,
@@ -19,7 +19,7 @@
     "method": {
         "name": "LinearCode",
         "linearCode": {
-            "minHD": 5,
+            "minHD": 3,
             "biasMode": "random",
             "rowPermMode": "random",
             "colPermMode": "random",

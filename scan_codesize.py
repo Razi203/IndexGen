@@ -72,7 +72,7 @@ def scan_directory(base_dir):
                             results[key][run_val] = (size, iter_dir)
 
     # Write to CSV
-    output_file = "summary.csv"
+    output_file = "summary_newton.csv"
     with open(output_file, 'w', newline='') as csvfile:
         fieldnames = [
             'Length (L)', 'Edit Distance (ED)', 'GC Range', 

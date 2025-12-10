@@ -1,0 +1,10 @@
+Length (L),Edit Distance (ED),GC Range,Run 0 Size,Run 3 Size,Run 4 Size,Run 0 Iter,Run 3 Iter,Run 4 Iter
+11,5,0-0,299,283,299,Iter66_Random,Iter3_Random,Iter94_Random
+11,5,0.3-0.7,264,253,263,Iter50_Random,Iter21_Random,Iter51_Random
+12,5,0-0,826,762,817,Iter24_Random,Iter26_Random,Iter32_Random
+12,5,0.3-0.7,760,724,751,Iter4_Random,Iter17_Random,Iter12_Random
+13,5,0-0,2558,2345,2494,Iter15_Random,Iter6_Random,Iter20_Random
+13,5,0.3-0.7,2413,2262,2380,Iter8_Random,Iter13_Random,Iter19_Random
+14,4,0.3-0.7,80528,75449,80273,Iter4_Random,Iter4_Random,Iter5_Random
+14,5,0-0,7590,6957,7460,Iter4_Random,Iter1,Iter1
+14,5,0.3-0.7,6886,6393,6815,Iter6_Random,Iter3_Random,Iter4_Random
