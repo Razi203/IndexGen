@@ -1,0 +1,75 @@
+{
+    "dir": "Test/28-12-25/N11E3CPU/42473",
+    "core": {
+        "lenStart": 11,
+        "lenEnd": 11,
+        "editDist": 3
+    },
+    "constraints": {
+        "maxRun": 0,
+        "minGC": 0,
+        "maxGC": 0
+    },
+    "performance": {
+        "threads": 32,
+        "saveInterval": 1800,
+        "use_gpu": false
+    },
+    "method": {
+        "name": "LinearCode",
+        "linearCode": {
+            "minHD": 3,
+            "biasMode": "random",
+            "rowPermMode": "random",
+            "colPermMode": "random",
+            "bias": [
+                3,
+                0,
+                2,
+                3,
+                1,
+                1,
+                1,
+                3,
+                2,
+                3,
+                3
+            ],
+            "rowPerm": [
+                4,
+                0,
+                5,
+                1,
+                6,
+                3,
+                7,
+                2
+            ],
+            "colPerm": [
+                8,
+                9,
+                6,
+                10,
+                3,
+                5,
+                0,
+                4,
+                7,
+                2,
+                1
+            ],
+            "randomSeed": 0
+        },
+        "vtCode": {
+            "a": 0,
+            "b": 0
+        },
+        "random": {
+            "candidates": 50000
+        },
+        "diffVtCode": {
+            "syndrome": 0
+        }
+    },
+    "verify": false
+}
