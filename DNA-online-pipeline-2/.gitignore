@@ -8,6 +8,6 @@
 
 !EditDistanceClustering/
 !EditDistanceClustering/*
-
+!EditDistanceClustering/exps_results/*
 !CPL/
 !CPL/*

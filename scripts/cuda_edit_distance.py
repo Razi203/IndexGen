@@ -294,7 +294,7 @@ def solve_edit_distance_cuda(strings, threshold, tile_size=16384, max_gpu_memory
     # Safely: BatchSize * 1.1 KB < (Limit - 100MB)
     
     limit_bytes = max_gpu_memory_gb * 1024**3
-    buffer_bytes = 200 * 1024**2 # 200 MB reserve for buffers/overhead
+    buffer_bytes = 1024 * 1024**2 # 1 GB reserve for buffers/overhead
     
     mem_per_row = 1024 + 64 # Peaucellier + Seq + margin
     

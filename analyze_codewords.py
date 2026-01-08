@@ -184,9 +184,9 @@ def create_times_histogram(times_results, output_file="codebook_times_histogram.
 
 def main():
     """Main execution function."""
-    path = "Test/21-12-25/random-repeat-minhd-3"
+    path = "Test/28-12-25/N11E3CPU"
     # time_hist_name = "18-11-25-Time-hist.png"
-    codewords_hist_name = "random-repeat-minhd-3.png"
+    codewords_hist_name = "N11E3CPU.png"
 
     print(f"Analyzing log files in {path}...\n")
 

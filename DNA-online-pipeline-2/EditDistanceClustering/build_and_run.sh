@@ -35,6 +35,32 @@ function pingme() {
 }
 
 
-time ./HierarchicalAdjKMeans test_data_candidates.txt 
+INPUT_FILE="test_data_candidates.txt"
 
-pingme "DONE!"
+# # Run 1: h=1000
+# echo "Running h=1000..."
+# start=$SECONDS
+# ./HierarchicalAdjKMeans "$INPUT_FILE" 1000
+# duration=$(( SECONDS - start ))
+# pingme "Finished h=1000 in ${duration}s"
+
+# # Run 2: h=2000
+# echo "Running h=2000..."
+# start=$SECONDS
+# ./HierarchicalAdjKMeans "$INPUT_FILE" 2000
+# duration=$(( SECONDS - start ))
+# pingme "Finished h=2000 in ${duration}s"
+
+# Run 3: h={100, 100}
+#echo "Running h={100, 100}..."
+#start=$SECONDS
+#./HierarchicalAdjKMeans "$INPUT_FILE" 100 100
+#duration=$(( SECONDS - start ))
+#pingme "Finished h={100, 100} in ${duration}s"
+
+# Run 4: h={50, 50, 5}
+echo "Running h={50, 50, 5}..."
+start=$SECONDS
+./HierarchicalAdjKMeans "$INPUT_FILE" 50 50 5
+duration=$(( SECONDS - start ))
+pingme "Finished h={50, 50, 5} in ${duration}s"

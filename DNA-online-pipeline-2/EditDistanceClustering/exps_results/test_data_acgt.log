@@ -1,0 +1,19 @@
+Using input file: test_data_acgt.txt                       
+All barcodes have consistent length: 14                                                                               
+Dynamically set INDEX_LEN to 14                            
+Starting hierarchical clustering with hierarchy: [500]                                                                
+Processing level 0 with k=500 on 1 clusters                
+Starting iteration 1...                                    
+Starting iteration 2...                                    
+Converged after 2 iterations.                              
+Hierarchical clustering completed with 500 final clusters!                                                            
+Hierarchical clustering time: 3260.48 seconds              
+Saving 500 clusters to file.                               
+Centroid calculation statistics:                           
+  Total centroid calculations: 500                         
+  Average time per centroid calculation: 5.688339 seconds                                                             
+Done generalized hierarchical clustering!                  
+
+real    54m20.876s           
+user    54m11.429s           
+sys     0m9.373s  

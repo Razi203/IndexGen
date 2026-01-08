@@ -624,7 +624,7 @@ class GeneralizedHierarchicalStringKMeans
     }
 };
 
-void testGeneralizedHierarchicalStringKMeans(const std::string &input_file)
+void testGeneralizedHierarchicalStringKMeans(const std::string &input_file, vector<int> h = {500})
 {
     vector<string> strings = read_lines(input_file);
 
@@ -638,7 +638,6 @@ void testGeneralizedHierarchicalStringKMeans(const std::string &input_file)
     INDEX_LEN = strings[0].length();
     cout << "Dynamically set INDEX_LEN to " << INDEX_LEN << endl;
 
-    vector<int> h = {500};
     GeneralizedHierarchicalStringKMeans hkmeans(h);
 
     auto start_time = chrono::high_resolution_clock::now();
@@ -649,7 +648,16 @@ void testGeneralizedHierarchicalStringKMeans(const std::string &input_file)
     cout << "Hierarchical clustering time: " << duration.count() << " seconds" << endl;
 
     // hkmeans.evaluateClustering();
-    string filename = "exps_results/indices_clusters_500_K_" + CENTROID_TYPE + ".txt";
+    string h_str = "";
+    for (int i = 0; i < h.size(); i++)
+    {
+        h_str += to_string(h[i]);
+        if (i != h.size() - 1)
+        {
+            h_str += ",";
+        }
+    }
+    string filename = "exps_results/indices_clusters_" + h_str + "_K_" + CENTROID_TYPE + ".txt";
     hkmeans.save_clusters_to_file(filename);
 
     // Print centroid calculation timing statistics
@@ -672,6 +680,19 @@ int main(int argc, char *argv[])
 
     std::cout << "Using input file: " << input_file << std::endl;
 
-    testGeneralizedHierarchicalStringKMeans(input_file);
+    if (argc > 2)
+    {
+        vector<int> h;
+        for (int i = 2; i < argc; i++)
+        {
+            h.push_back(std::stoi(argv[i]));
+        }
+        testGeneralizedHierarchicalStringKMeans(input_file, h);
+    }
+    else
+    {
+        testGeneralizedHierarchicalStringKMeans(input_file);
+    }
+
     return 0;
 }
