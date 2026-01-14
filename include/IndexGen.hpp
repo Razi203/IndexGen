@@ -27,7 +27,8 @@ enum class GenerationMethod
     ALL_STRINGS,          ///< Generates all possible strings of the specified length (brute-force).
     RANDOM,               ///< Generates candidates using a randomization approach.
     VT_CODE,              ///< Uses Varshamov-Tenengolts codes for candidate generation.
-    DIFFERENTIAL_VT_CODE  ///< Uses Differential Varshamov-Tenengolts codes for candidate generation.
+    DIFFERENTIAL_VT_CODE, ///< Uses Differential Varshamov-Tenengolts codes for candidate generation.
+    FILE_READ             ///< Reads candidate strings from a file.
 };
 
 /**
@@ -169,6 +170,42 @@ struct DifferentialVTCodeConstraints : public GenerationConstraints
 };
 
 /**
+ * @struct FileReadConstraints
+ * @brief Constraints for reading candidates from a file.
+ */
+struct FileReadConstraints : public GenerationConstraints
+{
+    /** @brief Path to the file containing candidates. */
+    std::string filename;
+
+    FileReadConstraints() : filename()
+    {
+    }
+
+    FileReadConstraints(std::string file) : filename(std::move(file))
+    {
+    }
+};
+
+/**
+ * @struct ClusteringParams
+ * @brief Parameters regarding the clustering of the generated codebook.
+ */
+struct ClusteringParams
+{
+    /** @brief Whether to run clustering. */
+    bool enabled;
+
+    /** @brief Target number of clusters (k). */
+    int k;
+
+    /** @brief Whether to print verbose timing info. */
+    bool verbose;
+
+    ClusteringParams() : enabled(false), k(500) {}
+};
+
+/**
  * @struct Params
  * @brief A structure to hold all configuration parameters for the codebook generation process.
  */
@@ -235,10 +272,13 @@ struct Params
     /** @brief Maximum GPU memory to use in GB. */
     double maxGPUMemoryGB;
 
+    /** @brief Clustering configuration. */
+    ClusteringParams clustering;
+
     /** @brief Default constructor. Initializes all members to zero/default values. */
     Params()
         : codeLen(), codeMinED(), method(), constraints(), maxRun(), minGCCont(), maxGCCont(), threadNum(),
-          saveInterval(), verify(false), useGPU(true), maxGPUMemoryGB(10.0) {};
+          saveInterval(), verify(false), useGPU(true), maxGPUMemoryGB(10.0), clustering() {};
 
     /**
      * @brief Parameterized constructor for easy initialization.

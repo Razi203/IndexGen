@@ -5,8 +5,10 @@ build/*
 IndexGen
 Temp/
 TEMP/
-Test/
+!Tests/**
 !Results/**
 .nfs*
 Archive/DNA-online-pipeline-2.zip
 !DNA-online-pipeline-2/.gitignore
+__pycache__/
+src/__pycache__/

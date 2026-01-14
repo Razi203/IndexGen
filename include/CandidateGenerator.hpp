@@ -223,6 +223,30 @@ class DifferentialVTCodeGenerator : public CandidateGenerator
 };
 
 /**
+ * @class FileReadGenerator
+ * @brief Generator that reads candidates from a file.
+ */
+class FileReadGenerator : public CandidateGenerator
+{
+  private:
+    std::string filename; ///< Path to the input file
+
+  public:
+    /**
+     * @brief Constructor for FileReadGenerator.
+     * @param params The parameters structure.
+     * @param constraints The file read specific constraints.
+     */
+    FileReadGenerator(const Params &params, const FileReadConstraints &constraints);
+
+    std::vector<std::string> generate() override;
+    void printInfo(std::ostream &output_stream) const override;
+    std::string getMethodName() const override;
+    void printParams(std::ofstream &output_file) const override;
+    void readParams(std::ifstream &input_file, GenerationConstraints *constraints) override;
+};
+
+/**
  * @brief Factory function to create the appropriate generator based on params (singleton pattern).
  * @param params The parameters structure containing method and constraints.
  * @return A shared pointer to the cached generator instance.

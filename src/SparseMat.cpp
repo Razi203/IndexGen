@@ -7,6 +7,7 @@
 #include <chrono>
 #include <climits>
 #include <cstdlib> // Added for system()
+#include <filesystem>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -16,6 +17,50 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+#include "clustering/KMeansAdapter.hpp"
+
+namespace {
+    /**
+     * @brief Get the project root directory by detecting the executable's location.
+     * 
+     * This function reads /proc/self/exe to find the running executable's path,
+     * then navigates up to find the project root (where scripts/ directory exists).
+     * Falls back to current directory if detection fails.
+     */
+    std::string getProjectRoot() {
+        namespace fs = std::filesystem;
+        
+        try {
+            // Read the symlink /proc/self/exe to get executable path
+            fs::path exe_path = fs::read_symlink("/proc/self/exe");
+            fs::path exe_dir = exe_path.parent_path();
+            
+            // Try to find src/ directory by looking in parent directories
+            // Typically: /path/to/project/build/IndexGen -> /path/to/project/src
+            fs::path search_path = exe_dir;
+            for (int i = 0; i < 5; ++i) { // Look up to 5 levels up
+                fs::path src_dir = search_path / "src";
+                if (fs::exists(src_dir) && fs::is_directory(src_dir)) {
+                    // Verify the GPU script exists
+                    if (fs::exists(src_dir / "gpu_graph_generator.py")) {
+                        return search_path.string();
+                    }
+                }
+                if (search_path.has_parent_path() && search_path.parent_path() != search_path) {
+                    search_path = search_path.parent_path();
+                } else {
+                    break;
+                }
+            }
+        } catch (const std::exception& e) {
+            std::cerr << "Warning: Could not auto-detect project root: " << e.what() << std::endl;
+        }
+        
+        // Fall back to current directory
+        return ".";
+    }
+}
+
 
 using namespace std;
 
@@ -205,7 +250,7 @@ void AdjList::FromFile(const string &filename)
 }
 
 // *** NEW: FAST BINARY LOADER FOR GPU INTEGRATION ***
-void AdjList::FromBinaryFile(const string &filename, long long int &matrixOnesNum)
+void AdjList::FromBinaryFile(const string &filename, long long int &matrixOnesNum, bool silent)
 {
     ifstream input(filename, ios::binary);
     if (!input.is_open())
@@ -237,7 +282,7 @@ void AdjList::FromBinaryFile(const string &filename, long long int &matrixOnesNu
         m[v].insert(u);
     }
     matrixOnesNum = numInts;
-    std::cout << "Loaded " << (numInts / 2) << " edges from binary file." << endl;
+    if(!silent) std::cout << "Loaded " << (numInts / 2) << " edges from binary file." << endl;
 }
 
 // *** Standalone Helper Functions ***
@@ -303,7 +348,7 @@ void DelProgressAdjListComp(const int threadIdx)
 // *** NEW: Helper to run Python GPU script (System Call) ***
 // OPTIMIZATION: Added inputFilename argument to avoid re-writing the vector file
 void FillAdjListGPU(AdjList &adjList, const vector<string> &candidates, const int minED, long long int &matrixOnesNum,
-                    const string &inputFilename = "", double maxGPUMemoryGB = 10.0)
+                    const string &inputFilename = "", double maxGPUMemoryGB = 10.0, bool silent = false)
 {
     string vecFile = "temp_vectors.txt";
     string edgesFile = "temp_edges.bin";
@@ -313,43 +358,53 @@ void FillAdjListGPU(AdjList &adjList, const vector<string> &candidates, const in
     // OPTIMIZATION: If we already have a file on disk (progress_cand.txt), use it!
     if (!inputFilename.empty())
     {
-        std::cout << "[C++] Using existing candidate file: " << inputFilename << endl;
+        if(!silent) std::cout << "[C++] Using existing candidate file: " << inputFilename << endl;
         fileToUse = inputFilename;
     }
     else
     {
         // Fallback: Save candidates to temp file
-        std::cout << "[C++] Saving candidates to " << vecFile << "..." << endl;
+        if(!silent) std::cout << "[C++] Saving candidates to " << vecFile << "..." << endl;
         StrVecToFile(candidates, vecFile);
     }
 
     // 2. Call Python Script
     // Usage: python gpu_graph_generator.py <input> <output> <threshold>
-    // Determine script path: allow env override, else assume relative to CWD
+    // Determine script path: auto-detect from executable location, allow env override
     const char* env_root = std::getenv("INDEXGEN_ROOT");
-    string project_root = (env_root) ? string(env_root) : ".";
-    string script_path = project_root + "/scripts/gpu_graph_generator.py";
+    string project_root = (env_root) ? string(env_root) : getProjectRoot();
+    string script_path = project_root + "/src/gpu_graph_generator.py";
 
     string cmd = "python " + script_path + " " + fileToUse + " " +
                  edgesFile + " " + to_string(minED) + " " + to_string(maxGPUMemoryGB);
-    std::cout << "[C++] Executing GPU Solver: " << cmd << endl;
+    
+    if (silent) {
+        cmd += " > /dev/null 2>&1";
+    } else {
+        std::cout << "[C++] Executing GPU Solver: " << cmd << endl;
+    }
 
     int ret = system(cmd.c_str());
     if (ret != 0)
     {
-        std::cerr << "Error: Python GPU script failed." << endl;
+        if (silent) {
+            // If it failed silently, try to run again without silence to show error, or just print generic error
+             std::cerr << "Error: Python GPU script failed (run without silence to see details)." << endl;
+        } else {
+            std::cerr << "Error: Python GPU script failed." << endl;
+        }
         exit(1);
     }
 
     // 3. Load Binary Edges
-    std::cout << "[C++] Loading edges from " << edgesFile << "..." << endl;
+    if(!silent) std::cout << "[C++] Loading edges from " << edgesFile << "..." << endl;
     auto load_start = chrono::steady_clock::now();
 
-    adjList.FromBinaryFile(edgesFile, matrixOnesNum);
+    adjList.FromBinaryFile(edgesFile, matrixOnesNum, silent);
 
     auto load_end = chrono::steady_clock::now();
     chrono::duration<double> load_time = load_end - load_start;
-    std::cout << "[C++] Edge load time: " << fixed << setprecision(2) << load_time.count() << "s" << endl;
+    if(!silent) std::cout << "[C++] Edge load time: " << fixed << setprecision(2) << load_time.count() << "s" << endl;
 
     // Clean up temp file only if we created it
     if (inputFilename.empty())
@@ -599,6 +654,75 @@ void CodebookAdjList(const vector<string> &candidates, vector<string> &codebook,
     remove("matrix_ones_num.txt");
 }
 
+/**
+ * @brief Solves the Independent Set problem for a given set of candidates.
+ * @return A subset of candidates forming the codebook.
+ */
+// Optimized version that reuses the GPU logic if enabled
+std::vector<std::string> SolveIndependentSet(const std::vector<std::string> &candidates, const int minED, 
+                                            const int threadNum, const bool useGPU, double maxGPUMemoryGB)
+{
+    // If empty or trivial
+    if (candidates.empty()) return {};
+    if (candidates.size() == 1) return candidates;
+
+    AdjList adjList;
+    long long int matrixOnesNum = 0;
+    
+    // Fill AdjList (Graph Construction)
+    // We use a temporary filename for GPU interaction if needed
+    // Use a unique name to avoid collision if running in parallel logic (though currently sequential)
+    static int call_count = 0;
+    string candFilename = "temp_cand_" + to_string(call_count++) + ".txt";
+    
+    // We need to write candidates to file for GPU logic
+    if (useGPU) {
+        StrVecToFile(candidates, candFilename);
+    }
+
+    if (useGPU)
+    {
+         // Suppress some output during inner loops
+        // std::cout << "..." << endl; 
+        FillAdjListGPU(adjList, candidates, minED, matrixOnesNum, candFilename, maxGPUMemoryGB, true);
+    }
+    else
+    {
+        FillAdjList(adjList, candidates, minED, threadNum, 0, false, matrixOnesNum);
+    }
+    
+    adjList.RowsBySum(); 
+
+    // Solve Codebook (Max Independent Set / Min Vertex Cover on Complement)
+    // Using existing Codebook function logic but without persistence/files for inner loops ideally
+    // But existing Codebook function relies on persistence? 
+    // Let's copy the core logic of `Codebook` here but simplified for memory-only operation 
+    // OR just use the existing `Codebook` function and cleanup files.
+    
+    // Optimized memory-only version of "Codebook" function logic:
+    std::vector<std::string> result_codebook;
+    unordered_set<int> remaining;
+    IndicesToSet(remaining, candidates.size());
+    
+    double d1=0, d2=0;
+    while (!adjList.empty())
+    {
+        int minEntry = adjList.FindMinDel(remaining, d1, d2);
+        result_codebook.push_back(candidates[minEntry]);
+    }
+    for (int num : remaining)
+    {
+        result_codebook.push_back(candidates[num]);
+    }
+
+    // Cleanup
+    if (useGPU) {
+        remove(candFilename.c_str());
+    }
+
+    return result_codebook;
+}
+
 void CodebookAdjListResumeFromFile(const vector<string> &candidates, vector<string> &codebook, const Params &params,
                                    long long int &matrixOnesNum)
 {
@@ -648,16 +772,127 @@ void GenerateCodebookAdj(const Params &params)
     vector<string> codebook;
     long long int matrixOnesNum;
 
-    // Pass candFilename to the function
-    CodebookAdjList(candidates, codebook, params.codeMinED, params.threadNum, params.saveInterval, matrixOnesNum,
-                    fillAdjListTime, processMatrixTime, params.useGPU, params.maxGPUMemoryGB, candFilename);
 
-    long long int candidateNum = candidates.size();
-    PrintTestResults(candidateNum, matrixOnesNum, codebook.size());
+    // --- REFACTORED LOGIC FOR CLUSTERING ---
+    int final_iteration = 0; // Track iterations for clustering
+    
+    if (!params.clustering.enabled)
+    {
+        // OLD BEHAVIOR: One pass
+        std::cout << "Clustering disabled. Running standard generation..." << std::endl;
+        // Pass candFilename to the function
+        CodebookAdjList(candidates, codebook, params.codeMinED, params.threadNum, params.saveInterval, matrixOnesNum,
+                        fillAdjListTime, processMatrixTime, params.useGPU, params.maxGPUMemoryGB, candFilename);
+    }
+    else
+    {
+        // NEW BEHAVIOR: Iterative Clustering
+        std::cout << "Clustering enabled. Starting iterative process..." << std::endl;
+        
+        std::vector<std::string> current_candidates = candidates;
+        std::vector<size_t> previous_sizes;
+        int iteration = 0;
+        
+        while (true)
+        {
+            auto iter_start = std::chrono::steady_clock::now();
+            iteration++;
+            std::cout << "Starting Iteration " << iteration << ": Candidate set size = " << NumberWithCommas(current_candidates.size()) << std::endl;
+            
+            // Step 1: Cluster
+            auto cluster_start = std::chrono::steady_clock::now();
+            
+            // Check trivial case
+            if (current_candidates.empty()) break;
+            
+            indexgen::clustering::KMeansAdapter adapter(params.clustering.k);
+            auto clusters = adapter.cluster(current_candidates);
+            
+            auto cluster_end = std::chrono::steady_clock::now();
+            double clustering_time = std::chrono::duration<double>(cluster_end - cluster_start).count();
+
+            // Step 2: Solve Independent Set per Cluster
+            std::vector<std::string> next_candidates;
+            std::vector<std::vector<std::string>> cluster_results(clusters.size());
+            
+            auto solve_start = std::chrono::steady_clock::now();
+            
+            // We'll collect individual times for average
+            std::vector<double> individual_solve_times;
+            individual_solve_times.reserve(clusters.size());
+
+            for(int i=0; i< (int)clusters.size(); ++i) {
+                auto single_solve_start = std::chrono::steady_clock::now();
+                cluster_results[i] = SolveIndependentSet(clusters[i], params.codeMinED, params.threadNum, params.useGPU, params.maxGPUMemoryGB);
+                auto single_solve_end = std::chrono::steady_clock::now();
+                individual_solve_times.push_back(std::chrono::duration<double>(single_solve_end - single_solve_start).count());
+            }
+            
+            auto solve_end = std::chrono::steady_clock::now();
+            double solving_total_time = std::chrono::duration<double>(solve_end - solve_start).count();
+
+            // Step 3: Combine
+            for(const auto& res : cluster_results) {
+                next_candidates.insert(next_candidates.end(), res.begin(), res.end());
+            }
+            
+            // Step 4: Check Convergence (3 iterations identical size)
+            previous_sizes.push_back(next_candidates.size());
+            
+            auto iter_end = std::chrono::steady_clock::now();
+            double iteration_total_time = std::chrono::duration<double>(iter_end - iter_start).count();
+
+            // VERBOSE OUTPUT
+            if (params.clustering.verbose) {
+                double avg_solve_time = 0.0;
+                if (!individual_solve_times.empty()) {
+                    double sum = 0;
+                    for(auto t : individual_solve_times) sum += t;
+                    avg_solve_time = sum / individual_solve_times.size();
+                }
+                
+                std::cout << "[Verbose] Iteration " << iteration << " Stats:" << std::endl;
+                std::cout << "  - Total Iteration Time: " << fixed << setprecision(3) << iteration_total_time << " s" << std::endl;
+                std::cout << "  - Clustering Time:      " << fixed << setprecision(3) << clustering_time << " s" << std::endl;
+                std::cout << "  - Total Solving Time:   " << fixed << setprecision(3) << solving_total_time << " s" << std::endl;
+                std::cout << "  - Avg Cluster Solve:    " << fixed << setprecision(3) << avg_solve_time << " s" << std::endl;
+            }
+
+            if (previous_sizes.size() >= 3) {
+                size_t n = previous_sizes.size();
+                if (previous_sizes[n-1] == previous_sizes[n-2] && previous_sizes[n-2] == previous_sizes[n-3]) {
+                    std::cout << "Convergence reached! Sizes: " << previous_sizes[n-3] << " -> " << previous_sizes[n-2] << " -> " << previous_sizes[n-1] << std::endl;
+                    codebook = next_candidates;
+                    final_iteration = iteration;
+                    break; 
+                }
+            }
+            
+            // Update for next iteration
+            current_candidates = next_candidates;
+        }
+        
+    }
+
+    long long int candidateNum = candidates.size(); // Original candidates count
+    // matrixOnesNum is only valid for the single pass non-clustering version in the old logic. 
+    // For clustering, we don't have a single "global" matrix ones count.
+    int clusterK = -1;
+    int clusterIterations = -1;
+    if(params.clustering.enabled) {
+        matrixOnesNum = 0;
+        clusterK = params.clustering.k;
+        clusterIterations = final_iteration;
+    }
+    
+    PrintTestResults(candidateNum, matrixOnesNum, codebook.size(), clusterK, clusterIterations);
     auto end = std::chrono::steady_clock::now();
     std::chrono::duration<double> overAllTime = end - start;
+    
+    // Note: Timing stats for "FillAdjListTime" etc are not aggregated in the iterative loop. 
+    // Pass zero or implement aggregation if needed.
     ToFile(codebook, params, candidateNum, matrixOnesNum, elapsed_secs_candidates, fillAdjListTime, processMatrixTime,
-           overAllTime);
+           overAllTime, clusterK, clusterIterations);
     if (params.verify)
     {
         VerifyDist(codebook, params.codeMinED, params.threadNum);

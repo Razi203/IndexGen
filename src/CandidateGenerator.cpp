@@ -6,6 +6,7 @@
 #include "CandidateGenerator.hpp"
 #include "Candidates/DifferentialVTCodes.hpp"
 #include "Candidates/LinearCodes.hpp"
+#include "Candidates/FileRead.hpp"
 #include "Candidates/VTCodes.hpp"
 #include "Utils.hpp"
 #include <fstream>
@@ -556,6 +557,47 @@ void DifferentialVTCodeGenerator::readParams(std::ifstream &input_file, Generati
     }
 }
 
+
+// ============================================================================
+// FileReadGenerator Implementation
+// ============================================================================
+
+FileReadGenerator::FileReadGenerator(const Params &params, const FileReadConstraints &constraints)
+    : CandidateGenerator(params), filename(constraints.filename)
+{
+}
+
+std::vector<std::string> FileReadGenerator::generate()
+{
+    return ReadFileCandidates(filename, params.codeLen);
+}
+
+void FileReadGenerator::printInfo(std::ostream &output_stream) const
+{
+    output_stream << "Using Generation Method: FileRead (file=" << filename << ")" << endl;
+}
+
+std::string FileReadGenerator::getMethodName() const
+{
+    return "FileRead";
+}
+
+void FileReadGenerator::printParams(std::ofstream &output_file) const
+{
+    output_file << filename << '\n';
+}
+
+void FileReadGenerator::readParams(std::ifstream &input_file, GenerationConstraints *constraints)
+{
+    std::getline(input_file, filename); 
+    if (filename.empty()) std::getline(input_file, filename);
+    
+    if (auto *fc = dynamic_cast<FileReadConstraints *>(constraints))
+    {
+        fc->filename = filename;
+    }
+}
+
 // ============================================================================
 // Factory Function Implementation (Singleton Pattern)
 // ============================================================================
@@ -630,6 +672,17 @@ std::shared_ptr<CandidateGenerator> CreateGenerator(const Params &params)
             throw std::runtime_error("Invalid constraints provided for DIFFERENTIAL_VT_CODE method.");
         }
         new_generator = std::make_shared<DifferentialVTCodeGenerator>(params, *constraints);
+        break;
+    }
+
+    case GenerationMethod::FILE_READ:
+    {
+        auto *constraints = dynamic_cast<FileReadConstraints *>(params.constraints.get());
+        if (!constraints)
+        {
+            throw std::runtime_error("Invalid constraints provided for FILE_READ method.");
+        }
+        new_generator = std::make_shared<FileReadGenerator>(params, *constraints);
         break;
     }
 

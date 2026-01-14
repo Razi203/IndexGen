@@ -153,6 +153,9 @@ int main(int argc, char *argv[])
                 params.verify = result["verify"].as<bool>();
                 params.useGPU = result["gpu"].as<bool>();
                 params.maxGPUMemoryGB = result["maxGPUMemory"].as<double>();
+                params.clustering.enabled = result["cluster"].as<bool>();
+                params.clustering.k = result["numClusters"].as<int>();
+                params.clustering.verbose = result["clusterVerbose"].as<bool>();
 
                 string method_str = result["method"].as<string>();
 
@@ -222,6 +225,16 @@ int main(int argc, char *argv[])
                     params.method = GenerationMethod::DIFFERENTIAL_VT_CODE;
                     int syndrome = result["vt_synd"].as<int>();
                     params.constraints = make_unique<DifferentialVTCodeConstraints>(syndrome);
+                }
+                else if (method_str == "FileRead")
+                {
+                    params.method = GenerationMethod::FILE_READ;
+                    if (!result.count("input_file"))
+                    {
+                        throw std::runtime_error("--input_file required when method=FileRead");
+                    }
+                    string input_file = result["input_file"].as<string>();
+                    params.constraints = make_unique<FileReadConstraints>(input_file);
                 }
                 else
                 {
@@ -330,11 +343,15 @@ void configure_parser(cxxopts::Options &options)
             "gpu", "Use GPU for adjacency list generation", cxxopts::value<bool>()->default_value("true"))(
             "maxGPUMemory", "Maximum GPU memory to use in GB", cxxopts::value<double>()->default_value("10.0"))(
             "c,config", "JSON configuration file", cxxopts::value<string>())
+            ("cluster", "Use cluster-based iterative solving", cxxopts::value<bool>()->default_value("false"))
+            ("numClusters", "Number of clusters to partition candidates into", cxxopts::value<int>()->default_value("500"))
+            ("clusterVerbose", "Verbose clustering output", cxxopts::value<bool>()->default_value("false"))
         // Generation Method
-        ("m,method", "Generation method: LinearCode, VTCode, Random, Diff_VTCode, AllStrings",
+        ("m,method", "Generation method: LinearCode, VTCode, Random, Diff_VTCode, AllStrings, FileRead",
          cxxopts::value<string>()->default_value("LinearCode"))
         // Method-specific parameters
-        ("minHD", "Min Hamming Distance for LinearCode method", cxxopts::value<int>()->default_value("3"))(
+        ("input_file", "Input file for FileRead method", cxxopts::value<string>())(
+            "minHD", "Min Hamming Distance for LinearCode method", cxxopts::value<int>()->default_value("3"))(
             "vt_a", "Parameter 'a' for VTCode method", cxxopts::value<int>()->default_value("0"))(
             "vt_b", "Parameter 'b' for VTCode method", cxxopts::value<int>()->default_value("0"))(
             "rand_candidates", "Number of random candidates for Random method",

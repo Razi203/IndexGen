@@ -1,0 +1,176 @@
+{
+    // =============================================================================
+    // ALL PARAMETERS REFERENCE - IndexGen Configuration
+    // =============================================================================
+    // This file documents ALL available configuration options.
+    // Comments are added for documentation purposes (remove for actual use).
+    // =============================================================================
+    // -----------------------------------------------------------------------------
+    // GLOBAL SETTINGS
+    // -----------------------------------------------------------------------------
+    // Output directory name. If empty, auto-generates timestamp (e.g., "2024-01-15_10-30")
+    // Supports nested paths like "Results/Experiment1"
+    "dir": "output/my_run",
+    // If true, verifies all pairwise edit distances after generation (validation)
+    // Default: false
+    "verify": false,
+    // -----------------------------------------------------------------------------
+    // CORE SETTINGS - Define the codebook properties
+    // -----------------------------------------------------------------------------
+    "core": {
+        // Starting codeword length (inclusive)
+        // The generator iterates from lenStart to lenEnd
+        // Default: 10
+        "lenStart": 11,
+        // Ending codeword length (inclusive)
+        // Set equal to lenStart for single-length generation
+        // Default: 10
+        "lenEnd": 11,
+        // Minimum Levenshtein (edit) distance between any two codewords
+        // Common values: 3, 4, 5
+        // Higher = fewer codewords but more error-resistant
+        // Default: 4
+        "editDist": 3
+    },
+    // -----------------------------------------------------------------------------
+    // CONSTRAINTS - Biological/physical filtering of candidates
+    // -----------------------------------------------------------------------------
+    "constraints": {
+        // Maximum homopolymer run length (consecutive identical bases)
+        // 3 = forbids AAAA, CCCC, GGGG, TTTT
+        // 0 = DISABLED (allow any run length)
+        // Default: 3
+        "maxRun": 3,
+        // Minimum GC-content fraction (G + C bases / total length)
+        // Range: 0.0 to 1.0
+        // 0 = DISABLED
+        // Default: 0.3
+        "minGC": 0.3,
+        // Maximum GC-content fraction
+        // Range: 0.0 to 1.0  
+        // 0 = DISABLED (same as 1.0)
+        // Default: 0.7
+        "maxGC": 0.7
+    },
+    // -----------------------------------------------------------------------------
+    // PERFORMANCE - Computational resources and behavior
+    // -----------------------------------------------------------------------------
+    "performance": {
+        // Number of CPU threads for parallel processing
+        // Default: 16
+        "threads": 16,
+        // Checkpoint save interval in SECONDS
+        // Smaller = more frequent saves, more I/O
+        // Default: 80000
+        "saveInterval": 1800,
+        // Use GPU-accelerated edit distance computation
+        // Requires: CUDA-capable GPU + Python environment (cuda_env)
+        // Default: true
+        "use_gpu": true,
+        // Maximum GPU memory allocation in GB
+        // Adjusts batch sizes to stay within limit
+        // Only used when use_gpu = true
+        // Default: 10.0
+        "max_gpu_memory_gb": 10.0
+    },
+    // -----------------------------------------------------------------------------
+    // CLUSTERING - Alternative cluster-based solving approach
+    // -----------------------------------------------------------------------------
+    // When enabled, instead of solving the full conflict graph:
+    // 1. Partition candidates into k clusters using K-Means
+    // 2. Solve Independent Set for each cluster separately
+    // 3. Combine per-cluster solutions
+    // 4. Repeat until codebook size converges
+    // This can reduce memory usage.
+    "clustering": {
+        // Enable cluster-based iterative solving
+        // Default: false
+        "enabled": false,
+        // Number of clusters to partition candidates into
+        // Default: 500
+        "k": 500,
+        // Print verbose timing and iteration information
+        // Default: false
+        "verbose": false
+    },
+    // -----------------------------------------------------------------------------
+    // GENERATION METHOD - Algorithm for candidate generation
+    // -----------------------------------------------------------------------------
+    "method": {
+        // Method name: "LinearCode", "VTCode", "Diff_VTCode", "Random", "AllStrings", "FileRead"
+        "name": "LinearCode",
+        // --- LINEAR CODE PARAMETERS ---
+        // Used when name = "LinearCode"
+        "linearCode": {
+            // Minimum Hamming distance for the linear code
+            // Valid: 2, 3, 4, 5
+            // Higher = fewer candidates but stronger guarantees
+            // Default: 3
+            "minHD": 3,
+            // Bias vector mode: "default", "random", "manual"
+            // default = all zeros
+            // random = randomly generated (uses randomSeed)
+            // manual = use the "bias" array below
+            // Default: "default"
+            "biasMode": "default",
+            // Row permutation mode: "identity", "random", "manual"
+            // identity = no permutation (0,1,2,...,k-1)
+            // random = randomly generated
+            // manual = use the "rowPerm" array below
+            // Default: "identity"
+            "rowPermMode": "identity",
+            // Column permutation mode: "identity", "random", "manual"
+            // Default: "identity"
+            "colPermMode": "identity",
+            // Random seed for "random" modes
+            // 0 = use current time
+            // Default: 0
+            "randomSeed": 0,
+            // Manual bias vector (GF(4) values: 0, 1, 2, 3)
+            // Required if biasMode = "manual"
+            // Length must equal codeword length (lenStart)
+            "bias": [],
+            // Manual row permutation (0-indexed)
+            // Required if rowPermMode = "manual"
+            // Length = number of rows in generator matrix (depends on minHD and length)
+            "rowPerm": [],
+            // Manual column permutation (0-indexed)
+            // Required if colPermMode = "manual"
+            // Length must equal codeword length
+            "colPerm": []
+        },
+        // --- VT CODE PARAMETERS ---
+        // Used when name = "VTCode"
+        "vtCode": {
+            // Remainder parameter 'a' for positional sum condition
+            // Valid: 0 to n-1
+            // Default: 0
+            "a": 0,
+            // Remainder parameter 'b' for symbol sum condition  
+            // Valid: 0, 1, 2, 3
+            // Default: 0
+            "b": 0
+        },
+        // --- RANDOM GENERATION PARAMETERS ---
+        // Used when name = "Random"
+        "random": {
+            // Number of random candidates to generate
+            // Default: 50000
+            "candidates": 50000
+        },
+        // --- DIFFERENTIAL VT CODE PARAMETERS ---
+        // Used when name = "Diff_VTCode"
+        "diffVtCode": {
+            // Syndrome parameter
+            // Default: 0
+            "syndrome": 0
+        },
+        // --- FILE READ PARAMETERS ---
+        // Used when name = "FileRead"
+        "fileRead": {
+            // Absolute path to file containing candidates
+            // One sequence per line (0123 or ACGT format)
+            "input_file": "/path/to/candidates.txt"
+        }
+    }
+}

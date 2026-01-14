@@ -1,0 +1,29 @@
+{
+    "dir": "Results/linear_ed5_gpu",
+    "core": {
+        "lenStart": 13,
+        "lenEnd": 15,
+        "editDist": 5
+    },
+    "constraints": {
+        "maxRun": 4,
+        "minGC": 0.3,
+        "maxGC": 0.7
+    },
+    "performance": {
+        "threads": 32,
+        "saveInterval": 1800,
+        "use_gpu": true,
+        "max_gpu_memory_gb": 12.0
+    },
+    "method": {
+        "name": "LinearCode",
+        "linearCode": {
+            "minHD": 4,
+            "biasMode": "default",
+            "rowPermMode": "identity",
+            "colPermMode": "identity"
+        }
+    },
+    "verify": true
+}

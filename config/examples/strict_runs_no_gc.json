@@ -1,0 +1,25 @@
+{
+    "dir": "Results/strict_runs_no_gc",
+    "core": {
+        "lenStart": 14,
+        "lenEnd": 14,
+        "editDist": 4
+    },
+    "constraints": {
+        "maxRun": 2,
+        "minGC": 0,
+        "maxGC": 0
+    },
+    "performance": {
+        "threads": 16,
+        "saveInterval": 3600,
+        "use_gpu": true
+    },
+    "method": {
+        "name": "LinearCode",
+        "linearCode": {
+            "minHD": 3,
+            "biasMode": "default"
+        }
+    }
+}

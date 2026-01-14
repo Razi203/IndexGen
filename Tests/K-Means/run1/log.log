@@ -1,0 +1,81 @@
+Using python: /home/razi/miniconda3/envs/cuda_env/bin/python
+Python 3.10.19
+Executing command:
+./IndexGen --config config.json --dir Temp
+---
+Warning: Directory 'Temp' already exists. Files may be overwritten.
+Output will be saved in directory: /home/razi/Documents/IndexGen/Temp
+Loading configuration from: /home/razi/Documents/IndexGen/config.json
+Using Generation Method: LinearCode (minHD=3)
+Bias vector: [3, 0, 2, 3, 1, 1, 1, 3, 2, 3, 3]
+Row permutation: [4, 0, 5, 1, 6, 3, 7, 2]
+Column permutation: [8, 9, 6, 10, 3, 5, 0, 4, 7, 2, 1]
+
+--- Starting Generation for Codeword Length 11 (Current Time: 2026-01-14 17:52:17) ---
+--- Common Parameters ---
+Code Length:                    11
+Min Codebook Edit Distance:     3
+Max Homopolymer Run:            0
+Min GC Content:                 0
+Max GC Content:                 0
+
+Using Generation Method: LinearCode (minHD=3)
+Bias vector: [3, 0, 2, 3, 1, 1, 1, 3, 2, 3, 3]
+Row permutation: [4, 0, 5, 1, 6, 3, 7, 2]
+Column permutation: [8, 9, 6, 10, 3, 5, 0, 4, 7, 2, 1]
+
+Permutation vector (columns): 0 1 2 3 4 5 6 7 8 9 10 
+Permutation vector (rows): 0 1 2 3 4 5 6 7 
+Using bias: 0 0 0 0 0 0 0 0 0 0 0 
+
+Candidates Time: 0.02   seconds
+Clustering enabled. Starting iterative process...
+Starting Iteration 1: Candidate set size = 65,536
+Starting Iteration 2: Candidate set size = 42,991
+Starting Iteration 3: Candidate set size = 33,430
+Starting Iteration 4: Candidate set size = 29,021
+Starting Iteration 5: Candidate set size = 26,708
+Starting Iteration 6: Candidate set size = 25,336
+Starting Iteration 7: Candidate set size = 24,520
+Starting Iteration 8: Candidate set size = 24,050
+Starting Iteration 9: Candidate set size = 23,759
+Starting Iteration 10: Candidate set size = 23,586
+Starting Iteration 11: Candidate set size = 23,481
+Starting Iteration 12: Candidate set size = 23,415
+Starting Iteration 13: Candidate set size = 23,377
+Starting Iteration 14: Candidate set size = 23,355
+Starting Iteration 15: Candidate set size = 23,341
+Starting Iteration 16: Candidate set size = 23,332
+Starting Iteration 17: Candidate set size = 23,322
+Starting Iteration 18: Candidate set size = 23,320
+Starting Iteration 19: Candidate set size = 23,319
+Starting Iteration 20: Candidate set size = 23,318
+Starting Iteration 21: Candidate set size = 23,316
+Starting Iteration 22: Candidate set size = 23,316
+Starting Iteration 23: Candidate set size = 23,315
+Starting Iteration 24: Candidate set size = 23,315
+Convergence reached! Sizes: 23315 -> 23315 -> 23315
+Number of Candidate Words:      65536
+Number of Ones in Matrix:       0
+Number of Code Words:           23315
+=====================================================
+Codebook Time: 873.44   seconds
+=====================================================
+--- Finished Generation for Codeword Length 11 (Current Time: 2026-01-14 18:06:50) ---
+
+Total Execution Time: 873.44 seconds
+
+real    14m33.444s
+user    20m31.806s
+sys     2m16.102s
+---
+Execution finished.
+
+
+
+
+
+
+
+
+

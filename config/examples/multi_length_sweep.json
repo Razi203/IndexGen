@@ -1,0 +1,27 @@
+{
+    "dir": "Results/multi_length_sweep",
+    "core": {
+        "lenStart": 11,
+        "lenEnd": 15,
+        "editDist": 3
+    },
+    "constraints": {
+        "maxRun": 3,
+        "minGC": 0.3,
+        "maxGC": 0.7
+    },
+    "performance": {
+        "threads": 32,
+        "saveInterval": 1800,
+        "use_gpu": true,
+        "max_gpu_memory_gb": 10.0
+    },
+    "method": {
+        "name": "LinearCode",
+        "linearCode": {
+            "minHD": 3,
+            "biasMode": "default"
+        }
+    },
+    "verify": false
+}

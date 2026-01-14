@@ -210,7 +210,8 @@ void PrintTestParams(const Params &params);
  * @param matrixOnesNum The number of ones in a related matrix (context-specific).
  * @param codewordsNum The final number of codewords generated.
  */
-void PrintTestResults(const int candidateNum, const long long int matrixOnesNum, const int codewordsNum);
+void PrintTestResults(const int candidateNum, const long long int matrixOnesNum, const int codewordsNum,
+                      int clusterK = -1, int clusterIterations = -1);
 
 // =================================================================================
 // SECTION: FILE I/O OPERATIONS
@@ -226,7 +227,7 @@ void PrintTestResults(const int candidateNum, const long long int matrixOnesNum,
 void ToFile(const vector<string> &codeWords, const Params &params, const int candidateNum,
             const long long int matrixOnesNum, const chrono::duration<double> &candidatesTime,
             const chrono::duration<double> &fillAdjListTime, const chrono::duration<double> &processMatrixTime,
-            const chrono::duration<double> &overAllTime);
+            const chrono::duration<double> &overAllTime, int clusterK = -1, int clusterIterations = -1);
 
 /**
  * @brief Serializes a `Params` struct to a file.
@@ -409,5 +410,13 @@ string MakeStrand0123(const unsigned length, mt19937 &generator);
  * @throws std::runtime_error If file cannot be opened or parsing fails.
  */
 void LoadParamsFromJson(Params &params, const std::string &filename);
+
+/**
+ * @brief Formats a number with commas for readability (e.g., 1,234,567).
+ * @param value The value to format.
+ * @return The formatted string.
+ */
+template<typename T>
+string NumberWithCommas(T value);
 
 #endif /* UTILS_HPP_ */

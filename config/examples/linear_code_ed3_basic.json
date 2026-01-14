@@ -1,0 +1,29 @@
+{
+    "dir": "Results/linear_ed3_basic",
+    "core": {
+        "lenStart": 11,
+        "lenEnd": 11,
+        "editDist": 3
+    },
+    "constraints": {
+        "maxRun": 0,
+        "minGC": 0,
+        "maxGC": 0
+    },
+    "performance": {
+        "threads": 16,
+        "saveInterval": 3600,
+        "use_gpu": true,
+        "max_gpu_memory_gb": 10.0
+    },
+    "method": {
+        "name": "LinearCode",
+        "linearCode": {
+            "minHD": 3,
+            "biasMode": "default",
+            "rowPermMode": "identity",
+            "colPermMode": "identity"
+        }
+    },
+    "verify": false
+}

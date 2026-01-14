@@ -1,0 +1,30 @@
+{
+    "dir": "Temp",
+    "core": {
+        "lenStart": 11,
+        "lenEnd": 11,
+        "editDist": 3
+    },
+    "constraints": {
+        "maxRun": 0,
+        "minGC": 0,
+        "maxGC": 0
+    },
+    "performance": {
+        "threads": 16,
+        "saveInterval": 1800,
+        "use_gpu": false,
+        "max_gpu_memory_gb": 8
+    },
+    "clustering": {
+        "enabled": false,
+        "k": 20
+    },
+    "method": {
+        "name": "FileRead",
+        "fileRead": {
+            "input_file": "/home/razi/Documents/IndexGen/Temp/Candidates.txt"
+        }
+    },
+    "verify": true
+}

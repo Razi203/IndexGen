@@ -223,7 +223,8 @@ void PrintParamsToFile(std::ofstream &out, const int candidateNum, const int cod
                        const long long int matrixOnesNum, const std::chrono::duration<double> &candidatesTime,
                        const std::chrono::duration<double> &fillAdjListTime,
                        const std::chrono::duration<double> &processMatrixTime,
-                       const std::chrono::duration<double> &overallTime)
+                       const std::chrono::duration<double> &overallTime,
+                       int clusterK = -1, int clusterIterations = -1)
 {
 
     // Using std::endl for consistency
@@ -253,7 +254,12 @@ void PrintParamsToFile(std::ofstream &out, const int candidateNum, const int cod
     out << std::endl;
     out << "--- Results Summary ---" << std::endl;
     out << "Number of Candidates:\t\t" << candidateNum << std::endl;
-    out << "Number of Ones in Matrix:\t" << matrixOnesNum << std::endl;
+    if (clusterK > 0) {
+        out << "Number of Clusters (K):\t\t" << clusterK << std::endl;
+        out << "Iterations to Converge:\t\t" << clusterIterations << std::endl;
+    } else {
+        out << "Number of Ones in Matrix:\t" << matrixOnesNum << std::endl;
+    }
     out << "Number of Code Words:\t\t" << codeSize << std::endl;
 
     out << std::endl;
@@ -286,7 +292,8 @@ string FileName(const int codeLen, const int codeSize, const int minED)
 void ToFile(const vector<string> &codeWords, const Params &params, const int candidateNum,
             const long long int matrixOnesNum, const std::chrono::duration<double> &candidatesTime,
             const std::chrono::duration<double> &fillAdjListTime,
-            const std::chrono::duration<double> &processMatrixTime, const std::chrono::duration<double> &overallTime)
+            const std::chrono::duration<double> &processMatrixTime, const std::chrono::duration<double> &overallTime,
+            int clusterK, int clusterIterations)
 {
     int codeSize = codeWords.size();
     ofstream output;
@@ -299,7 +306,7 @@ void ToFile(const vector<string> &codeWords, const Params &params, const int can
     }
 
     PrintParamsToFile(output, candidateNum, codeSize, params, matrixOnesNum, candidatesTime, fillAdjListTime,
-                      processMatrixTime, overallTime);
+                      processMatrixTime, overallTime, clusterK, clusterIterations);
 
     for (const string &word : codeWords)
     {
@@ -584,10 +591,16 @@ void PrintTestParams(const Params &params)
     cout << endl;
 }
 
-void PrintTestResults(const int candidateNum, const long long int matrixOnesNum, const int codewordsNum)
+void PrintTestResults(const int candidateNum, const long long int matrixOnesNum, const int codewordsNum,
+                      int clusterK, int clusterIterations)
 {
     cout << "Number of Candidate Words:\t" << candidateNum << endl;
-    cout << "Number of Ones in Matrix:\t" << matrixOnesNum << endl;
+    if (clusterK > 0) {
+        cout << "Number of Clusters (K):\t\t" << clusterK << endl;
+        cout << "Iterations to Converge:\t\t" << clusterIterations << endl;
+    } else {
+        cout << "Number of Ones in Matrix:\t" << matrixOnesNum << endl;
+    }
     cout << "Number of Code Words:\t\t" << codewordsNum << endl;
 }
 
@@ -608,6 +621,9 @@ void ParamsToFile(const Params &params, const std::string &fileName)
     output_file << params.verify << '\n';
     output_file << params.useGPU << '\n';
     output_file << params.maxGPUMemoryGB << '\n';
+    output_file << params.clustering.enabled << '\n';
+    output_file << params.clustering.k << '\n';
+    output_file << params.clustering.verbose << '\n';
 
     // 2. Write the generation method type identifier (as an integer)
     output_file << static_cast<int>(params.method) << '\n';
@@ -644,6 +660,9 @@ void FileToParams(Params &params, const std::string &fileName)
     input_file >> params.verify;
     input_file >> params.useGPU;
     input_file >> params.maxGPUMemoryGB;
+    input_file >> params.clustering.enabled;
+    input_file >> params.clustering.k;
+    input_file >> params.clustering.verbose;
 
     // 2. Read the integer, then cast it back to the GenerationMethod enum
     int method_type_int;
@@ -988,8 +1007,19 @@ void LoadParamsFromJson(Params &params, const std::string &filename)
         auto& p = j["performance"];
         if (p.contains("threads")) params.threadNum = p["threads"];
         if (p.contains("saveInterval")) params.saveInterval = p["saveInterval"];
-        if (p.contains("use_gpu")) params.useGPU = p["use_gpu"];
-        if (p.contains("max_gpu_memory_gb")) params.maxGPUMemoryGB = p["max_gpu_memory_gb"];
+    if (p.contains("use_gpu")) params.useGPU = p["use_gpu"];
+    if (p.contains("max_gpu_memory_gb")) params.maxGPUMemoryGB = p["max_gpu_memory_gb"];
+    if (p.contains("do_clustering")) { // Backwards compatibility or manual override in performance
+         params.clustering.enabled = p["do_clustering"];
+    }
+    }
+    
+    // Clustering
+    if (j.contains("clustering")) {
+        auto& c = j["clustering"];
+        if (c.contains("enabled")) params.clustering.enabled = c["enabled"];
+        if (c.contains("k")) params.clustering.k = c["k"];
+        if (c.contains("verbose")) params.clustering.verbose = c["verbose"];
     }
     
     // Verify
@@ -1042,5 +1072,41 @@ void LoadParamsFromJson(Params &params, const std::string &filename)
             params.method = GenerationMethod::ALL_STRINGS;
             params.constraints = std::make_unique<AllStringsConstraints>();
         }
+        else if (name == "FileRead") {
+            params.method = GenerationMethod::FILE_READ;
+            std::string inputFile = m["fileRead"].contains("input_file") ? (std::string)m["fileRead"]["input_file"] : "";
+            if (inputFile.empty()) {
+                 throw std::runtime_error("FileRead method requires 'input_file' parameter in config.");
+            }
+            params.constraints = std::make_unique<FileReadConstraints>(inputFile);
+        }
     }
 }
+
+template<typename T>
+string NumberWithCommas(T value)
+{
+    std::stringstream ss;
+    ss << value;
+    string s = ss.str();
+    if (s.length() <= 3) return s;
+    
+    // Insert comma every 3 digits from right
+    string res = "";
+    int count = 0;
+    for (int i = s.length() - 1; i >= 0; i--) {
+        res = s[i] + res;
+        count++;
+        if (count == 3 && i > 0) {
+            res = "," + res;
+            count = 0;
+        }
+    }
+    return res;
+}
+
+// Explicit instantiation for likely types
+template string NumberWithCommas<int>(int);
+template string NumberWithCommas<long>(long);
+template string NumberWithCommas<long long>(long long);
+template string NumberWithCommas<unsigned long>(unsigned long);
