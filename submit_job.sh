@@ -30,6 +30,9 @@ RUN_DIR=$(dirname "$CONFIG_FILE")
 # --- 5. Run Your Command ---
 START_TIME=$(date +%s)
 
+# Export the root directory so IndexGen can find its scripts even if it changes run directory
+export INDEXGEN_ROOT=$(pwd)
+
 ./IndexGen --config "$CONFIG_FILE"
 
 END_TIME=$(date +%s)
