@@ -4,27 +4,41 @@
 #SBATCH --job-name=DNA_Gen
 #SBATCH --cpus-per-task=2
 #SBATCH --gres=gpu:A40:1
-#SBATCH --time=5-00:00:00
-#SBATCH --output=Test/28-12-25/N16E3/run.log
-#SBATCH --error=Test/28-12-25/N16E3/error.log
+#SBATCH --time=2-00:00:00
+
+# Note: --output and --error should be passed via sbatch command line arguments 
+# to ensure logs go to the specific run directory.
 
 # --- 1. Load the Anaconda/Miniconda Module ---
-# Most clusters require you to load a module before using conda.
-# Common names are 'anaconda3', 'miniconda3', or 'python'.
-# If you aren't sure, try running 'module spider conda' in your terminal first.
 module load anaconda3  
 
 # --- 2. Initialize Conda for the Shell ---
-# This step ensures 'conda activate' works inside a script.
-# (Replace the path below with the output of 'echo $CONDA_EXE' if this fails)
 eval "$(conda shell.bash hook)"
 
 # --- 3. Activate Your Environment ---
 conda activate cuda_env
 
-# --- 4. Verify (Optional but Recommended) ---
+# --- 4. Verify ---
 echo "Active Conda Environment: $CONDA_DEFAULT_ENV"
 echo "Python Path: $(which python)"
+echo "Running IndexGen with Config: $1"
+
+CONFIG_FILE="$1"
+# Get the directory of the config file to pass to report
+RUN_DIR=$(dirname "$CONFIG_FILE")
 
 # --- 5. Run Your Command ---
-./run.sh
+START_TIME=$(date +%s)
+
+# Export the root directory so IndexGen can find its scripts even if it changes run directory
+export INDEXGEN_ROOT=$(pwd)
+
+./IndexGen --config "$CONFIG_FILE"
+
+END_TIME=$(date +%s)
+DURATION=$((END_TIME - START_TIME))
+
+# --- 6. Report Back ---
+# Call the main script in report mode (assuming run_repeat.py is in the current dir or INDEXGEN_ROOT)
+# We assume slurm runs in the submission directory by default unless changed.
+python3 run_repeat.py --report --dir "$RUN_DIR" --time "$DURATION"
