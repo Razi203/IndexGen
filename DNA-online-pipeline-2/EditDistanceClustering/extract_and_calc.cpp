@@ -16,10 +16,16 @@ struct Cluster
     std::string farthest_member;
 };
 
-int main()
+int main(int argc, char *argv[])
 {
-    std::string filename = "exps_results/test_data_candidates.txt";
-    // std::string filename = "test_data_candidates_sample.txt"; // For local testing if needed
+    if (argc < 3)
+    {
+        std::cerr << "Usage: " << argv[0] << " <input_file> <output_prefix>" << std::endl;
+        return 1;
+    }
+    std::string filename = argv[1];
+    std::string output_prefix = argv[2];
+
     std::ifstream infile(filename);
 
     if (!infile.is_open())
@@ -141,7 +147,8 @@ int main()
             histogram[dist]++;
             total_pairs++;
 
-            if (dist < (clusters[i].radius + clusters[j].radius))
+            // We export 'Close' pairs (dist <= r1 + r2 + 3) which effectively covers intersections too
+            if (dist <= (clusters[i].radius + clusters[j].radius + 3))
             {
                 intersections.push_back({clusters[i].id, clusters[j].id, dist, clusters[i].radius, clusters[j].radius});
             }
@@ -152,7 +159,7 @@ int main()
     std::cout << "Exporting results to CSV files..." << std::endl;
 
     // Clusters CSV
-    std::ofstream clusters_file("clusters.csv");
+    std::ofstream clusters_file(output_prefix + "_clusters.csv");
     clusters_file << "ClusterID,MemberCount,Radius,Centroid,FarthestMember\n";
     for (const auto &c : clusters)
     {
@@ -162,7 +169,7 @@ int main()
     clusters_file.close();
 
     // Histogram CSV
-    std::ofstream hist_file("histogram.csv");
+    std::ofstream hist_file(output_prefix + "_histogram.csv");
     hist_file << "Distance,Count\n";
     for (const auto &[dist, count] : histogram)
     {
@@ -170,8 +177,8 @@ int main()
     }
     hist_file.close();
 
-    // Intersections CSV
-    std::ofstream inter_file("intersections.csv");
+    // Intersections/Close Pairs CSV
+    std::ofstream inter_file(output_prefix + "_pairs.csv");
     inter_file << "ClusterID1,ClusterID2,Distance,Radius1,Radius2,SumRadii\n";
     for (const auto &inter : intersections)
     {
@@ -180,6 +187,6 @@ int main()
     }
     inter_file.close();
 
-    std::cout << "Analysis and Export Complete.\n";
+    std::cout << "Analysis and Export Complete." << std::endl;
     return 0;
 }
