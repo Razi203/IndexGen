@@ -1,8 +1,8 @@
 {
     "dir": "Temp",
     "core": {
-        "lenStart": 16,
-        "lenEnd": 16,
+        "lenStart": 11,
+        "lenEnd": 11,
         "editDist": 3
     },
     "constraints": {
@@ -14,7 +14,7 @@
         "threads": 32,
         "saveInterval": 1800,
         "use_gpu": true,
-        "max_gpu_memory_gb": 32
+        "max_gpu_memory_gb": 8
     },
     "method": {
         "name": "LinearCode",

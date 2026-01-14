@@ -23,7 +23,13 @@ export INDEXGEN_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && p
 # RESUME="--resume"
 RESUME=""
 
-DIR="Test/28-12-25/N16E3"
+DIR="Temp"
+
+# Use specific python environment
+export PATH="/home/razi/miniconda3/envs/cuda_env/bin:$PATH"
+export LD_LIBRARY_PATH="/home/razi/miniconda3/envs/cuda_env/lib:$LD_LIBRARY_PATH"
+echo "Using python: $(which python)"
+python --version
 
 CMD="time ./IndexGen --config config.json --dir $DIR"
 
@@ -35,11 +41,11 @@ echo "---"
 # Run the command
 $CMD
 
-if [ $? -eq 0 ]; then
-    pingme "Job Succeeded!"
-else
-    pingme "Job Failed!"
-fi
+# if [ $? -eq 0 ]; then
+#     pingme "Job Succeeded!"
+# else
+#     pingme "Job Failed!"
+# fi
 
 echo "---"
 echo "Execution finished."
