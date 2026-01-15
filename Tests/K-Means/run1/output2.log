@@ -1,0 +1,31 @@
+Warning: Directory 'Temp' already exists. Files may be overwritten.
+Output will be saved in directory: /home/razi/Documents/IndexGen/Temp
+Loading configuration from: /home/razi/Documents/IndexGen/config/config_file_read.json
+Using Generation Method: FileRead (file=/home/razi/Documents/IndexGen/Tests/K-Means/run1/CodeSize-0023315_CodeLen-11_MinED-3.txt)
+
+--- Starting Generation for Codeword Length 11 (Current Time: 2026-01-15 11:42:40) ---
+--- Common Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+Max Homopolymer Run:		0
+Min GC Content:			0
+Max GC Content:			0
+
+Using Generation Method: FileRead (file=/home/razi/Documents/IndexGen/Tests/K-Means/run1/CodeSize-0023315_CodeLen-11_MinED-3.txt)
+
+Candidates Time: 0.00	seconds
+Clustering disabled. Running standard generation...
+[C++] Mode: CPU Threaded
+Fill AdjList Time:	0.91	seconds
+Find Min Sum Row Time:	0.00	seconds
+Del Ball Time:		0.00	seconds
+Process Matrix Time:	0.00	seconds
+Number of Candidate Words:	23315
+Number of Ones in Matrix:	0
+Number of Code Words:		23315
+=====================================================
+Codebook Time: 0.91	seconds
+=====================================================
+--- Finished Generation for Codeword Length 11 (Current Time: 2026-01-15 11:42:41) ---
+
+Total Execution Time: 0.91 seconds

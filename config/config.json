@@ -17,17 +17,18 @@
         "max_gpu_memory_gb": 8
     },
     "clustering": {
-        "enabled": false,
-        "k": 20,
-        "verbose": true
+        "enabled": true,
+        "k": 50,
+        "verbose": true,
+        "convergenceIterations": 3
     },
     "method": {
         "name": "LinearCode",
         "linearCode": {
             "minHD": 3,
-            "biasMode": "default",
-            "rowPermMode": "identity",
-            "colPermMode": "identity",
+            "biasMode": "random",
+            "rowPermMode": "random",
+            "colPermMode": "random",
             "bias": [
                 3,
                 0,

@@ -46,7 +46,11 @@ IndexGen uses a hierarchical JSON format for configuration. The structure is:
 ./IndexGen --config path/to/config.json
 ```
 
-Any parameter omitted from the JSON file will use its default value. Command-line arguments can override JSON values.
+Any parameter omitted from the JSON file will use its default value. **Command-line arguments allow you to override specific values from the configuration file.** For example, you can load a standard config but change the convergence threshold just for one run:
+
+```bash
+./IndexGen --config standard_config.json --clusterConvergence 5
+```
 
 ---
 
@@ -159,6 +163,7 @@ The `clustering` object enables an **alternative cluster-based solving approach*
 | `enabled` | `boolean` | `false` | `--cluster`        | If `true`, uses cluster-based iterative solving instead of direct graph solving.          |
 | `k`       | `integer` | `500`   | `--numClusters`    | Target number of clusters to partition candidates into.                                   |
 | `verbose` | `boolean` | `false` | `--clusterVerbose` | If `true`, prints detailed timing and iteration information during clustering.            |
+| `convergenceIterations` | `integer` | `3` | `--clusterConvergence` | Number of consecutive iterations with identical codebook size required to consider the process converged. |
 
 ### How Cluster-Based Solving Works
 

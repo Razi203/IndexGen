@@ -858,10 +858,24 @@ void GenerateCodebookAdj(const Params &params)
                 std::cout << "  - Avg Cluster Solve:    " << fixed << setprecision(3) << avg_solve_time << " s" << std::endl;
             }
 
-            if (previous_sizes.size() >= 3) {
+            int converge_n = params.clustering.convergenceIterations;
+            if (previous_sizes.size() >= (size_t)converge_n) {
                 size_t n = previous_sizes.size();
-                if (previous_sizes[n-1] == previous_sizes[n-2] && previous_sizes[n-2] == previous_sizes[n-3]) {
-                    std::cout << "Convergence reached! Sizes: " << previous_sizes[n-3] << " -> " << previous_sizes[n-2] << " -> " << previous_sizes[n-1] << std::endl;
+                bool converged = true;
+                for(int k=1; k < converge_n; ++k) {
+                    if (previous_sizes[n-1] != previous_sizes[n-1-k]) {
+                        converged = false;
+                        break;
+                    }
+                }
+                
+                if (converged) {
+                    std::cout << "Convergence reached! Sizes: ";
+                    for(int k=converge_n; k >= 1; --k) {
+                         std::cout << previous_sizes[n-k] << (k > 1 ? " -> " : "");
+                    }
+                    std::cout << std::endl;
+                    
                     codebook = next_candidates;
                     final_iteration = iteration;
                     break; 
@@ -885,7 +899,7 @@ void GenerateCodebookAdj(const Params &params)
         clusterIterations = final_iteration;
     }
     
-    PrintTestResults(candidateNum, matrixOnesNum, codebook.size(), clusterK, clusterIterations);
+    PrintTestResults(candidateNum, matrixOnesNum, codebook.size(), clusterK, clusterIterations, params.clustering.convergenceIterations);
     auto end = std::chrono::steady_clock::now();
     std::chrono::duration<double> overAllTime = end - start;
     

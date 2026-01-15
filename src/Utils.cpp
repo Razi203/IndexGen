@@ -256,6 +256,7 @@ void PrintParamsToFile(std::ofstream &out, const int candidateNum, const int cod
     out << "Number of Candidates:\t\t" << candidateNum << std::endl;
     if (clusterK > 0) {
         out << "Number of Clusters (K):\t\t" << clusterK << std::endl;
+        out << "Required Identical Iterations:\t" << params.clustering.convergenceIterations << std::endl;
         out << "Iterations to Converge:\t\t" << clusterIterations << std::endl;
     } else {
         out << "Number of Ones in Matrix:\t" << matrixOnesNum << std::endl;
@@ -592,11 +593,12 @@ void PrintTestParams(const Params &params)
 }
 
 void PrintTestResults(const int candidateNum, const long long int matrixOnesNum, const int codewordsNum,
-                      int clusterK, int clusterIterations)
+                      int clusterK, int clusterIterations, int requiredIterations)
 {
     cout << "Number of Candidate Words:\t" << candidateNum << endl;
     if (clusterK > 0) {
         cout << "Number of Clusters (K):\t\t" << clusterK << endl;
+        cout << "Required Identical Iterations:\t" << requiredIterations << endl;
         cout << "Iterations to Converge:\t\t" << clusterIterations << endl;
     } else {
         cout << "Number of Ones in Matrix:\t" << matrixOnesNum << endl;
@@ -624,6 +626,7 @@ void ParamsToFile(const Params &params, const std::string &fileName)
     output_file << params.clustering.enabled << '\n';
     output_file << params.clustering.k << '\n';
     output_file << params.clustering.verbose << '\n';
+    output_file << params.clustering.convergenceIterations << '\n';
 
     // 2. Write the generation method type identifier (as an integer)
     output_file << static_cast<int>(params.method) << '\n';
@@ -663,6 +666,7 @@ void FileToParams(Params &params, const std::string &fileName)
     input_file >> params.clustering.enabled;
     input_file >> params.clustering.k;
     input_file >> params.clustering.verbose;
+    input_file >> params.clustering.convergenceIterations;
 
     // 2. Read the integer, then cast it back to the GenerationMethod enum
     int method_type_int;
@@ -1020,6 +1024,7 @@ void LoadParamsFromJson(Params &params, const std::string &filename)
         if (c.contains("enabled")) params.clustering.enabled = c["enabled"];
         if (c.contains("k")) params.clustering.k = c["k"];
         if (c.contains("verbose")) params.clustering.verbose = c["verbose"];
+        if (c.contains("convergenceIterations")) params.clustering.convergenceIterations = c["convergenceIterations"];
     }
     
     // Verify

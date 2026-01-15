@@ -9,7 +9,7 @@
 function pingme() {
     # Usage: pingme "Optional Message"
     # If no message is provided, defaults to "Job Done!"
-    local topic="IndexGen-Newton" 
+    local topic="IndexGen-MRPC" 
     local msg="${1:-Job Done!}"
     curl -d "$msg" ntfy.sh/$topic
 }
@@ -23,7 +23,7 @@ function pingme() {
 # RESUME="--resume"
 RESUME=""
 
-DIR="Temp"
+DIR="Tests/K-Means/run5"
 
 # Use specific python environment
 
@@ -40,14 +40,15 @@ echo "Executing command:"
 echo "$CMD"
 echo "---"
 
+mkdir -p $DIR
 # Run the command
-time $CMD
+time $CMD > $DIR/output2.log 2>&1
 
-# if [ $? -eq 0 ]; then
-#     pingme "Job Succeeded!"
-# else
-#     pingme "Job Failed!"
-# fi
+if [ $? -eq 0 ]; then
+    pingme "Job Succeeded!"
+else
+    pingme "Job Failed!"
+fi
 
 echo "---"
 echo "Execution finished."

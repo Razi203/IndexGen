@@ -23,8 +23,8 @@
     "method": {
         "name": "FileRead",
         "fileRead": {
-            "input_file": "/home/razi/Documents/IndexGen/Temp/Candidates.txt"
+            "input_file": "/home/razi/Documents/IndexGen/Tests/K-Means/run5/CodeSize-0028452_CodeLen-11_MinED-3.txt"
         }
     },
-    "verify": true
+    "verify": false
 }

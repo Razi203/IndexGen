@@ -141,9 +141,28 @@ int main(int argc, char *argv[])
                 cout << "Loading configuration from: " << config_file_path << endl;
                 LoadParamsFromJson(params, config_file_path);
             }
+            bool config_loaded = !config_file_path.empty();
+
+            // Override Global Parameters if provided on CLI or if no config was loaded
+            if (config_loaded)
+            {
+                if (result.count("maxRun")) params.maxRun = result["maxRun"].as<int>();
+                if (result.count("minGC")) params.minGCCont = result["minGC"].as<double>();
+                if (result.count("maxGC")) params.maxGCCont = result["maxGC"].as<double>();
+                if (result.count("threads")) params.threadNum = result["threads"].as<int>();
+                if (result.count("saveInterval")) params.saveInterval = result["saveInterval"].as<int>();
+                if (result.count("verify")) params.verify = result["verify"].as<bool>();
+                if (result.count("gpu")) params.useGPU = result["gpu"].as<bool>();
+                if (result.count("maxGPUMemory")) params.maxGPUMemoryGB = result["maxGPUMemory"].as<double>();
+                
+                if (result.count("cluster")) params.clustering.enabled = result["cluster"].as<bool>();
+                if (result.count("numClusters")) params.clustering.k = result["numClusters"].as<int>();
+                if (result.count("clusterVerbose")) params.clustering.verbose = result["clusterVerbose"].as<bool>();
+                if (result.count("clusterConvergence")) params.clustering.convergenceIterations = result["clusterConvergence"].as<int>();
+            }
             else
             {
-                // Fallback to CLI arguments
+                // No config loaded, take all defaults/values from CLI
                 params.codeMinED = result["editDist"].as<int>();
                 params.maxRun = result["maxRun"].as<int>();
                 params.minGCCont = result["minGC"].as<double>();
@@ -153,10 +172,17 @@ int main(int argc, char *argv[])
                 params.verify = result["verify"].as<bool>();
                 params.useGPU = result["gpu"].as<bool>();
                 params.maxGPUMemoryGB = result["maxGPUMemory"].as<double>();
-                params.clustering.enabled = result["cluster"].as<bool>();
-                params.clustering.k = result["numClusters"].as<int>();
-                params.clustering.verbose = result["clusterVerbose"].as<bool>();
+                
+                if (result.count("cluster")) params.clustering.enabled = result["cluster"].as<bool>();
+                if (result.count("numClusters")) params.clustering.k = result["numClusters"].as<int>();
+                if (result.count("clusterVerbose")) params.clustering.verbose = result["clusterVerbose"].as<bool>();
+                if (result.count("clusterConvergence")) params.clustering.convergenceIterations = result["clusterConvergence"].as<int>();
+            }
 
+            // --- Method Handling ---
+            // If method is explicitly provided on CLI, or no config loaded, use CLI method logic fully.
+            if (!config_loaded || result.count("method"))
+            {
                 string method_str = result["method"].as<string>();
 
                 if (method_str == "LinearCode")
@@ -179,21 +205,24 @@ int main(int argc, char *argv[])
                             if (!result.count("lc_bias"))
                                 throw runtime_error("--lc_bias required when lc_bias_mode=manual");
                         }
-                        bias_vec = parseCSVVector(result["lc_bias"].as<string>(), "bias");
+                        if (result.count("lc_bias"))
+                             bias_vec = parseCSVVector(result["lc_bias"].as<string>(), "bias");
                     }
 
                     if (row_perm_mode == VectorMode::MANUAL)
                     {
-                        if (!result.count("lc_row_perm"))
-                            throw runtime_error("--lc_row_perm required when lc_row_perm_mode=manual");
-                        row_perm_vec = parseCSVVector(result["lc_row_perm"].as<string>(), "row_perm");
+                        if (config_file_path.empty() && !result.count("lc_row_perm"))
+                             throw runtime_error("--lc_row_perm required when lc_row_perm_mode=manual");
+                        if (result.count("lc_row_perm"))
+                             row_perm_vec = parseCSVVector(result["lc_row_perm"].as<string>(), "row_perm");
                     }
 
                     if (col_perm_mode == VectorMode::MANUAL)
                     {
-                        if (!result.count("lc_col_perm"))
-                            throw runtime_error("--lc_col_perm required when lc_col_perm_mode=manual");
-                        col_perm_vec = parseCSVVector(result["lc_col_perm"].as<string>(), "col_perm");
+                         if (config_file_path.empty() && !result.count("lc_col_perm"))
+                             throw runtime_error("--lc_col_perm required when lc_col_perm_mode=manual");
+                         if (result.count("lc_col_perm"))
+                             col_perm_vec = parseCSVVector(result["lc_col_perm"].as<string>(), "col_perm");
                     }
 
                     unsigned int random_seed = result["lc_random_seed"].as<unsigned int>();
@@ -243,6 +272,33 @@ int main(int argc, char *argv[])
                     return 1;
                 }
             }
+            else
+            {
+                // Config loaded AND Method NOT overridden on CLI.
+                // We might still want to override specific parameters of the existing method.
+                if (params.method == GenerationMethod::LINEAR_CODE) {
+                    auto* c = dynamic_cast<LinearCodeConstraints*>(params.constraints.get());
+                    if (c && result.count("minHD")) c->candMinHD = result["minHD"].as<int>();
+                    // Could add more specific overrides here if needed
+                }
+                else if (params.method == GenerationMethod::VT_CODE) {
+                    auto* c = dynamic_cast<VTCodeConstraints*>(params.constraints.get());
+                    if (c) {
+                        if (result.count("vt_a")) c->a = result["vt_a"].as<int>();
+                        if (result.count("vt_b")) c->b = result["vt_b"].as<int>();
+                    }
+                }
+                else if (params.method == GenerationMethod::RANDOM) {
+                    auto* c = dynamic_cast<RandomConstraints*>(params.constraints.get());
+                    if (c && result.count("rand_candidates")) c->num_candidates = result["rand_candidates"].as<int>();
+                }
+                 else if (params.method == GenerationMethod::DIFFERENTIAL_VT_CODE) {
+                    auto* c = dynamic_cast<DifferentialVTCodeConstraints*>(params.constraints.get());
+                    if (c && result.count("vt_synd")) c->syndrome = result["vt_synd"].as<int>();
+                }
+                 // FileRead constraints are just filename, if user didn't override method but set input_file?
+                 // Usually unlikely to separate them, but we could support it.
+            }
             std::shared_ptr<CandidateGenerator> generator = CreateGenerator(params);
             generator->printInfo(cout);
 
@@ -259,8 +315,8 @@ int main(int argc, char *argv[])
                         json j;
                         f >> j;
                         if (j.contains("core")) {
-                            if (j["core"].contains("lenStart")) start_len = j["core"]["lenStart"];
-                            if (j["core"].contains("lenEnd")) end_len = j["core"]["lenEnd"];
+                            if (j["core"].contains("lenStart") && result.count("lenStart") == 0) start_len = j["core"]["lenStart"];
+                            if (j["core"].contains("lenEnd") && result.count("lenEnd") == 0) end_len = j["core"]["lenEnd"];
                         }
                     }
                 } catch (const std::exception& e) {
@@ -346,6 +402,7 @@ void configure_parser(cxxopts::Options &options)
             ("cluster", "Use cluster-based iterative solving", cxxopts::value<bool>()->default_value("false"))
             ("numClusters", "Number of clusters to partition candidates into", cxxopts::value<int>()->default_value("500"))
             ("clusterVerbose", "Verbose clustering output", cxxopts::value<bool>()->default_value("false"))
+            ("clusterConvergence", "Number of identical iterations for convergence", cxxopts::value<int>()->default_value("3"))
         // Generation Method
         ("m,method", "Generation method: LinearCode, VTCode, Random, Diff_VTCode, AllStrings, FileRead",
          cxxopts::value<string>()->default_value("LinearCode"))

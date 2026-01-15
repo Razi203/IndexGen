@@ -202,7 +202,10 @@ struct ClusteringParams
     /** @brief Whether to print verbose timing info. */
     bool verbose;
 
-    ClusteringParams() : enabled(false), k(500) {}
+    /** @brief Number of iterations for k-means convergence. */
+    int convergenceIterations;
+
+    ClusteringParams() : enabled(false), k(500), verbose(false), convergenceIterations(3) {}
 };
 
 /**

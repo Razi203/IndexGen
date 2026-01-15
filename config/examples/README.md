@@ -31,6 +31,9 @@ This directory contains ready-to-use example configuration files for IndexGen. C
 cp config/examples/linear_code_ed4_constrained.json my_config.json
 # Edit my_config.json as needed
 ./IndexGen --config my_config.json
+
+# Override specific parameters via CLI
+./IndexGen --config my_config.json --clusterConvergence 2 --lenStart 12
 ```
 
 ## Parameter Notes

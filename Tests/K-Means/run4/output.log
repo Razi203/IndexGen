@@ -1,0 +1,296 @@
+Warning: Directory 'Tests/K-Means/run4' already exists. Files may be overwritten.
+Output will be saved in directory: /home/razi/Documents/IndexGen/Tests/K-Means/run4
+Loading configuration from: /home/razi/Documents/IndexGen/config/config.json
+Using Generation Method: LinearCode (minHD=3)
+Bias vector: [3, 0, 2, 3, 1, 1, 1, 3, 2, 3, 3]
+Row permutation: [4, 0, 5, 1, 6, 3, 7, 2]
+Column permutation: [8, 9, 6, 10, 3, 5, 0, 4, 7, 2, 1]
+
+--- Starting Generation for Codeword Length 11 (Current Time: 2026-01-15 16:12:29) ---
+--- Common Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+Max Homopolymer Run:		0
+Min GC Content:			0
+Max GC Content:			0
+
+Using Generation Method: LinearCode (minHD=3)
+Bias vector: [3, 0, 2, 3, 1, 1, 1, 3, 2, 3, 3]
+Row permutation: [4, 0, 5, 1, 6, 3, 7, 2]
+Column permutation: [8, 9, 6, 10, 3, 5, 0, 4, 7, 2, 1]
+
+Permutation vector (columns): 10 9 4 0 3 1 6 2 7 8 5 
+Permutation vector (rows): 2 5 3 7 0 1 4 6 
+Using bias: 0 3 2 3 0 1 1 1 2 3 0 
+
+Candidates Time: 0.02	seconds
+Clustering enabled. Starting iterative process...
+Starting Iteration 1: Candidate set size = 65,536
+[Verbose] Iteration 1 Stats:
+  - Total Iteration Time: 233.641 s
+  - Clustering Time:      12.385 s
+  - Total Solving Time:   221.255 s
+  - Avg Cluster Solve:    1.106 s
+Starting Iteration 2: Candidate set size = 53,122
+[Verbose] Iteration 2 Stats:
+  - Total Iteration Time: 228.259 s
+  - Clustering Time:      8.711 s
+  - Total Solving Time:   219.546 s
+  - Avg Cluster Solve:    1.098 s
+Starting Iteration 3: Candidate set size = 45,268
+[Verbose] Iteration 3 Stats:
+  - Total Iteration Time: 226.060 s
+  - Clustering Time:      6.670 s
+  - Total Solving Time:   219.389 s
+  - Avg Cluster Solve:    1.097 s
+Starting Iteration 4: Candidate set size = 40,208
+[Verbose] Iteration 4 Stats:
+  - Total Iteration Time: 224.947 s
+  - Clustering Time:      5.628 s
+  - Total Solving Time:   219.318 s
+  - Avg Cluster Solve:    1.097 s
+Starting Iteration 5: Candidate set size = 36,648
+[Verbose] Iteration 5 Stats:
+  - Total Iteration Time: 224.354 s
+  - Clustering Time:      4.773 s
+  - Total Solving Time:   219.581 s
+  - Avg Cluster Solve:    1.098 s
+Starting Iteration 6: Candidate set size = 34,158
+[Verbose] Iteration 6 Stats:
+  - Total Iteration Time: 223.778 s
+  - Clustering Time:      4.275 s
+  - Total Solving Time:   219.503 s
+  - Avg Cluster Solve:    1.098 s
+Starting Iteration 7: Candidate set size = 32,313
+[Verbose] Iteration 7 Stats:
+  - Total Iteration Time: 223.358 s
+  - Clustering Time:      3.940 s
+  - Total Solving Time:   219.418 s
+  - Avg Cluster Solve:    1.097 s
+Starting Iteration 8: Candidate set size = 30,883
+[Verbose] Iteration 8 Stats:
+  - Total Iteration Time: 222.925 s
+  - Clustering Time:      3.652 s
+  - Total Solving Time:   219.272 s
+  - Avg Cluster Solve:    1.096 s
+Starting Iteration 9: Candidate set size = 29,844
+[Verbose] Iteration 9 Stats:
+  - Total Iteration Time: 222.862 s
+  - Clustering Time:      3.590 s
+  - Total Solving Time:   219.272 s
+  - Avg Cluster Solve:    1.096 s
+Starting Iteration 10: Candidate set size = 29,024
+[Verbose] Iteration 10 Stats:
+  - Total Iteration Time: 222.814 s
+  - Clustering Time:      3.409 s
+  - Total Solving Time:   219.405 s
+  - Avg Cluster Solve:    1.097 s
+Starting Iteration 11: Candidate set size = 28,402
+[Verbose] Iteration 11 Stats:
+  - Total Iteration Time: 222.020 s
+  - Clustering Time:      3.282 s
+  - Total Solving Time:   218.738 s
+  - Avg Cluster Solve:    1.094 s
+Starting Iteration 12: Candidate set size = 27,895
+[Verbose] Iteration 12 Stats:
+  - Total Iteration Time: 222.245 s
+  - Clustering Time:      3.178 s
+  - Total Solving Time:   219.066 s
+  - Avg Cluster Solve:    1.095 s
+Starting Iteration 13: Candidate set size = 27,530
+[Verbose] Iteration 13 Stats:
+  - Total Iteration Time: 222.269 s
+  - Clustering Time:      3.169 s
+  - Total Solving Time:   219.100 s
+  - Avg Cluster Solve:    1.095 s
+Starting Iteration 14: Candidate set size = 27,218
+[Verbose] Iteration 14 Stats:
+  - Total Iteration Time: 222.108 s
+  - Clustering Time:      3.111 s
+  - Total Solving Time:   218.997 s
+  - Avg Cluster Solve:    1.095 s
+Starting Iteration 15: Candidate set size = 26,959
+[Verbose] Iteration 15 Stats:
+  - Total Iteration Time: 222.183 s
+  - Clustering Time:      3.088 s
+  - Total Solving Time:   219.095 s
+  - Avg Cluster Solve:    1.095 s
+Starting Iteration 16: Candidate set size = 26,784
+[Verbose] Iteration 16 Stats:
+  - Total Iteration Time: 221.791 s
+  - Clustering Time:      2.989 s
+  - Total Solving Time:   218.802 s
+  - Avg Cluster Solve:    1.094 s
+Starting Iteration 17: Candidate set size = 26,630
+[Verbose] Iteration 17 Stats:
+  - Total Iteration Time: 221.941 s
+  - Clustering Time:      3.063 s
+  - Total Solving Time:   218.878 s
+  - Avg Cluster Solve:    1.094 s
+Starting Iteration 18: Candidate set size = 26,481
+[Verbose] Iteration 18 Stats:
+  - Total Iteration Time: 221.988 s
+  - Clustering Time:      3.008 s
+  - Total Solving Time:   218.980 s
+  - Avg Cluster Solve:    1.095 s
+Starting Iteration 19: Candidate set size = 26,399
+[Verbose] Iteration 19 Stats:
+  - Total Iteration Time: 222.156 s
+  - Clustering Time:      2.979 s
+  - Total Solving Time:   219.177 s
+  - Avg Cluster Solve:    1.096 s
+Starting Iteration 20: Candidate set size = 26,319
+[Verbose] Iteration 20 Stats:
+  - Total Iteration Time: 222.339 s
+  - Clustering Time:      2.947 s
+  - Total Solving Time:   219.392 s
+  - Avg Cluster Solve:    1.097 s
+Starting Iteration 21: Candidate set size = 26,237
+[Verbose] Iteration 21 Stats:
+  - Total Iteration Time: 222.076 s
+  - Clustering Time:      2.982 s
+  - Total Solving Time:   219.093 s
+  - Avg Cluster Solve:    1.095 s
+Starting Iteration 22: Candidate set size = 26,184
+[Verbose] Iteration 22 Stats:
+  - Total Iteration Time: 222.469 s
+  - Clustering Time:      2.938 s
+  - Total Solving Time:   219.531 s
+  - Avg Cluster Solve:    1.098 s
+Starting Iteration 23: Candidate set size = 26,130
+[Verbose] Iteration 23 Stats:
+  - Total Iteration Time: 222.257 s
+  - Clustering Time:      2.948 s
+  - Total Solving Time:   219.309 s
+  - Avg Cluster Solve:    1.097 s
+Starting Iteration 24: Candidate set size = 26,093
+[Verbose] Iteration 24 Stats:
+  - Total Iteration Time: 222.125 s
+  - Clustering Time:      2.930 s
+  - Total Solving Time:   219.195 s
+  - Avg Cluster Solve:    1.096 s
+Starting Iteration 25: Candidate set size = 26,058
+[Verbose] Iteration 25 Stats:
+  - Total Iteration Time: 222.165 s
+  - Clustering Time:      2.915 s
+  - Total Solving Time:   219.249 s
+  - Avg Cluster Solve:    1.096 s
+Starting Iteration 26: Candidate set size = 26,034
+[Verbose] Iteration 26 Stats:
+  - Total Iteration Time: 222.324 s
+  - Clustering Time:      2.933 s
+  - Total Solving Time:   219.391 s
+  - Avg Cluster Solve:    1.097 s
+Starting Iteration 27: Candidate set size = 26,014
+[Verbose] Iteration 27 Stats:
+  - Total Iteration Time: 222.246 s
+  - Clustering Time:      2.918 s
+  - Total Solving Time:   219.328 s
+  - Avg Cluster Solve:    1.097 s
+Starting Iteration 28: Candidate set size = 25,993
+[Verbose] Iteration 28 Stats:
+  - Total Iteration Time: 222.530 s
+  - Clustering Time:      2.923 s
+  - Total Solving Time:   219.607 s
+  - Avg Cluster Solve:    1.098 s
+Starting Iteration 29: Candidate set size = 25,975
+[Verbose] Iteration 29 Stats:
+  - Total Iteration Time: 222.211 s
+  - Clustering Time:      2.929 s
+  - Total Solving Time:   219.281 s
+  - Avg Cluster Solve:    1.096 s
+Starting Iteration 30: Candidate set size = 25,967
+[Verbose] Iteration 30 Stats:
+  - Total Iteration Time: 222.033 s
+  - Clustering Time:      2.873 s
+  - Total Solving Time:   219.160 s
+  - Avg Cluster Solve:    1.096 s
+Starting Iteration 31: Candidate set size = 25,963
+[Verbose] Iteration 31 Stats:
+  - Total Iteration Time: 221.966 s
+  - Clustering Time:      2.857 s
+  - Total Solving Time:   219.109 s
+  - Avg Cluster Solve:    1.096 s
+Starting Iteration 32: Candidate set size = 25,952
+[Verbose] Iteration 32 Stats:
+  - Total Iteration Time: 222.010 s
+  - Clustering Time:      2.828 s
+  - Total Solving Time:   219.181 s
+  - Avg Cluster Solve:    1.096 s
+Starting Iteration 33: Candidate set size = 25,943
+[Verbose] Iteration 33 Stats:
+  - Total Iteration Time: 221.916 s
+  - Clustering Time:      2.850 s
+  - Total Solving Time:   219.065 s
+  - Avg Cluster Solve:    1.095 s
+Starting Iteration 34: Candidate set size = 25,937
+[Verbose] Iteration 34 Stats:
+  - Total Iteration Time: 222.094 s
+  - Clustering Time:      2.943 s
+  - Total Solving Time:   219.150 s
+  - Avg Cluster Solve:    1.096 s
+Starting Iteration 35: Candidate set size = 25,934
+[Verbose] Iteration 35 Stats:
+  - Total Iteration Time: 221.826 s
+  - Clustering Time:      2.894 s
+  - Total Solving Time:   218.931 s
+  - Avg Cluster Solve:    1.095 s
+Starting Iteration 36: Candidate set size = 25,928
+[Verbose] Iteration 36 Stats:
+  - Total Iteration Time: 221.872 s
+  - Clustering Time:      2.905 s
+  - Total Solving Time:   218.966 s
+  - Avg Cluster Solve:    1.095 s
+Starting Iteration 37: Candidate set size = 25,927
+[Verbose] Iteration 37 Stats:
+  - Total Iteration Time: 222.123 s
+  - Clustering Time:      2.874 s
+  - Total Solving Time:   219.249 s
+  - Avg Cluster Solve:    1.096 s
+Starting Iteration 38: Candidate set size = 25,924
+[Verbose] Iteration 38 Stats:
+  - Total Iteration Time: 221.987 s
+  - Clustering Time:      2.910 s
+  - Total Solving Time:   219.076 s
+  - Avg Cluster Solve:    1.095 s
+Starting Iteration 39: Candidate set size = 25,923
+[Verbose] Iteration 39 Stats:
+  - Total Iteration Time: 221.918 s
+  - Clustering Time:      2.868 s
+  - Total Solving Time:   219.050 s
+  - Avg Cluster Solve:    1.095 s
+Starting Iteration 40: Candidate set size = 25,922
+[Verbose] Iteration 40 Stats:
+  - Total Iteration Time: 222.047 s
+  - Clustering Time:      2.871 s
+  - Total Solving Time:   219.176 s
+  - Avg Cluster Solve:    1.096 s
+Starting Iteration 41: Candidate set size = 25,918
+[Verbose] Iteration 41 Stats:
+  - Total Iteration Time: 224.135 s
+  - Clustering Time:      5.003 s
+  - Total Solving Time:   219.131 s
+  - Avg Cluster Solve:    1.096 s
+Starting Iteration 42: Candidate set size = 25,916
+[Verbose] Iteration 42 Stats:
+  - Total Iteration Time: 224.113 s
+  - Clustering Time:      4.972 s
+  - Total Solving Time:   219.140 s
+  - Avg Cluster Solve:    1.096 s
+Starting Iteration 43: Candidate set size = 25,916
+[Verbose] Iteration 43 Stats:
+  - Total Iteration Time: 222.147 s
+  - Clustering Time:      2.884 s
+  - Total Solving Time:   219.262 s
+  - Avg Cluster Solve:    1.096 s
+Convergence reached! Sizes: 25916 -> 25916 -> 25916
+Number of Candidate Words:	65536
+Number of Clusters (K):		200
+Iterations to Converge:		43
+Number of Code Words:		25916
+=====================================================
+Codebook Time: 9586.66	seconds
+=====================================================
+--- Finished Generation for Codeword Length 11 (Current Time: 2026-01-15 18:52:16) ---
+
+Total Execution Time: 9586.66 seconds

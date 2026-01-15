@@ -211,7 +211,7 @@ void PrintTestParams(const Params &params);
  * @param codewordsNum The final number of codewords generated.
  */
 void PrintTestResults(const int candidateNum, const long long int matrixOnesNum, const int codewordsNum,
-                      int clusterK = -1, int clusterIterations = -1);
+                      int clusterK = -1, int clusterIterations = -1, int requiredIterations = -1);
 
 // =================================================================================
 // SECTION: FILE I/O OPERATIONS

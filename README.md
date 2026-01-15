@@ -8,6 +8,8 @@
 
 **IndexGen** is a flexible, research-grade tool for generating DNA-based codebooks. It produces sets of DNA sequences (codewords) that maintain a guaranteed minimum Levenshtein (edit) distance between any two members, making them highly robust against insertions, deletions, and substitution errors—a critical requirement for applications in **DNA storage**, **molecular barcoding**, and **synthetic biology**.
 
+**NOTE:** The script assumes the following mapping: A=0, C=1, G=2, T=3
+
 ---
 
 ## ✨ Key Features
@@ -110,6 +112,8 @@ The fastest way to run IndexGen is with a JSON configuration file.
 
 IndexGen can be configured using either **command-line arguments** or a **JSON configuration file**. The configuration file is recommended for complex setups.
 
+> **Note:** Command-line arguments take priority over configuration file values. You can use a config file for defaults and override specific parameters via CLI.
+
 ### Basic Commands
 
 ```bash
@@ -147,6 +151,8 @@ IndexGen can be configured using either **command-line arguments** or a **JSON c
 | `--maxGPUMemory`      |       | Maximum GPU memory usage in GB.                                             | `10.0`       |
 | `--cluster`           |       | Enable K-Means clustering on the final codebook.                            | `false`      |
 | `--numClusters`       |       | Target number of clusters (k).                                              | `500`        |
+| `--clusterVerbose`    |       | Enable verbose timing/logging for clustering iterations.                    | `false`      |
+| `--clusterConvergence`|       | Number of identical iterations required for convergence.                    | `3`          |
 | `--method`            | `-m`  | Generation method. See [Generation Methods](#generation-methods).           | `LinearCode` |
 
 ---
