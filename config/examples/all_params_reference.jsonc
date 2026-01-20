@@ -91,7 +91,10 @@
         "k": 500,
         // Print verbose timing and iteration information
         // Default: false
-        "verbose": false
+        "verbose": false,
+        // Number of identical consecutive iterations for convergence
+        // Default: 3
+        "convergenceIterations": 3
     },
     // -----------------------------------------------------------------------------
     // GENERATION METHOD - Algorithm for candidate generation

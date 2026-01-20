@@ -1,8 +1,8 @@
 {
     "dir": "Temp2",
     "core": {
-        "lenStart": 11,
-        "lenEnd": 11,
+        "lenStart": 8,
+        "lenEnd": 8,
         "editDist": 3
     },
     "constraints": {
@@ -13,14 +13,14 @@
     "performance": {
         "threads": 32,
         "saveInterval": 1800,
-        "use_gpu": true,
+        "use_gpu": false,
         "max_gpu_memory_gb": 8
     },
     "clustering": {
         "enabled": true,
         "k": 50,
         "verbose": true,
-        "convergenceIterations": 3
+        "convergenceIterations": 9
     },
     "method": {
         "name": "LinearCode",

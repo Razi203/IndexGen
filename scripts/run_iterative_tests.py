@@ -48,8 +48,8 @@ BASE_CONFIG_1 = {
     "clustering": {
         "enabled": True,
         "k": 20,              # Will be set per run
-        "clusterConvergence": 3, # Will be set per run
-        "verbose": False
+        "convergenceIterations": 3, # Will be set per run
+        "verbose": True
     },
     "verify": False
 }
@@ -115,7 +115,7 @@ def main():
                 config1 = copy.deepcopy(BASE_CONFIG_1)
                 config1["dir"] = run_dir
                 config1["clustering"]["k"] = k
-                config1["clustering"]["clusterConvergence"] = i_val
+                config1["clustering"]["convergenceIterations"] = i_val
                 
                 # Generate a random seed for this run
                 seed = random.randint(1, 999999)

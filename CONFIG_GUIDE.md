@@ -445,7 +445,8 @@ Here is a complete configuration file using all available options:
     "clustering": {
         "enabled": true,
         "k": 200,
-        "verbose": false
+        "verbose": false,
+        "convergenceIterations": 3
     },
 
     "method": {
