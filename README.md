@@ -6,9 +6,9 @@
 
 ---
 
-**IndexGen** is a flexible, research-grade tool for generating DNA-based codebooks. It produces sets of DNA sequences (codewords) that maintain a guaranteed minimum Levenshtein (edit) distance between any two members, making them highly robust against insertions, deletions, and substitution errors—a critical requirement for applications in **DNA storage**, **molecular barcoding**, and **synthetic biology**.
+**IndexGen** is a flexible, research-grade tool for generating DNA-based codebooks. It produces sets of DNA sequences (codewords) that maintain a guaranteed minimum Levenshtein (edit) distance between any two members, making them highly robust against insertions, deletions, and substitution errors—a critical requirement for applications in DNA storage.
 
-**NOTE:** The script assumes the following mapping: A=0, C=1, G=2, T=3
+**NOTE: The script assumes the following mapping: A=0, C=1, G=2, T=3**
 
 ---
 
@@ -34,6 +34,7 @@
 7.  [How It Works](#how-it-works)
 8.  [Extending IndexGen](#extending-indexgen)
 9.  [Scripts Reference](#scripts-reference)
+10. [Experimental Results](#experimental-results)
 
 ---
 
@@ -412,6 +413,21 @@ Utility scripts for running and analyzing experiments:
 | `scripts/run_repeat.py` | Runs the same configuration multiple times with different random seeds.            |
 | `scripts/analyze_codewords.py` | Parses log files and generates histogram visualizations of results.          |
 | `scripts/extract_results.py`   | Extracts key metrics from multiple run directories into a summary.            |
+
+---
+
+## Experimental Results
+
+IndexGen has been extensively utilized to generate error-correcting codebooks for DNA storage applications, encompassing the following parameter space:
+
+- **Sequence Lengths**: Ranging from 11 to 16 nucleotides.
+- **Minimum Edit Distance**: Guaranteed Levenshtein distance of 3 to 5.
+- **GC-Content Ranges**: Either unconstrained, or strictly bounded between 30% and 70% (`0.3` &ndash; `0.7`) to ensure synthesizability.
+- **Homopolymer Run Limits**: Maximum consecutive identical bases restricted to lengths of 3 or 4, or left unconstrained.
+
+The complete collection of generated codebooks is archived within the `Codebooks` directory. A comprehensive summary of the experimental configurations and final codebook sizes can be found in the `Codebooks/IndexGen Results.xlsx` spreadsheet.
+
+
 
 ---
 
