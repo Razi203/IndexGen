@@ -45,6 +45,9 @@ string get_timestamp();
 int main(int argc, char *argv[])
 {
     cxxopts::Options options("IndexGen", "A flexible DNA codebook generator");
+    // Capture initial working directory to resolve relative paths later
+    std::filesystem::path initial_cwd = std::filesystem::current_path();
+
     try
     {
         configure_parser(options);
@@ -102,13 +105,26 @@ int main(int argc, char *argv[])
         };
 
         auto resolve_param = [&](const string& flag, auto& target, const vector<string>& json_path = {}) {
-            // 1. Start with the value from cxxopts (User Input OR Default)
             typedef typename std::decay<decltype(target)>::type T;
-            target = result[flag].as<T>();
 
-            // 2. If CLI flag was NOT explicitly provided, try to overwrite from Config
-            if (has_config && result.count(flag) == 0 && !json_path.empty()) {
-                get_json_val(json_path, target);
+            // 1. Priority: Explicit CLI Argument
+            if (result.count(flag)) {
+                target = result[flag].as<T>();
+                return;
+            }
+
+            // 2. Priority: Config File
+            if (has_config && !json_path.empty()) {
+                if (get_json_val(json_path, target)) {
+                    return;
+                }
+            }
+
+            // 3. Priority: CLI Default (if defined)
+            try {
+                target = result[flag].as<T>();
+            } catch (...) {
+                // No default value and not provided. Keep target as-is.
             }
         };
 
@@ -280,6 +296,15 @@ int main(int argc, char *argv[])
             if (input_file.empty()) {
                 throw std::runtime_error("--input_file (or method.fileRead.input_file) required when method=FileRead");
             }
+            
+            // Resolve relative paths against the initial working directory
+            // because the program changes current_path to the output directory earlier.
+            filesystem::path p(input_file);
+            if (p.is_relative()) {
+                input_file = (initial_cwd / p).string();
+                cout << "Resolved input file path to: " << input_file << endl;
+            }
+
             params.constraints = make_unique<FileReadConstraints>(input_file);
         }
         else
