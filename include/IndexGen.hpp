@@ -205,7 +205,10 @@ struct ClusteringParams
     /** @brief Number of iterations for k-means convergence. */
     int convergenceIterations;
 
-    ClusteringParams() : enabled(false), k(500), verbose(false), convergenceIterations(3) {}
+    /** @brief Clustering method to use. */
+    std::string method;
+
+    ClusteringParams() : enabled(false), k(500), verbose(false), convergenceIterations(3), method("hierarchical_kmeans") {}
 };
 
 /**

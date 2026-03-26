@@ -20,7 +20,8 @@
         "enabled": true,
         "k": 50,
         "verbose": true,
-        "convergenceIterations": 9
+        "convergenceIterations": 9,
+        "method": "random_cluster"
     },
     "method": {
         "name": "LinearCode",

@@ -627,6 +627,7 @@ void ParamsToFile(const Params &params, const std::string &fileName)
     output_file << params.clustering.k << '\n';
     output_file << params.clustering.verbose << '\n';
     output_file << params.clustering.convergenceIterations << '\n';
+    output_file << params.clustering.method << '\n';
 
     // 2. Write the generation method type identifier (as an integer)
     output_file << static_cast<int>(params.method) << '\n';
@@ -667,6 +668,7 @@ void FileToParams(Params &params, const std::string &fileName)
     input_file >> params.clustering.k;
     input_file >> params.clustering.verbose;
     input_file >> params.clustering.convergenceIterations;
+    input_file >> params.clustering.method;
 
     // 2. Read the integer, then cast it back to the GenerationMethod enum
     int method_type_int;
@@ -1025,6 +1027,7 @@ void LoadParamsFromJson(Params &params, const std::string &filename)
         if (c.contains("k")) params.clustering.k = c["k"];
         if (c.contains("verbose")) params.clustering.verbose = c["verbose"];
         if (c.contains("convergenceIterations")) params.clustering.convergenceIterations = c["convergenceIterations"];
+        if (c.contains("method")) params.clustering.method = c["method"];
     }
     
     // Verify
