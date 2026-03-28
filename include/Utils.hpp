@@ -108,7 +108,7 @@ int HammingDist(const string &str1, const string &str2);
  * @param minED The minimum required edit distance between any two strings.
  * @param threadNum The number of threads to use for the computation.
  */
-void VerifyDist(vector<string> &vecs, const int minED, const int threadNum);
+void VerifyDist(vector<string> &vecs, const int minED, const int threadNum, bool useGPU = false, double maxGPUMemoryGB = 10.0);
 
 /**
  * @brief Verifies that all pairs of strings in a vector have at least a minimum Hamming distance.
@@ -211,7 +211,8 @@ void PrintTestParams(const Params &params);
  * @param codewordsNum The final number of codewords generated.
  */
 void PrintTestResults(const int candidateNum, const long long int matrixOnesNum, const int codewordsNum,
-                      int clusterK = -1, int clusterIterations = -1, int requiredIterations = -1);
+                      int clusterK = -1, int clusterIterations = -1, int requiredIterations = -1,
+                      const std::string &clusteringMethod = "");
 
 // =================================================================================
 // SECTION: FILE I/O OPERATIONS

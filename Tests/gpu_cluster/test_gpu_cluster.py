@@ -52,8 +52,8 @@ def test_gpu_cluster():
     out_path = vec_path + "_out.bin"
     
     # Run the script
-    script_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "gpu_cluster.py")
-    cmd = ["python", script_path, vec_path, cen_path, out_path, "500"]
+    script_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "src", "gpu_cluster.py")
+    cmd = ["python3", script_path, vec_path, cen_path, out_path, "500"]
     
     print("Running GPU script...")
     start_t = time.time()

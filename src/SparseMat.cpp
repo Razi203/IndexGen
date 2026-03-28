@@ -18,6 +18,8 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+#include <atomic>
+#include <mutex>
 
 namespace
 {
@@ -76,42 +78,67 @@ using namespace std;
 
 // *** AdjList Member Function Implementations ***
 
+void AdjList::Init(int numNodes)
+{
+    m.resize(numNodes);
+    deleted.assign(numNodes, false);
+    degree.assign(numNodes, 0);
+    num_active_nodes = numNodes;
+    min_degree_tracker = 0;
+    // rowsBySum is allocated during RowsBySum() once degrees are known
+}
+
 void AdjList::RowsBySum()
 {
-    rowsBySum.clear(); // Ensure clear refresh
-    for (const pair<const int, unordered_set<int>> &iSetJ : m)
+    rowsBySum.clear();
+    int max_d = 0;
+    for (int i = 0; i < (int)m.size(); ++i)
     {
-        int i = iSetJ.first;
-        int sumRowI = iSetJ.second.size();
-        rowsBySum[sumRowI].insert(i);
+        if (deleted[i]) continue;
+        int d = m[i].size();
+        degree[i] = d;
+        if (d > max_d) max_d = d;
+    }
+    
+    rowsBySum.resize(max_d + 1);
+    min_degree_tracker = max_d + 1;
+
+    for (int i = 0; i < (int)m.size(); ++i)
+    {
+        if (deleted[i]) continue;
+        int d = degree[i];
+        rowsBySum[d].insert(i);
+        if (d < min_degree_tracker) min_degree_tracker = d;
     }
 }
 
 int AdjList::MinSumRow() const
 {
-    assert(not rowsBySum.empty());
-    const unordered_set<int> &minSumSet = rowsBySum.begin()->second;
-    assert(not minSumSet.empty());
-    return *(minSumSet.begin());
+    assert(min_degree_tracker >= 0 && min_degree_tracker < (int)rowsBySum.size());
+    assert(!rowsBySum[min_degree_tracker].empty());
+    return *rowsBySum[min_degree_tracker].begin();
 }
 
 int AdjList::MaxSumRow() const
 {
-    assert(not rowsBySum.empty());
-    const unordered_set<int> &maxSumSet = rowsBySum.rbegin()->second;
-    assert(not maxSumSet.empty());
-    return *(maxSumSet.begin());
+    for (int d = (int)rowsBySum.size() - 1; d >= 0; --d)
+    {
+        if (!rowsBySum[d].empty()) return *rowsBySum[d].begin();
+    }
+    return -1;
 }
 
 void AdjList::DeleteRow(const int currentSum, const int row)
 {
-    map<int, unordered_set<int>>::iterator currSumIt = rowsBySum.find(currentSum);
-    assert(currSumIt != rowsBySum.end());
-    int erasedNum = currSumIt->second.erase(row);
-    assert(erasedNum == 1);
-    if (currSumIt->second.empty())
+    rowsBySum[currentSum].erase(row);
+    // Note: min_degree_tracker may need to advance, but this is handled lazily in MinSumRow calls or explicitly in DecreaseSum
+    if (currentSum == min_degree_tracker && rowsBySum[currentSum].empty())
     {
-        rowsBySum.erase(currSumIt);
+        // Advance min_degree_tracker
+        while (min_degree_tracker < (int)rowsBySum.size() && rowsBySum[min_degree_tracker].empty())
+        {
+            min_degree_tracker++;
+        }
     }
 }
 
@@ -119,70 +146,86 @@ void AdjList::DecreaseSum(const int currentSum, const int row)
 {
     assert(currentSum > 0);
     DeleteRow(currentSum, row);
+    degree[row] = currentSum - 1;
     rowsBySum[currentSum - 1].insert(row);
+    if (currentSum - 1 < min_degree_tracker)
+    {
+        min_degree_tracker = currentSum - 1;
+    }
 }
 
-// Helper function to remove empty rows (no edges left)
-// @return number of rows removed
-// TODO: check if implemented correctly (should be)
 int AdjList::RemoveEmptyRows()
 {
     int removedRowsNum = 0;
-    map<int, unordered_set<int>>::iterator rowIt = rowsBySum.find(0);
-    if (rowIt != rowsBySum.end())
+    if (rowsBySum.size() > 0 && !rowsBySum[0].empty())
     {
-        removedRowsNum = rowIt->second.size();
-        for (int row : rowIt->second)
+        // Make a copy since we will delete them
+        std::vector<int> zeros(rowsBySum[0].begin(), rowsBySum[0].end());
+        removedRowsNum = zeros.size();
+        for (int row : zeros)
         {
-            m.erase(row);
+            deleted[row] = true;
+            num_active_nodes--;
+            rowsBySum[0].erase(row);
         }
-        rowsBySum.erase(rowIt);
+        while (min_degree_tracker < (int)rowsBySum.size() && rowsBySum[min_degree_tracker].empty())
+        {
+            min_degree_tracker++;
+        }
     }
     return removedRowsNum;
 }
 
 bool AdjList::empty() const
 {
-    return m.empty();
+    return num_active_nodes == 0;
 }
 
 int AdjList::RowNum() const
 {
-    return m.size();
+    return num_active_nodes;
 }
 
 void AdjList::Set(int row, int col)
 {
-    m[row].insert(col);
+    if (row >= (int)m.size()) return; // Protection
+    m[row].push_back(col);
+    // degree logic is initialized later via RowsBySum()
 }
 
-void AdjList::DelRowCol(int rc)
+void AdjList::DelRowCol(int i)
 {
-    unordered_map<int, unordered_set<int>>::iterator rowIt = m.find(rc);
-    int i = rowIt->first;
-    unordered_set<int> &js = rowIt->second;
-    // delete col for each j in js delete (j,i)
+    if (deleted[i]) return;
+
+    const std::vector<int>& js = m[i];
     for (int j : js)
     {
-        unordered_map<int, unordered_set<int>>::iterator jRowIt = m.find(j);
-        assert(jRowIt != m.end());
-        int currRowJSum = jRowIt->second.size();
-        int eraseNum = jRowIt->second.erase(i);
-        assert(eraseNum == 1);
-        // decrease sum of row j
-        DecreaseSum(currRowJSum, j);
+        if (deleted[j]) continue;
+        int currRowJSum = degree[j];
+        if (currRowJSum > 0) {
+            DecreaseSum(currRowJSum, j);
+        }
     }
-    // delete row
-    DeleteRow(js.size(), i);
-    m.erase(rowIt);
+    
+    DeleteRow(degree[i], i);
+    deleted[i] = true;
+    num_active_nodes--;
 }
 
 void AdjList::DelBall(const int matRow, unordered_set<int> &remaining)
 {
-    unordered_map<int, unordered_set<int>>::iterator rowIt = m.find(matRow);
-    assert(rowIt != m.end());
-    vector<int> toDel(rowIt->second.begin(), rowIt->second.end());
+    if (deleted[matRow]) return;
+
+    // Collect all elements to logically delete: the node itself and all its active neighbors
+    vector<int> toDel;
+    const std::vector<int>& neighbors = m[matRow];
+    for (int num : neighbors) {
+        if (!deleted[num]) {
+            toDel.push_back(num);
+        }
+    }
     toDel.push_back(matRow);
+
     for (int num : toDel)
     {
         DelRowCol(num);
@@ -232,12 +275,12 @@ void AdjList::ToFile(const string &filename) const
         std::cout << "Failed opening output file!" << endl;
         return;
     }
-    for (const pair<const int, unordered_set<int>> &numSetPr : m)
+    for (int i = 0; i < (int)m.size(); i++)
     {
-        int i = numSetPr.first;
-        for (int j : numSetPr.second)
+        if (deleted[i]) continue;
+        for (int j : m[i])
         {
-            output << i << '\t' << j << '\n';
+            if (!deleted[j]) output << i << '\t' << j << '\n';
         }
     }
     output.close();
@@ -252,11 +295,20 @@ void AdjList::FromFile(const string &filename)
         return;
     }
     int a, b;
+    int max_node = -1;
+    vector<pair<int,int>> edges;
     while (input >> a >> b)
     {
-        m[a].insert(b);
+        edges.push_back({a, b});
+        if (a > max_node) max_node = a;
+        if (b > max_node) max_node = b;
     }
     input.close();
+    
+    if (max_node >= 0) Init(max_node + 1);
+    for (const auto& e : edges) {
+        m[e.first].push_back(e.second);
+    }
 }
 
 // *** NEW: FAST BINARY LOADER FOR GPU INTEGRATION ***
@@ -288,12 +340,18 @@ void AdjList::FromBinaryFile(const string &filename, long long int &matrixOnesNu
     {
         int u = buffer[i];
         int v = buffer[i + 1];
-        m[u].insert(v);
-        m[v].insert(u);
+        if (u >= (int)m.size() || v >= (int)m.size()) continue;
+        m[u].push_back(v);
+        m[v].push_back(u);
     }
     matrixOnesNum = numInts;
     if (!silent)
         std::cout << "Loaded " << (numInts / 2) << " edges from binary file." << endl;
+        
+    // Shrink memory instantly by freeing excess vector capacities
+    for (auto& vec : m) {
+        vec.shrink_to_fit();
+    }
 }
 
 // *** Standalone Helper Functions ***
@@ -361,8 +419,10 @@ void DelProgressAdjListComp(const int threadIdx)
 void FillAdjListGPU(AdjList &adjList, const vector<string> &candidates, const int minED, long long int &matrixOnesNum,
                     const string &inputFilename = "", double maxGPUMemoryGB = 10.0, bool silent = false)
 {
-    string vecFile = "temp_vectors.txt";
-    string edgesFile = "temp_edges.bin";
+    static std::atomic<int> file_id{0};
+    int id = file_id++;
+    string vecFile = "temp_vectors_" + to_string(id) + ".txt";
+    string edgesFile = "temp_edges_" + to_string(id) + ".bin";
 
     string fileToUse = vecFile;
 
@@ -420,6 +480,7 @@ void FillAdjListGPU(AdjList &adjList, const vector<string> &candidates, const in
         std::cout << "[C++] Loading edges from " << edgesFile << "..." << endl;
     auto load_start = chrono::steady_clock::now();
 
+    adjList.Init(candidates.size());
     adjList.FromBinaryFile(edgesFile, matrixOnesNum, silent);
 
     auto load_end = chrono::steady_clock::now();
@@ -497,6 +558,8 @@ void FillAdjList(AdjList &adjList, const vector<string> &candidates, const int m
     }
     for (thread &th : threads)
         th.join();
+
+    adjList.Init(candidates.size());
     matrixOnesNum = 0;
     for (vector<pair<int, int>> &thvec : threadPairVecs)
     {
@@ -694,8 +757,8 @@ std::vector<std::string> SolveIndependentSet(const std::vector<std::string> &can
 
     // Fill AdjList (Graph Construction)
     // We use a temporary filename for GPU interaction if needed
-    // Use a unique name to avoid collision if running in parallel logic (though currently sequential)
-    static int call_count = 0;
+    // Use a unique name to avoid collision if running in parallel logic
+    static std::atomic<int> call_count{0};
     string candFilename = "temp_cand_" + to_string(call_count++) + ".txt";
 
     // We need to write candidates to file for GPU logic
@@ -781,6 +844,7 @@ void GenerateCodebookAdj(const Params &params)
 
     auto start_candidates = std::chrono::steady_clock::now();
     vector<string> candidates = Candidates(params);
+    std::cout << "Number of Candidates: " << NumberWithCommas(candidates.size()) << std::endl;
 
     // This file is saved here for checkpointing.
     // We will reuse this filename for the GPU input to avoid re-writing 262k strings.
@@ -799,6 +863,8 @@ void GenerateCodebookAdj(const Params &params)
 
     // --- REFACTORED LOGIC FOR CLUSTERING ---
     int final_iteration = 0; // Track iterations for clustering
+    double totalClusteringTime = 0.0;
+    double totalSolvingTime = 0.0;
 
     if (!params.clustering.enabled)
     {
@@ -831,11 +897,21 @@ void GenerateCodebookAdj(const Params &params)
             if (current_candidates.empty())
                 break;
 
+            // Dynamic cluster sizing: enforce max_cluster_size ceiling of 200K
+            const int MAX_CLUSTER_SIZE = 200000;
+            int effective_k = params.clustering.k;
+            int N = current_candidates.size();
+            if (N / effective_k > MAX_CLUSTER_SIZE) {
+                effective_k = std::max(2, (N + MAX_CLUSTER_SIZE - 1) / MAX_CLUSTER_SIZE);
+                std::cout << "[Auto] Overriding K from " << params.clustering.k << " to " << effective_k
+                          << " (max cluster size = " << MAX_CLUSTER_SIZE << ")" << std::endl;
+            }
+
             // Configure KMeansAdapter with user config method
-            indexgen::clustering::KMeansAdapter adapter(params.clustering.k, params.clustering.method);
+            indexgen::clustering::KMeansAdapter adapter(effective_k, params.clustering.method);
             std::vector<std::vector<std::string>> clusters = adapter.cluster(current_candidates);
 
-            std::cout << "Clustering produced " << clusters.size() << " clusters." << std::endl; // TODO: Remove
+            std::cout << "Clustering produced " << clusters.size() << " clusters." << std::endl;
 
             auto cluster_end = std::chrono::steady_clock::now();
             double clustering_time = std::chrono::duration<double>(cluster_end - cluster_start).count();
@@ -849,19 +925,53 @@ void GenerateCodebookAdj(const Params &params)
             // We'll collect individual times for average
             std::vector<double> individual_solve_times;
             individual_solve_times.reserve(clusters.size());
+            
+            int num_clusters = clusters.size();
+            std::atomic<int> next_cluster{0};
+            std::mutex times_mutex;
 
-            for (int i = 0; i < (int)clusters.size(); ++i)
-            {
-                auto single_solve_start = std::chrono::steady_clock::now();
-                cluster_results[i] = SolveIndependentSet(clusters[i], params.codeMinED, params.threadNum, params.useGPU,
-                                                         params.maxGPUMemoryGB);
-                auto single_solve_end = std::chrono::steady_clock::now();
-                individual_solve_times.push_back(
-                    std::chrono::duration<double>(single_solve_end - single_solve_start).count());
+            int num_concurrent = std::min((int)clusters.size(), params.threadNum);
+            double mem_limit = params.maxGPUMemoryGB;
+            if (params.useGPU) {
+                // To avoid OOM, divide raw memory proportionally
+                mem_limit = std::max(0.5, params.maxGPUMemoryGB / num_concurrent);
+            }
+
+            auto worker_func = [&]() {
+                while (true) {
+                    int i = next_cluster++;
+                    if (i >= num_clusters) break;
+
+                    auto single_solve_start = std::chrono::steady_clock::now();
+
+                    int threads_for_this = 1;
+                    if (!params.useGPU) {
+                        threads_for_this = std::max(1, params.threadNum / num_concurrent);
+                    }
+
+                    cluster_results[i] = SolveIndependentSet(clusters[i], params.codeMinED, threads_for_this, params.useGPU, mem_limit);
+
+                    auto single_solve_end = std::chrono::steady_clock::now();
+                    double duration = std::chrono::duration<double>(single_solve_end - single_solve_start).count();
+
+                    std::lock_guard<std::mutex> lock(times_mutex);
+                    individual_solve_times.push_back(duration);
+                }
+            };
+
+            std::vector<std::thread> workers;
+            for (int t = 0; t < num_concurrent; ++t) {
+                workers.emplace_back(worker_func);
+            }
+            for (auto& w : workers) {
+                w.join();
             }
 
             auto solve_end = std::chrono::steady_clock::now();
             double solving_total_time = std::chrono::duration<double>(solve_end - solve_start).count();
+
+            totalClusteringTime += clustering_time;
+            totalSolvingTime += solving_total_time;
 
             // Step 3: Combine
             for (const auto &res : cluster_results)
@@ -945,22 +1055,34 @@ void GenerateCodebookAdj(const Params &params)
     }
 
     PrintTestResults(candidateNum, matrixOnesNum, codebook.size(), clusterK, clusterIterations,
-                     params.clustering.convergenceIterations);
+                     params.clustering.convergenceIterations, params.clustering.method);
     auto end = std::chrono::steady_clock::now();
     std::chrono::duration<double> overAllTime = end - start;
 
-    // Note: Timing stats for "FillAdjListTime" etc are not aggregated in the iterative loop.
-    // Pass zero or implement aggregation if needed.
+    // For clustering: pass accumulated times as fillAdjListTime (clustering) and processMatrixTime (solving)
+    if (params.clustering.enabled)
+    {
+        fillAdjListTime = std::chrono::duration<double>(totalClusteringTime);
+        processMatrixTime = std::chrono::duration<double>(totalSolvingTime);
+    }
+
     ToFile(codebook, params, candidateNum, matrixOnesNum, elapsed_secs_candidates, fillAdjListTime, processMatrixTime,
            overAllTime, clusterK, clusterIterations);
     if (params.verify)
     {
-        VerifyDist(codebook, params.codeMinED, params.threadNum);
+        VerifyDist(codebook, params.codeMinED, params.threadNum, params.useGPU, params.maxGPUMemoryGB);
     }
     std::cout << "=====================================================" << std::endl;
     remove("progress_params.txt");
     remove("progress_cand.txt");
 
+    if (params.clustering.enabled && final_iteration > 0)
+    {
+        std::cout << "Total Clustering Time:\t" << fixed << setprecision(2) << totalClusteringTime << "\tseconds"
+                  << " (avg " << fixed << setprecision(2) << totalClusteringTime / final_iteration << " s/iter)" << std::endl;
+        std::cout << "Total Solving Time:\t" << fixed << setprecision(2) << totalSolvingTime << "\tseconds"
+                  << " (avg " << fixed << setprecision(2) << totalSolvingTime / final_iteration << " s/iter)" << std::endl;
+    }
     std::cout << "Codebook Time: " << fixed << setprecision(2) << overAllTime.count() << "\tseconds" << std::endl;
     std::cout << "=====================================================" << std::endl;
 }
@@ -979,7 +1101,12 @@ void GenerateCodebookAdjResumeFromFile()
         int candidateNum = candidates.size();
         long long int matrixOnesNum;
         CodebookAdjListResumeFromFile(candidates, codebook, params, matrixOnesNum);
-        PrintTestResults(candidateNum, matrixOnesNum, codebook.size());
+        if (params.clustering.enabled) {
+            PrintTestResults(candidateNum, matrixOnesNum, codebook.size(), params.clustering.k, -1, 
+                             params.clustering.convergenceIterations, params.clustering.method);
+        } else {
+            PrintTestResults(candidateNum, matrixOnesNum, codebook.size());
+        }
         ToFile(codebook, params, candidateNum, matrixOnesNum, chrono::duration<double>::zero(),
                chrono::duration<double>::zero(), chrono::duration<double>::zero(), chrono::duration<double>::zero());
         //		VerifyDist(codebook, params.minED, params.maxCodeLen, params.threadNum);

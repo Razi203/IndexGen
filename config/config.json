@@ -1,8 +1,8 @@
 {
-    "dir": "Temp2",
+    "dir": "Temp",
     "core": {
-        "lenStart": 8,
-        "lenEnd": 8,
+        "lenStart": 13,
+        "lenEnd": 13,
         "editDist": 3
     },
     "constraints": {
@@ -11,16 +11,16 @@
         "maxGC": 0
     },
     "performance": {
-        "threads": 32,
+        "threads": 16,
         "saveInterval": 1800,
-        "use_gpu": false,
+        "use_gpu": true,
         "max_gpu_memory_gb": 8
     },
     "clustering": {
         "enabled": true,
-        "k": 50,
+        "k": 10,
         "verbose": true,
-        "convergenceIterations": 9,
+        "convergenceIterations": 3,
         "method": "random_cluster"
     },
     "method": {

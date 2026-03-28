@@ -10,14 +10,14 @@ warnings.simplefilter('ignore', category=NumbaPerformanceWarning)
 # -------------------------------------------------------------------------
 # CUDA Kernel: Clear Buffer (Reset Counter)
 # -------------------------------------------------------------------------
-@cuda.jit
+@cuda.jit(cache=True)
 def reset_counter_kernel(counter):
     counter[0] = 0
 
 # -------------------------------------------------------------------------
 # CUDA Kernel: Myers' Bit-Parallel (Atomic Sparse Output)
 # -------------------------------------------------------------------------
-@cuda.jit
+@cuda.jit(cache=True)
 def compute_chunk_kernel(peq_flat,       # (BATCH_ROWS, 256)
                          seq_transposed, # (L, BATCH_COLS) flattened
                          L,              # Length of strings

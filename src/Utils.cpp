@@ -3,6 +3,8 @@
 #include "Candidates/LinearCodes.hpp"
 #include "EditDistance.hpp"
 #include <cassert>
+#include <cstdlib>
+#include <filesystem>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -199,23 +201,108 @@ void VerifyDistT(const vector<string> &vecs, const int minED, const int threadId
     success = true;
 }
 
-void VerifyDist(vector<string> &vecs, const int minED, const int threadNum)
+void VerifyDist(vector<string> &vecs, const int minED, const int threadNum, bool useGPU, double maxGPUMemoryGB)
 {
-    atomic<bool> success(false);
-    vector<thread> threads;
-    for (int i = 0; i < threadNum; i++)
+    if (useGPU)
     {
-        threads.push_back(thread(VerifyDistT, vecs, minED, i, threadNum, ref(success)));
-    }
-    for (thread &th : threads)
-        th.join();
-    if (success)
-    {
-        cout << "Vector distance SUCCESS" << endl;
+        // GPU-accelerated verification using gpu_graph_generator.py
+        // The script finds all pairs with edit distance < threshold.
+        // If 0 edges are found, the codebook is valid.
+        namespace fs = std::filesystem;
+        
+        string vecFile = "temp_verify_vectors.txt";
+        string edgesFile = "temp_verify_edges.bin";
+        
+        // Write codebook to temp file
+        StrVecToFile(vecs, vecFile);
+        
+        // Detect project root
+        std::string project_root = ".";
+        try {
+            fs::path exe_path = fs::read_symlink("/proc/self/exe");
+            fs::path search_path = exe_path.parent_path();
+            for (int i = 0; i < 5; ++i) {
+                if (fs::exists(search_path / "src" / "gpu_graph_generator.py")) {
+                    project_root = search_path.string();
+                    break;
+                }
+                if (search_path.has_parent_path() && search_path.parent_path() != search_path)
+                    search_path = search_path.parent_path();
+                else
+                    break;
+            }
+        } catch (...) {}
+        
+        const char *env_root = std::getenv("INDEXGEN_ROOT");
+        if (env_root) project_root = string(env_root);
+        
+        string script_path = project_root + "/src/gpu_graph_generator.py";
+        string cmd = "python3 " + script_path + " " + vecFile + " " + edgesFile + " " +
+                     to_string(minED) + " " + to_string(maxGPUMemoryGB);
+        
+        cout << "[Verify GPU] Running: " << cmd << endl;
+        auto verify_start = chrono::steady_clock::now();
+        
+        int ret = system(cmd.c_str());
+        if (ret != 0)
+        {
+            cerr << "[Verify GPU] Error: GPU script failed." << endl;
+            remove(vecFile.c_str());
+            remove(edgesFile.c_str());
+            return;
+        }
+        
+        // Read edge count from binary file
+        long long edgeCount = 0;
+        {
+            ifstream input(edgesFile, ios::binary);
+            if (input.is_open())
+            {
+                input.seekg(0, ios::end);
+                size_t fileSize = input.tellg();
+                // Each edge is 2 int32_t values = 8 bytes
+                edgeCount = fileSize / (2 * sizeof(int32_t));
+                input.close();
+            }
+        }
+        
+        auto verify_end = chrono::steady_clock::now();
+        double verify_time = chrono::duration<double>(verify_end - verify_start).count();
+        
+        cout << "[Verify GPU] Edges found (violations): " << edgeCount << endl;
+        cout << "[Verify GPU] Time: " << fixed << setprecision(2) << verify_time << " s" << endl;
+        
+        if (edgeCount == 0)
+        {
+            cout << "Vector distance SUCCESS" << endl;
+        }
+        else
+        {
+            cout << "Vector distance FAILURE" << endl;
+        }
+        
+        remove(vecFile.c_str());
+        remove(edgesFile.c_str());
     }
     else
     {
-        cout << "Vector distance FAILURE" << endl;
+        // CPU verification (original path)
+        atomic<bool> success(false);
+        vector<thread> threads;
+        for (int i = 0; i < threadNum; i++)
+        {
+            threads.push_back(thread(VerifyDistT, vecs, minED, i, threadNum, ref(success)));
+        }
+        for (thread &th : threads)
+            th.join();
+        if (success)
+        {
+            cout << "Vector distance SUCCESS" << endl;
+        }
+        else
+        {
+            cout << "Vector distance FAILURE" << endl;
+        }
     }
 }
 
@@ -255,6 +342,7 @@ void PrintParamsToFile(std::ofstream &out, const int candidateNum, const int cod
     out << "--- Results Summary ---" << std::endl;
     out << "Number of Candidates:\t\t" << candidateNum << std::endl;
     if (clusterK > 0) {
+        out << "Clustering Method:\t\t" << params.clustering.method << std::endl;
         out << "Number of Clusters (K):\t\t" << clusterK << std::endl;
         out << "Required Identical Iterations:\t" << params.clustering.convergenceIterations << std::endl;
         out << "Iterations to Converge:\t\t" << clusterIterations << std::endl;
@@ -268,10 +356,21 @@ void PrintParamsToFile(std::ofstream &out, const int candidateNum, const int cod
     out << "Number of Threads:\t\t" << params.threadNum << std::endl;
     out << "Candidate Generation Time:\t" << fixed << setprecision(2) << candidatesTime.count() << "\tseconds"
         << std::endl;
-    out << "Fill Adjacency List Time:\t" << fixed << setprecision(2) << fillAdjListTime.count() << "\tseconds"
-        << std::endl;
-    out << "Process Matrix Time:\t\t" << fixed << setprecision(2) << processMatrixTime.count() << "\tseconds"
-        << std::endl;
+    if (clusterK > 0 && clusterIterations > 0) {
+        out << "Total Clustering Time:\t\t" << fixed << setprecision(2) << fillAdjListTime.count() << "\tseconds"
+            << std::endl;
+        out << "Avg Clustering Time/Iter:\t" << fixed << setprecision(2) << fillAdjListTime.count() / clusterIterations << "\tseconds"
+            << std::endl;
+        out << "Total Solving Time:\t\t" << fixed << setprecision(2) << processMatrixTime.count() << "\tseconds"
+            << std::endl;
+        out << "Avg Solving Time/Iter:\t\t" << fixed << setprecision(2) << processMatrixTime.count() / clusterIterations << "\tseconds"
+            << std::endl;
+    } else {
+        out << "Fill Adjacency List Time:\t" << fixed << setprecision(2) << fillAdjListTime.count() << "\tseconds"
+            << std::endl;
+        out << "Process Matrix Time:\t\t" << fixed << setprecision(2) << processMatrixTime.count() << "\tseconds"
+            << std::endl;
+    }
     out << "Overall Execution Time:\t\t" << fixed << setprecision(2) << overallTime.count() << "\tseconds" << std::endl;
 
     out << "=========================================== " << std::endl;
@@ -593,10 +692,13 @@ void PrintTestParams(const Params &params)
 }
 
 void PrintTestResults(const int candidateNum, const long long int matrixOnesNum, const int codewordsNum,
-                      int clusterK, int clusterIterations, int requiredIterations)
+                      int clusterK, int clusterIterations, int requiredIterations,
+                      const std::string &clusteringMethod)
 {
-    cout << "Number of Candidate Words:\t" << candidateNum << endl;
     if (clusterK > 0) {
+        if (!clusteringMethod.empty()) {
+            cout << "Clustering Method:\t\t" << clusteringMethod << endl;
+        }
         cout << "Number of Clusters (K):\t\t" << clusterK << endl;
         cout << "Required Identical Iterations:\t" << requiredIterations << endl;
         cout << "Iterations to Converge:\t\t" << clusterIterations << endl;

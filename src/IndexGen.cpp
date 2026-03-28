@@ -194,6 +194,7 @@ int main(int argc, char *argv[])
         resolve_param("numClusters", params.clustering.k, {"clustering", "k"});
         resolve_param("clusterVerbose", params.clustering.verbose, {"clustering", "verbose"});
         resolve_param("clusterConvergence", params.clustering.convergenceIterations, {"clustering", "convergenceIterations"}); 
+        resolve_param("clusterMethod", params.clustering.method, {"clustering", "method"});
 
 
         // --- Method Resolution ---
@@ -402,6 +403,7 @@ void configure_parser(cxxopts::Options &options)
             ("numClusters", "Number of clusters to partition candidates into", cxxopts::value<int>()->default_value("500"))
             ("clusterVerbose", "Verbose clustering output", cxxopts::value<bool>()->default_value("false"))
             ("clusterConvergence", "Number of identical iterations for convergence", cxxopts::value<int>()->default_value("3"))
+            ("clusterMethod", "Clustering method to use", cxxopts::value<string>()->default_value("hierarchical_kmeans"))
         // Generation Method
         ("m,method", "Generation method: LinearCode, VTCode, Random, Diff_VTCode, AllStrings, FileRead",
          cxxopts::value<string>()->default_value("LinearCode"))

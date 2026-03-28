@@ -43,21 +43,34 @@ class AdjList
 {
   private:
     /**
-     * @brief The primary data structure for the adjacency list.
-     * `m[i]` is an unordered_set containing the indices of all nodes adjacent to node `i`.
+     * @brief The primary data structure for the adjacency list using dense arrays.
      */
-    std::unordered_map<int, std::unordered_set<int>> m;
+    std::vector<std::vector<int>> m;
+    
+    /**
+     * @brief Lazy deletion markers and degree tracker for O(1) MIS extraction.
+     */
+    std::vector<bool> deleted;
+    std::vector<int> degree;
 
     /**
      * @brief An optimization structure to quickly find nodes with the minimum degree.
-     * The map's key is the degree (row sum), and the value is a set of all row indices
-     * that currently have that degree. This avoids iterating through the entire graph
-     * to find the minimum-degree node.
+     * Direct bucket lookup indexing by degree.
      */
-    std::map<int, std::unordered_set<int>> rowsBySum;
+    std::vector<std::unordered_set<int>> rowsBySum;
+
+    int min_degree_tracker; // Tracks the minimum populated bucket
+    int num_active_nodes; // Tracks remaining nodes
 
   public:
     // --- Public Member Functions ---
+
+    AdjList() : min_degree_tracker(-1), num_active_nodes(0) {}
+
+    /**
+     * @brief Allocates all memory to perfectly fit the node bounds.
+     */
+    void Init(int numNodes);
 
     /**
      * @brief Populates the `rowsBySum` optimization map based on the current state of the adjacency list `m`.
@@ -99,12 +112,12 @@ class AdjList
 
     /**
      * @brief Checks if the graph is empty.
-     * @return `true` if the adjacency list `m` is empty, `false` otherwise.
+     * @return `true` if empty, `false` otherwise.
      */
     bool empty() const;
 
     /**
-     * @brief Gets the number of nodes (rows) currently in the graph.
+     * @brief Gets the number of ACTIVE nodes (rows) currently in the graph.
      * @return The number of rows in the adjacency list `m`.
      */
     int RowNum() const;

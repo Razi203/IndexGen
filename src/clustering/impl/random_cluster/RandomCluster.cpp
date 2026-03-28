@@ -78,7 +78,7 @@ std::vector<std::vector<std::string>> RandomCluster::fit(const std::vector<std::
     std::string project_root = (env_root) ? std::string(env_root) : getProjectRoot();
     std::string script_path = project_root + "/src/gpu_cluster.py";
     
-    std::string cmd = "python " + script_path + " " + vectors_file + " " + centers_file + " " + assignments_file + " 32768";
+    std::string cmd = "python3 " + script_path + " " + vectors_file + " " + centers_file + " " + assignments_file + " 32768";
     std::cout << "[C++ RandomCluster] Executing GPU Cluster: " << cmd << std::endl;
     int ret = system(cmd.c_str());
     if (ret != 0) {

@@ -13,7 +13,7 @@ warnings.simplefilter('ignore', category=NumbaPerformanceWarning)
 # -------------------------------------------------------------------------
 # CUDA Kernel: Myers' Bit-Parallel (Dense Distance Matrix Output)
 # -------------------------------------------------------------------------
-@cuda.jit
+@cuda.jit(cache=True)
 def compute_distance_matrix_kernel(peq_flat,        # (K, 256)
                                    seq_transposed,  # (L, BATCH_COLS) flattened
                                    L,               # Length of strings
