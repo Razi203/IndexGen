@@ -38,7 +38,7 @@ START_TIME=$(date +%s)
 END_TIME=$(date +%s)
 DURATION=$((END_TIME - START_TIME))
 
-# --- 6. Report Back ---
-# Call the main script in report mode (assuming run_repeat.py is in the current dir or INDEXGEN_ROOT)
-# We assume slurm runs in the submission directory by default unless changed.
-python3 run_repeat.py --report --dir "$RUN_DIR" --time "$DURATION"
+## --- 6. Report Back ---
+## Call the main script in report mode (assuming run_repeat.py is in the current dir or INDEXGEN_ROOT)
+## We assume slurm runs in the submission directory by default unless changed.
+# python3 run_repeat.py --report --dir "$RUN_DIR" --time "$DURATION"

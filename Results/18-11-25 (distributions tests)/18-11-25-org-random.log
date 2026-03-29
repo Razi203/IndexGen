@@ -1,0 +1,68 @@
+Analyzing log files in Test/18-11-25/org_random...
+
+
+============================================================
+MAXIMUM NUMBER OF CODE WORDS: 28,199
+Found in folder: 459
+
+MINIMUM NUMBER OF CODE WORDS: 28,033
+Found in folder: 290
+============================================================
+
+
+Code words histogram saved to: 18-11-25-org-random.png
+
+Code Words Summary Statistics:
+  Total runs analyzed: 500
+  Maximum: 28,199
+  Minimum: 28,033
+  Mean: 28,113.06
+  Median: 28,107.00
+  Std Dev: 32.27
+
+============================================================
+LOG FILE CONTENTS FOR MAXIMUM CODEWORDS (folder 459):
+============================================================
+
+Warning: Directory 'Test/18-11-25/org_random/459' already exists. Files may be overwritten.
+Output will be saved in directory: /home_nfs/razi.hleihil/IndexGen/Test/18-11-25/org_random/459
+Using Generation Method: LinearCode (minHD=3)
+Bias vector: (not initialized)
+Row permutation: (not initialized)
+Column permutation: (not initialized)
+
+--- Starting Generation for Codeword Length 11 (Current Time: 2025-11-18 10:15:02) ---
+--- Common Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+Max Homopolymer Run:		0
+Min GC Content:			0
+Max GC Content:			0
+
+Using Generation Method: LinearCode (minHD=3)
+Bias vector: (not initialized)
+Row permutation: (not initialized)
+Column permutation: (not initialized)
+
+Permutation vector (columns): 0 1 2 3 4 5 6 7 8 9 10 
+Permutation vector (rows): 0 1 2 3 4 5 6 7 
+Using bias: 0 2 2 0 0 1 1 2 0 3 0 
+
+Candidates Time: 0.05	seconds
+Fill AdjList Time:	5.78	seconds
+Find Min Sum Row Time:	0.00	seconds
+Del Ball Time:		0.09	seconds
+Process Matrix Time:	0.20	seconds
+Number of Candidate Words:	65536
+Number of Ones in Matrix:	261108
+Number of Code Words:		28199
+Vector distance SUCCESS
+=====================================================
+Codebook Time: 6.05	seconds
+=====================================================
+--- Finished Generation for Codeword Length 11 (Current Time: 2025-11-18 10:15:09) ---
+
+Total Execution Time: 7.19 seconds
+
+
+============================================================

@@ -1,0 +1,68 @@
+Analyzing log files in Test/18-11-25/random...
+
+
+============================================================
+MAXIMUM NUMBER OF CODE WORDS: 35,241
+Found in folder: 1582
+
+MINIMUM NUMBER OF CODE WORDS: 25,158
+Found in folder: 1032
+============================================================
+
+
+Code words histogram saved to: 18-11-25-random.png
+
+Code Words Summary Statistics:
+  Total runs analyzed: 1500
+  Maximum: 35,241
+  Minimum: 25,158
+  Mean: 32,680.89
+  Median: 33,076.50
+  Std Dev: 1,723.98
+
+============================================================
+LOG FILE CONTENTS FOR MAXIMUM CODEWORDS (folder 1582):
+============================================================
+
+Warning: Directory 'Test/new_bias_perms/1582' already exists. Files may be overwritten.
+Output will be saved in directory: /home_nfs/razi.hleihil/IndexGen/Test/new_bias_perms/1582
+Using Generation Method: LinearCode (minHD=3)
+Bias vector: (not initialized)
+Row permutation: (not initialized)
+Column permutation: (not initialized)
+
+--- Starting Generation for Codeword Length 11 (Current Time: 2025-11-17 23:45:07) ---
+--- Common Parameters ---
+Code Length:			11
+Min Codebook Edit Distance:	3
+Max Homopolymer Run:		0
+Min GC Content:			0
+Max GC Content:			0
+
+Using Generation Method: LinearCode (minHD=3)
+Bias vector: (not initialized)
+Row permutation: (not initialized)
+Column permutation: (not initialized)
+
+Permutation vector (columns): 10 7 9 6 8 2 3 4 5 1 0 
+Permutation vector (rows): 1 2 4 6 3 5 0 7 
+Using bias: 0 2 0 0 1 1 3 3 1 2 0 
+
+Candidates Time: 0.05	seconds
+Fill AdjList Time:	6.33	seconds
+Find Min Sum Row Time:	0.00	seconds
+Del Ball Time:		0.07	seconds
+Process Matrix Time:	0.17	seconds
+Number of Candidate Words:	65536
+Number of Ones in Matrix:	172032
+Number of Code Words:		35241
+Vector distance SUCCESS
+=====================================================
+Codebook Time: 6.56	seconds
+=====================================================
+--- Finished Generation for Codeword Length 11 (Current Time: 2025-11-17 23:45:16) ---
+
+Total Execution Time: 8.44 seconds
+
+
+============================================================

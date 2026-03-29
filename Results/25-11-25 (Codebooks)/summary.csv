@@ -1,0 +1,25 @@
+Length (L),Edit Distance (ED),GC Range,Run 0 Size,Run 3 Size,Run 4 Size,Run 0 Iter,Run 3 Iter,Run 4 Iter,Rate,Hosting Server
+11,3,0-0,35604,32145,34785,Iter1,Iter1,Iter1,0.6872614415,Naranja
+11,3,0.3-0.7,27834,25973,27511,Iter1,Iter1,Iter1,0.6711163923,Naranja
+11,4,0-0,2711,2477,2626,Iter900_Random,Iter856_Random,Iter959_Random,0.5183913363,Naranja
+11,4,0.3-0.7,2299,2171,2282,Iter818_Random,Iter851_Random,Iter948_Random,0.5075813978,Naranja
+11,5,0-0,299,283,299,Iter66_Random,Iter3_Random,Iter94_Random,0.3738182579,Newton
+11,5,0.3-0.7,264,253,263,Iter50_Random,Iter21_Random,Iter51_Random,0.3656542782,Newton
+12,3,0-0,127492,112916,123064,Iter5_Random,Iter6_Random,Iter29_Random,0.7066686332,Naranja
+12,3,0.3-0.7,110357,100648,109259,Iter6_Random,Iter47_Random,Iter30_Random,0.6979924424,Naranja
+12,4,0-0,8389,7729,8255,Iter39_Random,Iter23_Random,Iter24_Random,0.5430951305,Naranja
+12,4,0.3-0.7,7642,7228,7643,Iter45_Random,Iter17_Random,Iter18_Random,0.5374889393,Naranja
+12,5,0-0,826,762,817,Iter24_Random,Iter26_Random,Iter32_Random,0.4037499155,Newton
+12,5,0.3-0.7,760,724,751,Iter4_Random,Iter17_Random,Iter12_Random,0.3987439837,Newton
+13,3,0-0,459517,404495,448765,Iter6_Random,Iter7_Random,Iter3_Random,0.7234522581,Naranja
+13,3,0.3-0.7,419634,380716,410308,Iter3_Random,Iter3_Random,Iter10_Random,0.7184143096,Naranja
+13,4,0-0,27234,25026,26714,Iter4_Random,Iter9_Random,Iter10_Random,0.5666585105,Naranja
+13,4,0.3-0.7,25848,23933,25607,Iter4_Random,Iter3_Random,Iter6_Random,0.5637601937,Naranja
+13,5,0-0,2558,2345,2494,Iter15_Random,Iter6_Random,Iter20_Random,0.4354154057,Newton
+13,5,0.3-0.7,2413,2262,2380,Iter8_Random,Iter13_Random,Iter19_Random,0.4321773923,Newton
+14,3,0-0,1692527,1474030,1639393,Iter2_RandomBias,Iter2_RandomBias,Iter2_RandomBias,0.7389552649,Lambda
+14,3,0.3-0.7,1395300,1251271,1380780,Iter1,Iter1,Iter4_Random,0.7290051398,Lambda
+14,4,0-0,90101,81463,87952,Iter3_Random,Iter5_Random,Iter5_Random,0.5878305535,Lambda
+14,4,0.3-0.7,80528,75449,80273,Iter4_Random,Iter4_Random,Iter5_Random,0.5820429601,Newton
+14,5,0-0,7590,6957,7460,Iter4_Random,Iter1,Iter1,0.4603530061,Newton
+14,5,0.3-0.7,6886,6393,6815,Iter6_Random,Iter3_Random,Iter4_Random,0.4553375166,Newton
