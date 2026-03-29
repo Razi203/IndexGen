@@ -459,6 +459,23 @@ bool TestGCCont(const string &a, const double minGCCont, const double maxGCCont)
     return (GCCont >= minGCCont) && (GCCont <= maxGCCont);
 }
 
+double BinaryOneContent(const string &a)
+{
+    int oneCount = 0;
+    for (char letter : a)
+    {
+        if (letter == '1')
+            oneCount++;
+    }
+    return double(oneCount) / double(a.size());
+}
+
+bool TestBinaryContent(const string &a, const double minCont, const double maxCont)
+{
+    double cont = BinaryOneContent(a);
+    return (cont >= minCont) && (cont <= maxCont);
+}
+
 bool TestAllLettersOccurence(const string &a)
 {
     vector<int> occs(4);
@@ -523,6 +540,25 @@ vector<int> NextBase4(const vector<int> &vec)
     return result;
 }
 
+vector<int> NextBase2(const vector<int> &vec)
+{
+    vector<int> result = vec;
+    for (vector<int>::reverse_iterator it = result.rbegin(); it != result.rend(); it++)
+    {
+        int currDigit = *it;
+        if (currDigit < 1)
+        {
+            (*it)++;
+            return result;
+        }
+        else
+        {
+            *it = 0;
+        }
+    }
+    result.clear();
+    return result;
+}
 // for w root of x^2+x+1, w=2, w^2=3
 
 int AddF4(const int a, const int b)
@@ -797,6 +833,12 @@ void FileToParams(Params &params, const std::string &fileName)
             break;
         case GenerationMethod::DIFFERENTIAL_VT_CODE:
             params.constraints = std::make_unique<DifferentialVTCodeConstraints>();
+            break;
+        case GenerationMethod::FILE_READ:
+            params.constraints = std::make_unique<FileReadConstraints>();
+            break;
+        case GenerationMethod::LINEAR_BINARY_CODE:
+            params.constraints = std::make_unique<LinearBinaryCodeConstraints>();
             break;
         default:
             throw std::runtime_error("Unknown generation method type found in file.");
@@ -1083,6 +1125,90 @@ int calculateRowPermSize(int code_len, int min_hd)
         throw runtime_error("Invalid minHD " + to_string(min_hd) + ", must be 2-5");
     }
 }
+
+int calculateBinaryRowPermSize(int code_len, int min_hd)
+{
+    // k = dimension of binary code
+    // For distance 2: k = n - 1
+    // For distance 3 (Hamming): k = n - r, where 2^r - 1 >= n
+    // For distance 4 (Extended Hamming): k = n - r - 1
+    // For distance 5-7 (BCH): code-specific
+    switch (min_hd)
+    {
+    case 2:
+        return code_len - 1;
+    case 3:
+    {
+        // Hamming code: find smallest r such that 2^r - 1 >= code_len
+        int r = 1;
+        while ((1 << r) - 1 < code_len)
+            r++;
+        return code_len - r;
+    }
+    case 4:
+    {
+        // Extended Hamming: find smallest r such that 2^r >= code_len
+        int r = 1;
+        while ((1 << r) < code_len)
+            r++;
+        return code_len - r - 1;
+    }
+    case 5:
+    {
+        // BCH d=5: g(x) = lcm(M1, M3), degree = 2*r for GF(2^r)
+        int r = 1;
+        while ((1 << r) - 1 < code_len)
+            r++;
+        return code_len - 2 * r;
+    }
+    case 6:
+    {
+        // Extended BCH d=5 + parity -> d=6
+        int r = 1;
+        while ((1 << r) - 1 < code_len - 1)
+            r++;
+        return (code_len - 1) - 2 * r;
+    }
+    case 7:
+    {
+        // BCH d=7: g(x) = lcm(M1, M3, M5), degree = 3*r for GF(2^r)
+        int r = 1;
+        while ((1 << r) - 1 < code_len)
+            r++;
+        return code_len - 3 * r;
+    }
+    default:
+        throw runtime_error("Invalid binary minHD " + to_string(min_hd) + ", must be 2-7");
+    }
+}
+
+void validateBinaryBias(const vector<int> &bias, int expected_size)
+{
+    if ((int)bias.size() != expected_size)
+    {
+        throw runtime_error("Binary bias vector has size " + to_string(bias.size()) + ", expected " +
+                            to_string(expected_size));
+    }
+
+    for (int val : bias)
+    {
+        if (val < 0 || val > 1)
+        {
+            throw runtime_error("Binary bias contains invalid value " + to_string(val) + ", must be in {0, 1}");
+        }
+    }
+}
+
+vector<int> generateRandomBinaryBias(int size, mt19937 &rng)
+{
+    vector<int> bias(size);
+    uniform_int_distribution<int> dist(0, 1);
+    for (int i = 0; i < size; ++i)
+    {
+        bias[i] = dist(rng);
+    }
+    return bias;
+}
 #include "json.hpp"
 using json = nlohmann::json;
 
@@ -1189,6 +1315,28 @@ void LoadParamsFromJson(Params &params, const std::string &filename)
                  throw std::runtime_error("FileRead method requires 'input_file' parameter in config.");
             }
             params.constraints = std::make_unique<FileReadConstraints>(inputFile);
+        }
+        else if (name == "LinearBinaryCode") {
+            params.method = GenerationMethod::LINEAR_BINARY_CODE;
+            auto& lbc = m["linearBinaryCode"];
+            int minHD = lbc.contains("minHD") ? (int)lbc["minHD"] : 3;
+            
+            VectorMode biasMode = VectorMode::DEFAULT;
+            VectorMode rowMode = VectorMode::DEFAULT;
+            VectorMode colMode = VectorMode::DEFAULT;
+            
+            if (lbc.contains("biasMode")) biasMode = parseVectorMode(lbc["biasMode"], "bias");
+            if (lbc.contains("rowPermMode")) rowMode = parseVectorMode(lbc["rowPermMode"], "row_perm");
+            if (lbc.contains("colPermMode")) colMode = parseVectorMode(lbc["colPermMode"], "col_perm");
+            
+            std::vector<int> bias, row, col;
+            if (lbc.contains("bias")) bias = lbc["bias"].get<std::vector<int>>();
+            if (lbc.contains("rowPerm")) row = lbc["rowPerm"].get<std::vector<int>>();
+            if (lbc.contains("colPerm")) col = lbc["colPerm"].get<std::vector<int>>();
+            
+            unsigned int seed = lbc.contains("randomSeed") ? (unsigned int)lbc["randomSeed"] : 0;
+            
+            params.constraints = std::make_unique<LinearBinaryCodeConstraints>(minHD, biasMode, rowMode, colMode, bias, row, col, seed);
         }
     }
 }

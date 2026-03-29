@@ -1,8 +1,8 @@
 {
     "dir": "Temp",
     "core": {
-        "lenStart": 11,
-        "lenEnd": 16,
+        "lenStart": 24,
+        "lenEnd": 24,
         "editDist": 3
     },
     "constraints": {
@@ -11,10 +11,10 @@
         "maxGC": 0
     },
     "performance": {
-        "threads": 30,
+        "threads": 8,
         "saveInterval": 1800,
-        "use_gpu": true,
-        "max_gpu_memory_gb": 20
+        "use_gpu": false,
+        "max_gpu_memory_gb": 8
     },
     "clustering": {
         "enabled": false,
@@ -24,7 +24,7 @@
         "method": "random_cluster"
     },
     "method": {
-        "name": "LinearCode",
+        "name": "LinearBinaryCode",
         "linearCode": {
             "minHD": 3,
             "biasMode": "random",
@@ -79,5 +79,5 @@
             "syndrome": 0
         }
     },
-    "verify": false
+    "verify": true
 }

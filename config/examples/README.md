@@ -11,6 +11,7 @@ This directory contains ready-to-use example configuration files for IndexGen. C
 | `linear_code_ed4_constrained.json` | With GC & run constraints | 4 | GC + Run | ✓ |
 | `linear_code_ed5_gpu.json` | High edit distance, multi-length | 5 | GC + Run | ✓ |
 | `linear_code_random_vectors.json` | Random bias/permutations | 3 | GC + Run | ✓ |
+| `linear_binary_code_example.json` | **Binary {0, 1}** Hamming code | 3 | Weight | ✓ |
 | `linear_code_bias_perms.json` | Manual bias/permutations | 3 | None | ✓ |
 | `cpu_only.json` | CPU-only (no GPU) | 3 | GC + Run | ✗ |
 | `with_clustering.json` | Cluster-based iterative solving | 3 | GC + Run | ✓ |
@@ -48,5 +49,6 @@ cp config/examples/linear_code_ed4_constrained.json my_config.json
 - `manual` = user-specified arrays
 
 ### GPU vs CPU
-- GPU mode requires CUDA-capable NVIDIA GPU and Python environment (`cuda_env`)
-- CPU mode works everywhere but is slower for large candidate sets (>10,000)
+- GPU mode requires CUDA-capable NVIDIA GPU and Python environment (`cuda_env`).
+- **`--no-gpu`** flag or `no_gpu: true` forces CPU-only mode (overrides `use_gpu`).
+- CPU mode works everywhere but is slower for large candidate sets (>10,000).

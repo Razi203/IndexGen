@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
             typedef typename std::decay<decltype(target)>::type T;
 
             // 1. Priority: Explicit CLI Argument
-            if (result.count(flag)) {
+            if (result.count(flag) > 0) {
                 target = result[flag].as<T>();
                 return;
             }
@@ -187,6 +187,9 @@ int main(int argc, char *argv[])
         resolve_param("threads", params.threadNum, {"performance", "threads"});
         resolve_param("saveInterval", params.saveInterval, {"performance", "saveInterval"});
         resolve_param("gpu", params.useGPU, {"performance", "use_gpu"});
+        if (result.count("no-gpu") && result["no-gpu"].as<bool>()) {
+            params.useGPU = false;
+        }
         resolve_param("maxGPUMemory", params.maxGPUMemoryGB, {"performance", "max_gpu_memory_gb"});
 
         // Clustering
@@ -308,6 +311,53 @@ int main(int argc, char *argv[])
 
             params.constraints = make_unique<FileReadConstraints>(input_file);
         }
+        else if (method_str == "LinearBinaryCode")
+        {
+            params.method = GenerationMethod::LINEAR_BINARY_CODE;
+            
+            int minHD;
+            resolve_param("minHD", minHD, {"method", "linearBinaryCode", "minHD"});
+
+            string bias_mode_str, row_perm_mode_str, col_perm_mode_str;
+            resolve_param("lc_bias_mode", bias_mode_str, {"method", "linearBinaryCode", "biasMode"});
+            resolve_param("lc_row_perm_mode", row_perm_mode_str, {"method", "linearBinaryCode", "rowPermMode"});
+            resolve_param("lc_col_perm_mode", col_perm_mode_str, {"method", "linearBinaryCode", "colPermMode"});
+
+            VectorMode bias_mode = parseVectorMode(bias_mode_str, "bias");
+            VectorMode row_perm_mode = parseVectorMode(row_perm_mode_str, "row_perm");
+            VectorMode col_perm_mode = parseVectorMode(col_perm_mode_str, "col_perm");
+
+            vector<int> bias_vec, row_perm_vec, col_perm_vec;
+
+            auto resolve_vector = [&](const string& cli_flag, const vector<string>& json_path, vector<int>& vec, const string& name) {
+                if (result.count(cli_flag)) {
+                    vec = parseCSVVector(result[cli_flag].as<string>(), name);
+                } 
+                else if (has_config) {
+                     get_json_val(json_path, vec);
+                }
+            };
+
+            if (bias_mode == VectorMode::MANUAL) {
+                resolve_vector("lc_bias", {"method", "linearBinaryCode", "bias"}, bias_vec, "bias");
+                if (bias_vec.empty()) throw runtime_error("Manual bias vector required for LinearBinaryCode");
+            }
+            if (row_perm_mode == VectorMode::MANUAL) {
+                resolve_vector("lc_row_perm", {"method", "linearBinaryCode", "rowPerm"}, row_perm_vec, "row_perm");
+                if (row_perm_vec.empty()) throw runtime_error("Manual row permutation required");
+            }
+            if (col_perm_mode == VectorMode::MANUAL) {
+                resolve_vector("lc_col_perm", {"method", "linearBinaryCode", "colPerm"}, col_perm_vec, "col_perm");
+                if (col_perm_vec.empty()) throw runtime_error("Manual column permutation required");
+            }
+
+            unsigned int random_seed;
+            resolve_param("lc_random_seed", random_seed, {"method", "linearBinaryCode", "randomSeed"});
+
+            params.constraints = make_unique<LinearBinaryCodeConstraints>(minHD, bias_mode, row_perm_mode, col_perm_mode,
+                                                                          bias_vec, row_perm_vec, col_perm_vec,
+                                                                          random_seed);
+        }
         else
         {
             cerr << "Error: Unknown generation method '" << method_str << "'." << endl;
@@ -397,6 +447,7 @@ void configure_parser(cxxopts::Options &options)
             "saveInterval", "Interval in seconds to save progress", cxxopts::value<int>()->default_value("80000"))(
             "verify", "Verify the codebook distance after generation", cxxopts::value<bool>()->default_value("false"))(
             "gpu", "Use GPU for adjacency list generation", cxxopts::value<bool>()->default_value("true"))(
+            "no-gpu", "Disable GPU for adjacency list generation", cxxopts::value<bool>()->default_value("false"))(
             "maxGPUMemory", "Maximum GPU memory to use in GB", cxxopts::value<double>()->default_value("10.0"))(
             "c,config", "JSON configuration file", cxxopts::value<string>())
             ("cluster", "Use cluster-based iterative solving", cxxopts::value<bool>()->default_value("false"))
@@ -405,7 +456,7 @@ void configure_parser(cxxopts::Options &options)
             ("clusterConvergence", "Number of identical iterations for convergence", cxxopts::value<int>()->default_value("3"))
             ("clusterMethod", "Clustering method to use", cxxopts::value<string>()->default_value("hierarchical_kmeans"))
         // Generation Method
-        ("m,method", "Generation method: LinearCode, VTCode, Random, Diff_VTCode, AllStrings, FileRead",
+        ("m,method", "Generation method: LinearCode, LinearBinaryCode, VTCode, Random, Diff_VTCode, AllStrings, FileRead",
          cxxopts::value<string>()->default_value("LinearCode"))
         // Method-specific parameters
         ("input_file", "Input file for FileRead method", cxxopts::value<string>())(

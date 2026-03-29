@@ -145,6 +145,23 @@ bool TestGCCont(const string &a, const double minGCCont, const double maxGCCont)
  */
 bool TestAllLettersOccurence(const string &a);
 
+/**
+ * @brief Calculates the fraction of '1's in a binary string.
+ * @details For binary codewords over {0,1}, this is the weight density.
+ * @param a The input binary string.
+ * @return The fraction of characters that are '1'.
+ */
+double BinaryOneContent(const string &a);
+
+/**
+ * @brief Tests if the fraction of '1's in a binary string is within a range.
+ * @param a The input binary string.
+ * @param minCont The minimum acceptable fraction (e.g., 0.3).
+ * @param maxCont The maximum acceptable fraction (e.g., 0.7).
+ * @return true if the fraction is within [minCont, maxCont].
+ */
+bool TestBinaryContent(const string &a, const double minCont, const double maxCont);
+
 // =================================================================================
 // SECTION: BASE-4 and GF(4) ARITHMETIC
 // =================================================================================
@@ -155,6 +172,13 @@ bool TestAllLettersOccurence(const string &a);
  * @return The vector representing the next base-4 number. Returns an empty vector on overflow.
  */
 vector<int> NextBase4(const vector<int> &vec);
+
+/**
+ * @brief Treats a vector of integers {0,1} as a base-2 number and calculates the next number.
+ * @param vec The vector representing a base-2 number.
+ * @return The vector representing the next base-2 number. Returns an empty vector on overflow.
+ */
+vector<int> NextBase2(const vector<int> &vec);
 
 /**
  * @brief Performs matrix multiplication over the Galois Field GF(4).
@@ -368,6 +392,31 @@ void validateBias(const vector<int> &bias, int expected_size);
  * @throws runtime_error if min_hd is not in range [2,5].
  */
 int calculateRowPermSize(int code_len, int min_hd);
+
+/**
+ * @brief Calculate row permutation size (k = dimension) for binary codes.
+ * @param code_len The code length.
+ * @param min_hd The minimum Hamming distance (2-7).
+ * @return The dimension k (row permutation size).
+ * @throws runtime_error if min_hd is not in range [2,7].
+ */
+int calculateBinaryRowPermSize(int code_len, int min_hd);
+
+/**
+ * @brief Validate binary bias vector (all values must be in {0,1}).
+ * @param bias The bias vector to validate.
+ * @param expected_size The expected size.
+ * @throws runtime_error if validation fails.
+ */
+void validateBinaryBias(const vector<int> &bias, int expected_size);
+
+/**
+ * @brief Generate random binary bias vector ({0,1}).
+ * @param size The size of the bias vector.
+ * @param rng Random number generator.
+ * @return Random binary bias vector.
+ */
+vector<int> generateRandomBinaryBias(int size, mt19937 &rng);
 
 // =================================================================================
 // SECTION: DNA-LIKE SEQUENCE ('0123') ANALYSIS
