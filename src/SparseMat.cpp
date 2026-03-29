@@ -438,7 +438,7 @@ void DelProgressAdjListComp(const int threadIdx)
 // *** NEW: Helper to run Python GPU script (System Call) ***
 // OPTIMIZATION: Added inputFilename argument to avoid re-writing the vector file
 void FillAdjListGPU(AdjList &adjList, const vector<string> &candidates, const int minED, long long int &matrixOnesNum,
-                    const string &inputFilename = "", double maxGPUMemoryGB = 10.0, bool silent = false)
+                    const string &inputFilename = "", double maxGPUMemoryGB = 10.0, bool silent = false, bool isBinary = false)
 {
     static std::atomic<int> file_id{0};
     int id = file_id++;
@@ -467,7 +467,7 @@ void FillAdjListGPU(AdjList &adjList, const vector<string> &candidates, const in
     // Determine script path: auto-detect from executable location, allow env override
     const char *env_root = std::getenv("INDEXGEN_ROOT");
     string project_root = (env_root) ? string(env_root) : getProjectRoot();
-    string script_path = project_root + "/src/gpu_graph_generator.py";
+    string script_path = project_root + (isBinary ? "/src/gpu_graph_generator_binary.py" : "/src/gpu_graph_generator.py");
 
     string cmd = "python " + script_path + " " + fileToUse + " " + edgesFile + " " + to_string(minED) + " " +
                  to_string(maxGPUMemoryGB);
@@ -713,11 +713,11 @@ void Codebook(AdjList &adjList, vector<string> &codebook, const vector<string> &
     DelProgressCodebook();
 }
 
-// Updated signature to include useGPU flag
+// Updated signature to include useGPU flag and isBinary flag
 void CodebookAdjList(const vector<string> &candidates, vector<string> &codebook, const int minED, const int threadNum,
                      const int saveInterval, long long int &matrixOnesNum,
                      std::chrono::duration<double> &fillAdjListTime, std::chrono::duration<double> &processMatrixTime,
-                     const bool useGPU, double maxGPUMemoryGB, const string &candFilename = "") // ADDED Argument
+                     const bool useGPU, double maxGPUMemoryGB, const string &candFilename = "", bool isBinary = false) // ADDED Arguments
 {
     AdjList adjList;
     NumToFile(1, "progress_stage.txt");
@@ -728,8 +728,8 @@ void CodebookAdjList(const vector<string> &candidates, vector<string> &codebook,
     {
         // --- INTEGRATION CHANGE: USE GPU SOLVER ---
         // Pass the existing filename (candFilename) to avoid redundant writing
-        std::cout << "[C++] Mode: GPU Accelerated (Max Mem: " << maxGPUMemoryGB << " GB)" << endl;
-        FillAdjListGPU(adjList, candidates, minED, matrixOnesNum, candFilename, maxGPUMemoryGB);
+        std::cout << "[C++] Mode: GPU Accelerated (Max Mem: " << maxGPUMemoryGB << " GB) (Binary: " << isBinary << ")" << endl;
+        FillAdjListGPU(adjList, candidates, minED, matrixOnesNum, candFilename, maxGPUMemoryGB, false, isBinary);
     }
     else
     {
@@ -765,7 +765,7 @@ void CodebookAdjList(const vector<string> &candidates, vector<string> &codebook,
  */
 // Optimized version that reuses the GPU logic if enabled
 std::vector<std::string> SolveIndependentSet(const std::vector<std::string> &candidates, const int minED,
-                                             const int threadNum, const bool useGPU, double maxGPUMemoryGB)
+                                             const int threadNum, const bool useGPU, double maxGPUMemoryGB, bool isBinary = false)
 {
     // If empty or trivial
     if (candidates.empty())
@@ -792,7 +792,7 @@ std::vector<std::string> SolveIndependentSet(const std::vector<std::string> &can
     {
         // Suppress some output during inner loops
         // std::cout << "..." << endl;
-        FillAdjListGPU(adjList, candidates, minED, matrixOnesNum, candFilename, maxGPUMemoryGB, true);
+        FillAdjListGPU(adjList, candidates, minED, matrixOnesNum, candFilename, maxGPUMemoryGB, true, isBinary);
     }
     else
     {
@@ -891,9 +891,10 @@ void GenerateCodebookAdj(const Params &params)
     {
         // OLD BEHAVIOR: One pass
         std::cout << "Clustering disabled. Running standard generation..." << std::endl;
+        bool isBinary = (params.method == GenerationMethod::LINEAR_BINARY_CODE);
         // Pass candFilename to the function
         CodebookAdjList(candidates, codebook, params.codeMinED, params.threadNum, params.saveInterval, matrixOnesNum,
-                        fillAdjListTime, processMatrixTime, params.useGPU, params.maxGPUMemoryGB, candFilename);
+                        fillAdjListTime, processMatrixTime, params.useGPU, params.maxGPUMemoryGB, candFilename, isBinary);
     }
     else
     {
@@ -929,8 +930,9 @@ void GenerateCodebookAdj(const Params &params)
                           << " (max cluster size = " << MAX_CLUSTER_SIZE << ")" << std::endl;
             }
 
+            bool isBinary = (params.method == GenerationMethod::LINEAR_BINARY_CODE);
             // Configure KMeansAdapter with user config method
-            indexgen::clustering::KMeansAdapter adapter(effective_k, params.clustering.method);
+            indexgen::clustering::KMeansAdapter adapter(effective_k, params.clustering.method, isBinary);
             std::vector<std::vector<std::string>> clusters = adapter.cluster(current_candidates);
 
             std::cout << "Clustering produced " << clusters.size() << " clusters." << std::endl;
@@ -977,7 +979,7 @@ void GenerateCodebookAdj(const Params &params)
                     }
 
                     cluster_results[i] =
-                        SolveIndependentSet(clusters[i], params.codeMinED, threads_for_this, params.useGPU, mem_limit);
+                        SolveIndependentSet(clusters[i], params.codeMinED, threads_for_this, params.useGPU, mem_limit, isBinary);
 
                     auto single_solve_end = std::chrono::steady_clock::now();
                     double duration = std::chrono::duration<double>(single_solve_end - single_solve_start).count();
@@ -1100,7 +1102,8 @@ void GenerateCodebookAdj(const Params &params)
            overAllTime, clusterK, clusterIterations);
     if (params.verify)
     {
-        VerifyDist(codebook, params.codeMinED, params.threadNum, params.useGPU, params.maxGPUMemoryGB);
+        bool isBinary = (params.method == GenerationMethod::LINEAR_BINARY_CODE);
+        VerifyDist(codebook, params.codeMinED, params.threadNum, params.useGPU, params.maxGPUMemoryGB, isBinary);
     }
     std::cout << "=====================================================" << std::endl;
     remove("progress_params.txt");

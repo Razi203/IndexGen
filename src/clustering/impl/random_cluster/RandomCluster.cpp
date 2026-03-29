@@ -37,7 +37,7 @@ static std::string getProjectRoot() {
     return ".";
 }
 
-RandomCluster::RandomCluster(int k) : k(k) {}
+RandomCluster::RandomCluster(int k, bool isBinary) : k(k), isBinary(isBinary) {}
 
 std::vector<std::vector<std::string>> RandomCluster::fit(const std::vector<std::string>& data) {
     if (data.empty()) return {};
@@ -76,7 +76,7 @@ std::vector<std::vector<std::string>> RandomCluster::fit(const std::vector<std::
     // Call python script
     const char* env_root = std::getenv("INDEXGEN_ROOT");
     std::string project_root = (env_root) ? std::string(env_root) : getProjectRoot();
-    std::string script_path = project_root + "/src/gpu_cluster.py";
+    std::string script_path = project_root + (isBinary ? "/src/gpu_cluster_binary.py" : "/src/gpu_cluster.py");
     
     std::string cmd = "python3 " + script_path + " " + vectors_file + " " + centers_file + " " + assignments_file + " 32768";
     std::cout << "[C++ RandomCluster] Executing GPU Cluster: " << cmd << std::endl;

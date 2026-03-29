@@ -201,7 +201,7 @@ void VerifyDistT(const vector<string> &vecs, const int minED, const int threadId
     success = true;
 }
 
-void VerifyDist(vector<string> &vecs, const int minED, const int threadNum, bool useGPU, double maxGPUMemoryGB)
+void VerifyDist(vector<string> &vecs, const int minED, const int threadNum, bool useGPU, double maxGPUMemoryGB, bool isBinary)
 {
     if (useGPU)
     {
@@ -236,7 +236,7 @@ void VerifyDist(vector<string> &vecs, const int minED, const int threadNum, bool
         const char *env_root = std::getenv("INDEXGEN_ROOT");
         if (env_root) project_root = string(env_root);
         
-        string script_path = project_root + "/src/gpu_graph_generator.py";
+        string script_path = project_root + (isBinary ? "/src/gpu_graph_generator_binary.py" : "/src/gpu_graph_generator.py");
         string cmd = "python3 " + script_path + " " + vecFile + " " + edgesFile + " " +
                      to_string(minED) + " " + to_string(maxGPUMemoryGB);
         

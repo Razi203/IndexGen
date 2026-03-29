@@ -108,7 +108,7 @@ int HammingDist(const string &str1, const string &str2);
  * @param minED The minimum required edit distance between any two strings.
  * @param threadNum The number of threads to use for the computation.
  */
-void VerifyDist(vector<string> &vecs, const int minED, const int threadNum, bool useGPU = false, double maxGPUMemoryGB = 10.0);
+void VerifyDist(vector<string> &vecs, const int minED, const int threadNum, bool useGPU = false, double maxGPUMemoryGB = 10.0, bool isBinary = false);
 
 /**
  * @brief Verifies that all pairs of strings in a vector have at least a minimum Hamming distance.

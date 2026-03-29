@@ -7,7 +7,7 @@ namespace indexgen
 namespace clustering
 {
 
-KMeansAdapter::KMeansAdapter(int k, const std::string& method) : k(k), method(method)
+KMeansAdapter::KMeansAdapter(int k, const std::string& method, bool isBinary) : k(k), method(method), isBinary(isBinary)
 {
 }
 
@@ -18,7 +18,7 @@ std::vector<std::vector<std::string>> KMeansAdapter::cluster(const std::vector<s
 
     if (method == "random_cluster")
     {
-        impl::RandomCluster random_cluster(k);
+        impl::RandomCluster random_cluster(k, isBinary);
         return random_cluster.fit(data);
     }
 

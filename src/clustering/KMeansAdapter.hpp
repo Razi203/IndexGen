@@ -12,8 +12,9 @@ class KMeansAdapter : public IClustering {
 private:
     int k;
     std::string method;
+    bool isBinary;
 public:
-    KMeansAdapter(int k, const std::string& method = "hierarchical_kmeans");
+    KMeansAdapter(int k, const std::string& method = "hierarchical_kmeans", bool isBinary = false);
     std::vector<std::vector<std::string>> cluster(const std::vector<std::string>& data) override;
 };
 
