@@ -14,11 +14,12 @@ This document provides a complete reference for all configuration options in Ind
 6.  [Clustering Settings](#clustering-settings)
 7.  [Generation Methods](#generation-methods)
     -   [LinearCode](#1-linearcode-method)
-    -   [VTCode](#2-vtcode-method)
-    -   [Diff_VTCode](#3-differential-vtcode-method)
-    -   [Random](#4-random-method)
-    -   [AllStrings](#5-allstrings-method)
-    -   [FileRead](#6-fileread-method)
+    -   [LinearBinaryCode](#2-linearbinarycode-method)
+    -   [VTCode](#3-vtcode-method)
+    -   [Diff_VTCode](#4-differential-vtcode-method)
+    -   [Random](#5-random-method)
+    -   [AllStrings](#6-allstrings-method)
+    -   [FileRead](#7-fileread-method)
 8.  [Complete Example](#complete-example)
 9.  [Example Configurations](#example-configurations)
 
@@ -104,8 +105,8 @@ The `constraints` object defines biological/physical constraints applied to filt
 | Key      | Type    | Default | CLI Flag   | Description                                                                                                                                            |
 | :------- | :------ | :------ | :--------- | :----------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `maxRun` | `integer` | `3`   | `--maxRun` | Maximum length of a **homopolymer run** (consecutive identical bases). A value of `3` forbids runs like `AAAA`. Set to `0` to **disable** this filter (allow any run length). |
-| `minGC`  | `float` | `0.3`   | `--minGC`  | Minimum **GC-content** fraction (0.0 to 1.0). GC-content is the proportion of G and C bases in the sequence. A value of `0.3` requires at least 30% G+C. Set to `0` to disable. |
-| `maxGC`  | `float` | `0.7`   | `--maxGC`  | Maximum **GC-content** fraction (0.0 to 1.0). A value of `0.7` requires at most 70% G+C. Set to `0` (or `1.0`) to disable.                             |
+| `minGC`  | `float` | `0.3`   | `--minGC`  | Minimum **GC-content** fraction (0.0 to 1.0). For DNA, this is G+C bases. For **LinearBinaryCode**, this is the fraction of '1's (weight density). Set to `0` to disable. |
+| `maxGC`  | `float` | `0.7`   | `--maxGC`  | Maximum **GC-content** / **Weight Density** fraction (0.0 to 1.0). Set to `0` (or `1.0`) to disable.                             |
 
 ### Special Values
 -   Setting `maxRun = 0` disables the homopolymer run filter entirely.
@@ -133,7 +134,8 @@ The `performance` object controls computational resources and execution behavior
 | :----------------- | :-------- | :------- | :----------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `threads`          | `integer` | `16`     | `--threads`        | Number of **CPU threads** for parallel tasks (candidate generation, filtering, CPU edit distance).                                                        |
 | `saveInterval`     | `integer` | `80000`  | `--saveInterval`   | Interval in **seconds** between checkpoint saves. Progress is saved to allow resuming interrupted jobs. Smaller values = more frequent saves but more I/O. |
-| `use_gpu`          | `boolean` | `true`   | `--gpu`            | If `true`, uses **GPU-accelerated** edit distance computation via Python/CUDA (requires the `cuda_env` conda environment). If `false`, uses multi-threaded CPU. |
+| `use_gpu`          | `boolean` | `true`   | `--gpu`            | If `true`, uses **GPU-accelerated** edit distance computation via Python/CUDA (requires the `cuda_env` conda environment). |
+| `no_gpu`           | `boolean` | `false`  | `--no-gpu`         | If `true`, forces **CPU-only** mode even if `use_gpu` is true. Useful for systems without NVIDIA GPUs or when Python is missing. |
 | `max_gpu_memory_gb` | `float`  | `10.0`   | `--maxGPUMemory`   | Maximum **GPU memory** in GB to allocate. Adjusts batch sizes to stay within limits. Relevant only when `use_gpu = true`.                                  |
 
 ### GPU vs CPU
@@ -196,14 +198,15 @@ The `method` object specifies the algorithm for generating candidate codewords. 
 
 ### Available Methods
 
-| Method Name   | Description                                                                                     |
-| :------------ | :---------------------------------------------------------------------------------------------- |
-| `LinearCode`  | Linear codes over GF(4) with guaranteed Hamming distance. Most efficient for large codebooks.   |
-| `VTCode`      | Varshamov-Tenengolts codes for single insertion/deletion correction.                            |
-| `Diff_VTCode` | Differential VT codes based on differential sequence properties.                                |
-| `Random`      | Uniformly random DNA strings.                                                                   |
-| `AllStrings`  | Enumerate all 4^n possible strings (only for small n).                                          |
-| `FileRead`    | Read candidates from an external file.                                                          |
+| Method Name        | Description                                                                                     |
+| :----------------- | :---------------------------------------------------------------------------------------------- |
+| `LinearCode`       | Linear codes over GF(4) with guaranteed Hamming distance. Most efficient for DNA codebooks.     |
+| `LinearBinaryCode` | Linear Hamming/BCH codes over GF(2). Produces binary {0, 1} codewords.                          |
+| `VTCode`           | Varshamov-Tenengolts codes for single insertion/deletion correction.                            |
+| `Diff_VTCode`      | Differential VT codes based on differential sequence properties.                                |
+| `Random`           | Uniformly random DNA strings.                                                                   |
+| `AllStrings`       | Enumerate all 4^n possible strings (only for small n).                                          |
+| `FileRead`         | Read candidates from an external file.                                                          |
 
 ---
 
@@ -275,7 +278,38 @@ Experimenting with different biases and permutations can yield different final c
 
 ---
 
-### 2. VTCode Method
+### 2. LinearBinaryCode Method
+
+Generates candidates using **linear block codes over GF(2)** (Hamming codes). Unlike `LinearCode`, this method produces purely binary `{0, 1}` codewords. No mapping to DNA bases is performed. This is ideal for binary index or barcode generation.
+
+```json
+{
+    "method": {
+        "name": "LinearBinaryCode",
+        "linearBinaryCode": {
+            "minHD": 3,
+            "biasMode": "default",
+            "rowPermMode": "identity",
+            "colPermMode": "identity",
+            "randomSeed": 0,
+            "bias": [],
+            "rowPerm": [],
+            "colPerm": []
+        }
+    }
+}
+```
+
+#### Parameters
+
+All parameters are identical to the `LinearCode` method, but expect binary values:
+-   `minHD`: Minimum Hamming distance (GF(2)). Supported: `2` to `7`.
+-   `bias`: Manual bias vector (Binary values: 0 or 1).
+-   `rowPerm` / `colPerm`: Identity or random permutations are performed in the binary matrix space.
+
+---
+
+### 3. VTCode Method
 
 Generates candidates using **Varshamov-Tenengolts (VT) codes**. VT codes are designed for single insertion/deletion error correction and have nice combinatorial properties.
 
@@ -310,7 +344,7 @@ Generates candidates using **Varshamov-Tenengolts (VT) codes**. VT codes are des
 
 ---
 
-### 3. Differential VTCode Method
+### 4. Differential VTCode Method
 
 Generates candidates using **Differential VT (D-VT) codes**. These are based on the differential representation of the sequence.
 
@@ -333,7 +367,7 @@ Generates candidates using **Differential VT (D-VT) codes**. These are based on 
 
 ---
 
-### 4. Random Method
+### 5. Random Method
 
 Generates uniformly **random DNA strings**. Simple but less efficient than structured methods.
 
@@ -356,7 +390,7 @@ Generates uniformly **random DNA strings**. Simple but less efficient than struc
 
 ---
 
-### 5. AllStrings Method
+### 6. AllStrings Method
 
 Enumerates **all 4^n possible DNA strings** of the given length. Only feasible for short lengths.
 
@@ -378,7 +412,7 @@ None. This method has no additional parameters.
 
 ---
 
-### 6. FileRead Method
+### 7. FileRead Method
 
 Reads candidates from an **external text file**. Useful for custom candidate sets or re-processing.
 

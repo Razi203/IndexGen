@@ -6,6 +6,7 @@
 #include "CandidateGenerator.hpp"
 #include "Candidates/DifferentialVTCodes.hpp"
 #include "Candidates/LinearCodes.hpp"
+#include "Candidates/BinaryLinearCodes.hpp"
 #include "Candidates/FileRead.hpp"
 #include "Candidates/VTCodes.hpp"
 #include "Utils.hpp"
@@ -599,6 +600,287 @@ void FileReadGenerator::readParams(std::ifstream &input_file, GenerationConstrai
 }
 
 // ============================================================================
+// LinearBinaryCodeGenerator Implementation
+// ============================================================================
+
+LinearBinaryCodeGenerator::LinearBinaryCodeGenerator(const Params &params, const LinearBinaryCodeConstraints &constraints)
+    : CandidateGenerator(params), candMinHD(constraints.candMinHD), bias(constraints.bias), row_perm(constraints.row_perm),
+      col_perm(constraints.col_perm), bias_mode(constraints.bias_mode), row_perm_mode(constraints.row_perm_mode),
+      col_perm_mode(constraints.col_perm_mode), random_seed(constraints.random_seed), vectors_initialized(false)
+{
+}
+
+void LinearBinaryCodeGenerator::initializeVectors(int code_len)
+{
+    int col_perm_size = code_len;
+    int row_perm_size = calculateBinaryRowPermSize(code_len, candMinHD);
+    int bias_size = code_len;
+
+    bool correct_size = vectors_initialized &&
+                        (bias.empty() || (int)bias.size() == bias_size) &&
+                        (row_perm.empty() || (int)row_perm.size() == row_perm_size) &&
+                        (col_perm.empty() || (int)col_perm.size() == col_perm_size);
+
+    if (correct_size)
+        return;
+
+    mt19937 rng;
+    if (random_seed == 0)
+    {
+        random_seed = static_cast<unsigned int>(chrono::system_clock::now().time_since_epoch().count());
+    }
+    rng.seed(random_seed);
+
+    // Initialize bias (binary: {0, 1})
+    if (bias_mode == VectorMode::DEFAULT)
+    {
+        bias.assign(bias_size, 0);
+    }
+    else if (bias_mode == VectorMode::RANDOM)
+    {
+        bias = generateRandomBinaryBias(bias_size, rng);
+    }
+    else
+    {
+        if ((int)bias.size() != bias_size)
+        {
+            throw std::runtime_error("Manual binary bias vector has size " + std::to_string(bias.size()) +
+                                   " but code length " + std::to_string(code_len) +
+                                   " requires size " + std::to_string(bias_size));
+        }
+        validateBinaryBias(bias, bias_size);
+    }
+
+    // Initialize row permutation
+    if (row_perm_mode == VectorMode::DEFAULT)
+    {
+        row_perm = generateIdentityPerm(row_perm_size);
+    }
+    else if (row_perm_mode == VectorMode::RANDOM)
+    {
+        row_perm = generateRandomPerm(row_perm_size, rng);
+    }
+    else
+    {
+        if ((int)row_perm.size() != row_perm_size)
+        {
+            throw std::runtime_error("Manual row_perm has size " + std::to_string(row_perm.size()) +
+                                   " but binary code length " + std::to_string(code_len) +
+                                   " with minHD " + std::to_string(candMinHD) +
+                                   " requires size " + std::to_string(row_perm_size));
+        }
+        validatePermutation(row_perm, row_perm_size, "row_perm");
+    }
+
+    // Initialize column permutation
+    if (col_perm_mode == VectorMode::DEFAULT)
+    {
+        col_perm = generateIdentityPerm(col_perm_size);
+    }
+    else if (col_perm_mode == VectorMode::RANDOM)
+    {
+        col_perm = generateRandomPerm(col_perm_size, rng);
+    }
+    else
+    {
+        if ((int)col_perm.size() != col_perm_size)
+        {
+            throw std::runtime_error("Manual col_perm has size " + std::to_string(col_perm.size()) +
+                                   " but code length " + std::to_string(code_len) +
+                                   " requires size " + std::to_string(col_perm_size));
+        }
+        validatePermutation(col_perm, col_perm_size, "col_perm");
+    }
+
+    vectors_initialized = true;
+}
+
+std::vector<std::string> LinearBinaryCodeGenerator::generate()
+{
+    initializeVectors(params.codeLen);
+
+    vector<vector<int>> codeVecs = BinaryCodedVecs(params.codeLen, candMinHD, bias, row_perm, col_perm);
+    vector<string> codeWords;
+    for (const vector<int> &vec : codeVecs)
+    {
+        codeWords.push_back(VecToStr(vec));
+    }
+    return codeWords;
+}
+
+void LinearBinaryCodeGenerator::printInfo(std::ostream &output_stream) const
+{
+    output_stream << "Using Generation Method: LinearBinaryCode (minHD=" << candMinHD << ")" << endl;
+
+    if (!bias.empty())
+    {
+        output_stream << "Binary bias vector: [";
+        for (size_t i = 0; i < bias.size(); ++i)
+        {
+            output_stream << bias[i];
+            if (i < bias.size() - 1)
+                output_stream << ", ";
+        }
+        output_stream << "]" << endl;
+    }
+    else
+    {
+        output_stream << "Binary bias vector: (not initialized)" << endl;
+    }
+
+    if (!row_perm.empty())
+    {
+        output_stream << "Row permutation: [";
+        for (size_t i = 0; i < row_perm.size(); ++i)
+        {
+            output_stream << row_perm[i];
+            if (i < row_perm.size() - 1)
+                output_stream << ", ";
+        }
+        output_stream << "]" << endl;
+    }
+    else
+    {
+        output_stream << "Row permutation: (not initialized)" << endl;
+    }
+
+    if (!col_perm.empty())
+    {
+        output_stream << "Column permutation: [";
+        for (size_t i = 0; i < col_perm.size(); ++i)
+        {
+            output_stream << col_perm[i];
+            if (i < col_perm.size() - 1)
+                output_stream << ", ";
+        }
+        output_stream << "]" << endl;
+    }
+    else
+    {
+        output_stream << "Column permutation: (not initialized)" << endl;
+    }
+}
+
+std::string LinearBinaryCodeGenerator::getMethodName() const
+{
+    return "LinearBinaryCode";
+}
+
+void LinearBinaryCodeGenerator::printParams(std::ofstream &output_file) const
+{
+    output_file << candMinHD << '\n';
+    output_file << static_cast<int>(bias_mode) << '\n';
+    output_file << static_cast<int>(row_perm_mode) << '\n';
+    output_file << static_cast<int>(col_perm_mode) << '\n';
+    output_file << random_seed << '\n';
+
+    output_file << bias.size();
+    for (int val : bias)
+        output_file << "," << val;
+    output_file << '\n';
+
+    output_file << row_perm.size();
+    for (int val : row_perm)
+        output_file << "," << val;
+    output_file << '\n';
+
+    output_file << col_perm.size();
+    for (int val : col_perm)
+        output_file << "," << val;
+    output_file << '\n';
+}
+
+void LinearBinaryCodeGenerator::readParams(std::ifstream &input_file, GenerationConstraints *constraints)
+{
+    input_file >> candMinHD;
+    input_file.ignore();
+
+    int bias_mode_int, row_perm_mode_int, col_perm_mode_int;
+    input_file >> bias_mode_int;
+    input_file >> row_perm_mode_int;
+    input_file >> col_perm_mode_int;
+    bias_mode = static_cast<VectorMode>(bias_mode_int);
+    row_perm_mode = static_cast<VectorMode>(row_perm_mode_int);
+    col_perm_mode = static_cast<VectorMode>(col_perm_mode_int);
+
+    input_file >> random_seed;
+    input_file.ignore();
+
+    string line;
+
+    getline(input_file, line);
+    if (!line.empty())
+    {
+        size_t comma_pos = line.find(',');
+        if (comma_pos != string::npos)
+            bias = parseCSVVector(line.substr(comma_pos + 1), "bias");
+        else
+            bias.clear();
+    }
+
+    getline(input_file, line);
+    if (!line.empty())
+    {
+        size_t comma_pos = line.find(',');
+        if (comma_pos != string::npos)
+            row_perm = parseCSVVector(line.substr(comma_pos + 1), "row_perm");
+        else
+            row_perm.clear();
+    }
+
+    getline(input_file, line);
+    if (!line.empty())
+    {
+        size_t comma_pos = line.find(',');
+        if (comma_pos != string::npos)
+            col_perm = parseCSVVector(line.substr(comma_pos + 1), "col_perm");
+        else
+            col_perm.clear();
+    }
+
+    vectors_initialized = false;
+
+    if (auto *lbc = dynamic_cast<LinearBinaryCodeConstraints *>(constraints))
+    {
+        lbc->candMinHD = candMinHD;
+        lbc->bias = bias;
+        lbc->row_perm = row_perm;
+        lbc->col_perm = col_perm;
+        lbc->bias_mode = bias_mode;
+        lbc->row_perm_mode = row_perm_mode;
+        lbc->col_perm_mode = col_perm_mode;
+        lbc->random_seed = random_seed;
+    }
+}
+
+std::vector<std::string> LinearBinaryCodeGenerator::applyFilters(const std::vector<std::string> &unfiltered) const
+{
+    std::vector<std::string> filtered;
+
+    bool useMaxRunFilter = (params.maxRun > 0);
+    bool useContentFilter = (params.minGCCont > 0 || params.maxGCCont > 0);
+
+    if (!useMaxRunFilter && !useContentFilter)
+    {
+        return unfiltered;
+    }
+
+    for (const std::string &str : unfiltered)
+    {
+        bool passMaxRun = !useMaxRunFilter || (MaxRun(str) <= params.maxRun);
+        // For binary codes, filter on fraction of '1's instead of GC content
+        bool passContent = !useContentFilter || TestBinaryContent(str, params.minGCCont, params.maxGCCont);
+
+        if (passMaxRun && passContent)
+        {
+            filtered.push_back(str);
+        }
+    }
+
+    return filtered;
+}
+
+// ============================================================================
 // Factory Function Implementation (Singleton Pattern)
 // ============================================================================
 
@@ -683,6 +965,17 @@ std::shared_ptr<CandidateGenerator> CreateGenerator(const Params &params)
             throw std::runtime_error("Invalid constraints provided for FILE_READ method.");
         }
         new_generator = std::make_shared<FileReadGenerator>(params, *constraints);
+        break;
+    }
+
+    case GenerationMethod::LINEAR_BINARY_CODE:
+    {
+        auto *constraints = dynamic_cast<LinearBinaryCodeConstraints *>(params.constraints.get());
+        if (!constraints)
+        {
+            throw std::runtime_error("Invalid constraints provided for LINEAR_BINARY_CODE method.");
+        }
+        new_generator = std::make_shared<LinearBinaryCodeGenerator>(params, *constraints);
         break;
     }
 

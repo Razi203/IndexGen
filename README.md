@@ -149,6 +149,7 @@ IndexGen can be configured using either **command-line arguments** or a **JSON c
 | `--saveInterval`      |       | Checkpoint save interval in seconds.                                        | `80000`      |
 | `--verify`            |       | Run post-generation verification of edit distances.                         | `false`      |
 | `--gpu`               |       | Use GPU for edit distance computation.                                      | `true`       |
+| `--no-gpu`            |       | Force CPU-only mode (overrides `--gpu`).                                    | `false`      |
 | `--maxGPUMemory`      |       | Maximum GPU memory usage in GB.                                             | `10.0`       |
 | `--cluster`           |       | Enable K-Means clustering on the final codebook.                            | `false`      |
 | `--numClusters`       |       | Target number of clusters (k).                                              | `500`        |
@@ -194,6 +195,7 @@ IndexGen/
 │   ├── MaxClique.hpp     # Alternative codebook selection via Max Clique
 │   ├── Candidates/       # Headers for specific generation methods
 │   │   ├── LinearCodes.hpp
+│   │   ├── BinaryLinearCodes.hpp
 │   │   ├── VTCodes.hpp
 │   │   ├── DifferentialVTCodes.hpp
 │   │   ├── FileRead.hpp
@@ -212,6 +214,7 @@ IndexGen/
 │   ├── MaxClique.cpp     # Max Clique algorithm implementation
 │   ├── Candidates/       # Implementations for generation methods
 │   │   ├── LinearCodes.cpp
+│   │   ├── BinaryLinearCodes.cpp
 │   │   ├── VTCodes.cpp
 │   │   ├── DifferentialVTCodes.cpp
 │   │   ├── FileRead.cpp
@@ -308,14 +311,15 @@ When clustering is enabled, the solver uses an **iterative cluster-based approac
 
 IndexGen supports these candidate generation strategies:
 
-| Method          | Description                                                                                                  |
-| :-------------- | :----------------------------------------------------------------------------------------------------------- |
-| **LinearCode**  | Generates candidates from linear codes over GF(4). Guarantees minimum Hamming distance. Most efficient.      |
-| **VTCode**      | Uses Varshamov-Tenengolts codes, known for single insertion/deletion correction.                             |
-| **Diff_VTCode** | Differential VT Codes, based on the differential sequence of the codeword.                                   |
-| **Random**      | Generates uniformly random DNA strings. Simple but produces fewer final codewords.                          |
-| **AllStrings**  | Enumerates all 4^n possible strings. Only feasible for very short lengths (n ≤ 10).                          |
-| **FileRead**    | Reads candidates from an external text file. Useful for custom candidate sets.                              |
+| Method              | Description                                                                                                  |
+| :------------------ | :----------------------------------------------------------------------------------------------------------- |
+| **LinearCode**      | Generates candidates from linear codes over GF(4). Guarantees minimum Hamming distance. Most efficient.      |
+| **LinearBinaryCode**| Linear Hamming/BCH codes over GF(2). Produces binary {0, 1} codewords without DNA mapping.                   |
+| **VTCode**          | Uses Varshamov-Tenengolts codes, known for single insertion/deletion correction.                             |
+| **Diff_VTCode**     | Differential VT Codes, based on the differential sequence of the codeword.                                   |
+| **Random**          | Generates uniformly random DNA strings. Simple but produces fewer final codewords.                          |
+| **AllStrings**      | Enumerates all 4^n possible strings. Only feasible for very short lengths (n ≤ 10).                          |
+| **FileRead**        | Reads candidates from an external text file. Useful for custom candidate sets.                              |
 
 ---
 

@@ -27,8 +27,9 @@ enum class GenerationMethod
     ALL_STRINGS,          ///< Generates all possible strings of the specified length (brute-force).
     RANDOM,               ///< Generates candidates using a randomization approach.
     VT_CODE,              ///< Uses Varshamov-Tenengolts codes for candidate generation.
-    DIFFERENTIAL_VT_CODE, ///< Uses Differential Varshamov-Tenengolts codes for candidate generation.
-    FILE_READ             ///< Reads candidate strings from a file.
+    DIFFERENTIAL_VT_CODE,  ///< Uses Differential Varshamov-Tenengolts codes for candidate generation.
+    FILE_READ,             ///< Reads candidate strings from a file.
+    LINEAR_BINARY_CODE     ///< Uses binary linear codes over GF(2) with guaranteed Hamming distance.
 };
 
 /**
@@ -183,6 +184,57 @@ struct FileReadConstraints : public GenerationConstraints
     }
 
     FileReadConstraints(std::string file) : filename(std::move(file))
+    {
+    }
+};
+
+/**
+ * @struct LinearBinaryCodeConstraints
+ * @brief Constraints for the binary linear code generator over GF(2).
+ * @details Generates binary codewords {0,1} with guaranteed minimum Hamming distance
+ * using Hamming codes (d=2-4) and BCH codes (d=5-7).
+ */
+struct LinearBinaryCodeConstraints : public GenerationConstraints
+{
+    // --- Distance Parameter ---
+    /**
+     * @brief The minimum Hamming distance for the binary code.
+     * @note Valid values: {2, 3, 4, 5, 6, 7}.
+     */
+    int candMinHD;
+
+    // --- Vector Values (all in binary space) ---
+    std::vector<int> bias;        ///< Bias vector (length = code length, values in {0, 1})
+    std::vector<int> row_perm;    ///< Row permutation vector
+    std::vector<int> col_perm;    ///< Column permutation vector
+
+    // --- Vector Modes ---
+    VectorMode bias_mode;         ///< How to initialize bias
+    VectorMode row_perm_mode;     ///< How to initialize row permutation
+    VectorMode col_perm_mode;     ///< How to initialize column permutation
+
+    // --- Random Seed ---
+    unsigned int random_seed;     ///< Random seed (0 = use time-based)
+
+    LinearBinaryCodeConstraints()
+        : GenerationConstraints(), candMinHD(), bias(), row_perm(), col_perm(),
+          bias_mode(VectorMode::DEFAULT), row_perm_mode(VectorMode::DEFAULT), col_perm_mode(VectorMode::DEFAULT),
+          random_seed(0)
+    {
+    }
+
+    LinearBinaryCodeConstraints(int min_hd)
+        : GenerationConstraints(), candMinHD(min_hd), bias(), row_perm(), col_perm(),
+          bias_mode(VectorMode::DEFAULT), row_perm_mode(VectorMode::DEFAULT), col_perm_mode(VectorMode::DEFAULT),
+          random_seed(0)
+    {
+    }
+
+    LinearBinaryCodeConstraints(int min_hd, VectorMode bias_m, VectorMode row_perm_m, VectorMode col_perm_m,
+                                std::vector<int> biasVec, std::vector<int> rowPerm, std::vector<int> colPerm,
+                                unsigned int seed)
+        : GenerationConstraints(), candMinHD(min_hd), bias(biasVec), row_perm(rowPerm), col_perm(colPerm),
+          bias_mode(bias_m), row_perm_mode(row_perm_m), col_perm_mode(col_perm_m), random_seed(seed)
     {
     }
 };

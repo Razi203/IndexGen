@@ -36,6 +36,7 @@ MAIN_SOURCES = $(SRC_DIR)/IndexGen.cpp $(SOURCES)
 # For testing, we only need LinearCodes and its dependencies
 TEST_SOURCES = $(SRC_DIR)/testing.cpp \
                $(SRC_DIR)/Candidates/LinearCodes.cpp \
+               $(SRC_DIR)/Candidates/BinaryLinearCodes.cpp \
                $(SRC_DIR)/Candidates/GF4.cpp \
                $(SRC_DIR)/Candidates/GenMat.cpp \
                $(SRC_DIR)/Candidates/VTCodes.cpp \

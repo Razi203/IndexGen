@@ -82,7 +82,7 @@ class CandidateGenerator
      * @param unfiltered The unfiltered candidates.
      * @return A vector of filtered candidates based on GC-content and max run constraints.
      */
-    std::vector<std::string> applyFilters(const std::vector<std::string> &unfiltered) const;
+    virtual std::vector<std::string> applyFilters(const std::vector<std::string> &unfiltered) const;
 };
 
 /**
@@ -244,6 +244,43 @@ class FileReadGenerator : public CandidateGenerator
     std::string getMethodName() const override;
     void printParams(std::ofstream &output_file) const override;
     void readParams(std::ifstream &input_file, GenerationConstraints *constraints) override;
+};
+
+/**
+ * @class LinearBinaryCodeGenerator
+ * @brief Generator using binary linear codes over GF(2) with guaranteed minimum Hamming distance.
+ * @details Generates codewords over {0,1} using Hamming codes (d=2-4) and BCH codes (d=5-7).
+ */
+class LinearBinaryCodeGenerator : public CandidateGenerator
+{
+  private:
+    int candMinHD; ///< Minimum Hamming distance for binary code generation
+
+    // Vector values (binary space)
+    std::vector<int> bias;        ///< Binary bias vector (values in {0,1})
+    std::vector<int> row_perm;    ///< Row permutation vector
+    std::vector<int> col_perm;    ///< Column permutation vector
+
+    // Vector modes
+    VectorMode bias_mode;
+    VectorMode row_perm_mode;
+    VectorMode col_perm_mode;
+
+    // Random seed and initialization
+    unsigned int random_seed;
+    bool vectors_initialized;
+
+    void initializeVectors(int code_len);
+
+  public:
+    LinearBinaryCodeGenerator(const Params &params, const LinearBinaryCodeConstraints &constraints);
+
+    std::vector<std::string> generate() override;
+    void printInfo(std::ostream &output_stream) const override;
+    std::string getMethodName() const override;
+    void printParams(std::ofstream &output_file) const override;
+    void readParams(std::ifstream &input_file, GenerationConstraints *constraints) override;
+    std::vector<std::string> applyFilters(const std::vector<std::string> &unfiltered) const override;
 };
 
 /**
