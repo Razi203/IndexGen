@@ -198,7 +198,6 @@ void VerifyDistT(const vector<string> &vecs, const int minED, const int threadId
             }
         }
     }
-    success = true;
 }
 
 void VerifyDist(vector<string> &vecs, const int minED, const int threadNum, bool useGPU, double maxGPUMemoryGB, bool isBinary)
@@ -237,7 +236,10 @@ void VerifyDist(vector<string> &vecs, const int minED, const int threadNum, bool
         if (env_root) project_root = string(env_root);
         
         string script_path = project_root + (isBinary ? "/src/gpu_graph_generator_binary.py" : "/src/gpu_graph_generator.py");
-        string cmd = "python3 " + script_path + " " + vecFile + " " + edgesFile + " " +
+        const char* env_python = std::getenv("INDEXGEN_PYTHON");
+        std::string python_cmd = env_python ? std::string(env_python) : "python3";
+
+        string cmd = python_cmd + " " + script_path + " " + vecFile + " " + edgesFile + " " +
                      to_string(minED) + " " + to_string(maxGPUMemoryGB);
         
         cout << "[Verify GPU] Running: " << cmd << endl;
@@ -287,7 +289,7 @@ void VerifyDist(vector<string> &vecs, const int minED, const int threadNum, bool
     else
     {
         // CPU verification (original path)
-        atomic<bool> success(false);
+        atomic<bool> success(true);
         vector<thread> threads;
         for (int i = 0; i < threadNum; i++)
         {
@@ -1313,6 +1315,14 @@ void LoadParamsFromJson(Params &params, const std::string &filename)
             std::string inputFile = m["fileRead"].contains("input_file") ? (std::string)m["fileRead"]["input_file"] : "";
             if (inputFile.empty()) {
                  throw std::runtime_error("FileRead method requires 'input_file' parameter in config.");
+            }
+            params.constraints = std::make_unique<FileReadConstraints>(inputFile);
+        }
+        else if (name == "BinaryFileRead") {
+            params.method = GenerationMethod::BINARY_FILE_READ;
+            std::string inputFile = m["fileRead"].contains("input_file") ? (std::string)m["fileRead"]["input_file"] : "";
+            if (inputFile.empty()) {
+                 throw std::runtime_error("BinaryFileRead method requires 'input_file' parameter in config.");
             }
             params.constraints = std::make_unique<FileReadConstraints>(inputFile);
         }

@@ -1,9 +1,9 @@
 import sys
 import os
 import numpy as np
-from numba import cuda, uint64, uint8
 import time
 import warnings
+from numba import cuda, uint64, uint8, njit, prange, int32
 from numba.core.errors import NumbaPerformanceWarning
 
 # Suppress Numba performance warnings
@@ -156,10 +156,24 @@ def compute_distance_matrix_kernel_binary(cen_packed,       # (K,) uint64
 # Host Code Functions
 # -------------------------------------------------------------------------
 
+@njit(parallel=True)
+def fast_pack_binary(arr, packed, popcounts):
+    """ Numba-accelerated bit packing and popcount precomputation """
+    N, L = arr.shape
+    for i in prange(N):
+        p = uint64(0)
+        pop = uint8(0)
+        for j in range(L):
+            if arr[i, j]:
+                p |= uint64(1) << uint64(j)
+                pop += 1
+        packed[i] = p
+        popcounts[i] = pop
+
 def pack_binary_sequences(strings):
-    """ Pack binary strings ('0' and '1') into flat uint64 array """
+    """ Pack binary strings ('0' and '1') into flat uint64 array and popcounts """
     N = len(strings)
-    if N == 0: return np.array([], dtype=np.uint64), 0
+    if N == 0: return np.array([], dtype=np.uint64), np.array([], dtype=np.uint8), 0
     L = len(strings[0])
     
     if L > 64:
@@ -169,18 +183,19 @@ def pack_binary_sequences(strings):
     arr = np.frombuffer(huge_string, dtype=np.uint8).reshape(N, L) - 48
     
     packed = np.zeros(N, dtype=np.uint64)
-    for pos in range(L):
-        packed |= arr[:, pos].astype(np.uint64) << np.uint64(pos)
+    popcounts = np.zeros(N, dtype=np.uint8)
+    
+    fast_pack_binary(arr, packed, popcounts)
         
-    return packed, L
+    return packed, popcounts, L
 
 def solve_assignments_cuda_binary(vectors, centers, batch_size=32768):
     K = len(centers)
     N = len(vectors)
     if N == 0 or K == 0: return np.array([], dtype=np.int32)
 
-    vec_packed, L_v = pack_binary_sequences(vectors)
-    cen_packed, L_c = pack_binary_sequences(centers)
+    vec_packed, vec_pop, L_v = pack_binary_sequences(vectors)
+    cen_packed, cen_pop, L_c = pack_binary_sequences(centers)
     
     if L_v != L_c: raise ValueError("Length mismatch between vectors and centers.")
     L = L_v

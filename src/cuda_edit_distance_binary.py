@@ -1,7 +1,7 @@
 import numpy as np
-from numba import cuda, uint64, int32
 import math
 import warnings
+from numba import cuda, uint64, int32, uint8, njit, prange
 from numba.core.errors import NumbaPerformanceWarning
 
 # Suppress Numba performance warnings
@@ -19,6 +19,7 @@ def reset_counter_kernel(counter):
 # -------------------------------------------------------------------------
 @cuda.jit(cache=True)
 def compute_chunk_kernel_binary(seq_packed,      # (N,) uint64 array
+                                popcounts,       # (N,) uint8 array
                                 L,               # Length of strings (<=64)
                                 threshold,       # Distance threshold D
                                 mask,            # Precomputed mask for length L
@@ -53,15 +54,19 @@ def compute_chunk_kernel_binary(seq_packed,      # (N,) uint64 array
     # Shared Memory Allocation & Loading
     # ---------------------------------------------------------------------
     smem_row = cuda.shared.array(16, uint64)
+    smem_row_pop = cuda.shared.array(16, uint8)
     smem_col = cuda.shared.array(64, uint64)
+    smem_col_pop = cuda.shared.array(64, uint8)
 
     # Load Row (Center) bits
     if tx == 0:
         g_r_load = start_row + block_row_start + ty
         if g_r_load < N:
             smem_row[ty] = seq_packed[g_r_load]
+            smem_row_pop[ty] = popcounts[g_r_load]
         else:
             smem_row[ty] = 0
+            smem_row_pop[ty] = 0
 
     # Load Column (Vector) bits
     tid = ty * 16 + tx
@@ -69,8 +74,10 @@ def compute_chunk_kernel_binary(seq_packed,      # (N,) uint64 array
         g_c_load = start_col + block_col_start + tid
         if g_c_load < N:
             smem_col[tid] = seq_packed[g_c_load]
+            smem_col_pop[tid] = popcounts[g_c_load]
         else:
             smem_col[tid] = 0
+            smem_col_pop[tid] = 0
             
     cuda.syncthreads()
 
@@ -99,60 +106,101 @@ def compute_chunk_kernel_binary(seq_packed,      # (N,) uint64 array
     if L == 64: hb_mask = uint64(1) << uint64(63)
     else:       hb_mask = uint64(1) << uint64(L - 1)
 
-    for k in range(L):
-        bit_mask = uint64(1) << uint64(k)
-        
-        # Col 1
-        Eq = peq_1 if (c1_bits & bit_mask) else peq_0
-        X = Eq | MV_1
-        sum_val = uint64((X & PV_1) + PV_1)
-        D0 = (sum_val ^ PV_1) | X
-        HN = PV_1 & D0
-        HP = MV_1 | ~(PV_1 | D0)
-        X2 = (HP << uint64(1)) | uint64(1)
-        MV_1 = X2 & D0
-        PV_1 = (HN << uint64(1)) | ~(X2 | D0)
-        if (HP & hb_mask): score_1 += 1
-        if (HN & hb_mask): score_1 -= 1
+    # Popcount Filtering
+    row_pop = smem_row_pop[ty]
+    
+    # ---------------------------------------------------------------------
+    # Col 1
+    # ---------------------------------------------------------------------
+    if (global_col_base + 0) > global_row and (global_col_base + 0) < N:
+        hd = cuda.popc(row_bits ^ c1_bits)
+        if hd < threshold:
+            score_1 = hd
+        elif abs(int32(row_pop) - int32(smem_col_pop[local_col_base + 0])) < threshold:
+            for k in range(L):
+                Eq = peq_1 if (c1_bits & uint64(1)) else peq_0
+                c1_bits >>= uint64(1)
+                X = Eq | MV_1
+                sum_val = uint64((X & PV_1) + PV_1)
+                D0 = (sum_val ^ PV_1) | X
+                HN = PV_1 & D0
+                HP = MV_1 | ~(PV_1 | D0)
+                if (HP & hb_mask): score_1 += 1
+                if (HN & hb_mask): score_1 -= 1
+                X2 = (HP << uint64(1)) | uint64(1)
+                MV_1 = X2 & D0
+                PV_1 = (HN << uint64(1)) | ~(X2 | D0)
+                # Early Exit
+                if (score_1 - (L - 1 - k)) >= threshold: break
 
-        # Col 2
-        Eq = peq_1 if (c2_bits & bit_mask) else peq_0
-        X = Eq | MV_2
-        sum_val = uint64((X & PV_2) + PV_2)
-        D0 = (sum_val ^ PV_2) | X
-        HN = PV_2 & D0
-        HP = MV_2 | ~(PV_2 | D0)
-        X2 = (HP << uint64(1)) | uint64(1)
-        MV_2 = X2 & D0
-        PV_2 = (HN << uint64(1)) | ~(X2 | D0)
-        if (HP & hb_mask): score_2 += 1
-        if (HN & hb_mask): score_2 -= 1
+    # ---------------------------------------------------------------------
+    # Col 2
+    # ---------------------------------------------------------------------
+    if (global_col_base + 1) > global_row and (global_col_base + 1) < N:
+        hd = cuda.popc(row_bits ^ c2_bits)
+        if hd < threshold:
+            score_2 = hd
+        elif abs(int32(row_pop) - int32(smem_col_pop[local_col_base + 1])) < threshold:
+            for k in range(L):
+                Eq = peq_1 if (c2_bits & uint64(1)) else peq_0
+                c2_bits >>= uint64(1)
+                X = Eq | MV_2
+                sum_val = uint64((X & PV_2) + PV_2)
+                D0 = (sum_val ^ PV_2) | X
+                HN = PV_2 & D0
+                HP = MV_2 | ~(PV_2 | D0)
+                if (HP & hb_mask): score_2 += 1
+                if (HN & hb_mask): score_2 -= 1
+                X2 = (HP << uint64(1)) | uint64(1)
+                MV_2 = X2 & D0
+                PV_2 = (HN << uint64(1)) | ~(X2 | D0)
+                if (score_2 - (L - 1 - k)) >= threshold: break
 
-        # Col 3
-        Eq = peq_1 if (c3_bits & bit_mask) else peq_0
-        X = Eq | MV_3
-        sum_val = uint64((X & PV_3) + PV_3)
-        D0 = (sum_val ^ PV_3) | X
-        HN = PV_3 & D0
-        HP = MV_3 | ~(PV_3 | D0)
-        X2 = (HP << uint64(1)) | uint64(1)
-        MV_3 = X2 & D0
-        PV_3 = (HN << uint64(1)) | ~(X2 | D0)
-        if (HP & hb_mask): score_3 += 1
-        if (HN & hb_mask): score_3 -= 1
+    # ---------------------------------------------------------------------
+    # Col 3
+    # ---------------------------------------------------------------------
+    if (global_col_base + 2) > global_row and (global_col_base + 2) < N:
+        hd = cuda.popc(row_bits ^ c3_bits)
+        if hd < threshold:
+            score_3 = hd
+        elif abs(int32(row_pop) - int32(smem_col_pop[local_col_base + 2])) < threshold:
+            for k in range(L):
+                Eq = peq_1 if (c3_bits & uint64(1)) else peq_0
+                c3_bits >>= uint64(1)
+                X = Eq | MV_3
+                sum_val = uint64((X & PV_3) + PV_3)
+                D0 = (sum_val ^ PV_3) | X
+                HN = PV_3 & D0
+                HP = MV_3 | ~(PV_3 | D0)
+                if (HP & hb_mask): score_3 += 1
+                if (HN & hb_mask): score_3 -= 1
+                X2 = (HP << uint64(1)) | uint64(1)
+                MV_3 = X2 & D0
+                PV_3 = (HN << uint64(1)) | ~(X2 | D0)
+                if (score_3 - (L - 1 - k)) >= threshold: break
 
-        # Col 4
-        Eq = peq_1 if (c4_bits & bit_mask) else peq_0
-        X = Eq | MV_4
-        sum_val = uint64((X & PV_4) + PV_4)
-        D0 = (sum_val ^ PV_4) | X
-        HN = PV_4 & D0
-        HP = MV_4 | ~(PV_4 | D0)
-        X2 = (HP << uint64(1)) | uint64(1)
-        MV_4 = X2 & D0
-        PV_4 = (HN << uint64(1)) | ~(X2 | D0)
-        if (HP & hb_mask): score_4 += 1
-        if (HN & hb_mask): score_4 -= 1
+    # ---------------------------------------------------------------------
+    # Col 4
+    # ---------------------------------------------------------------------
+    if (global_col_base + 3) > global_row and (global_col_base + 3) < N:
+        hd = cuda.popc(row_bits ^ c4_bits)
+        if hd < threshold:
+            score_4 = hd
+        elif abs(int32(row_pop) - int32(smem_col_pop[local_col_base + 3])) < threshold:
+            for k in range(L):
+                Eq = peq_1 if (c4_bits & uint64(1)) else peq_0
+                c4_bits >>= uint64(1)
+                X = Eq | MV_4
+                sum_val = uint64((X & PV_4) + PV_4)
+                D0 = (sum_val ^ PV_4) | X
+                HN = PV_4 & D0
+                HP = MV_4 | ~(PV_4 | D0)
+                if (HP & hb_mask): score_4 += 1
+                if (HN & hb_mask): score_4 -= 1
+                X2 = (HP << uint64(1)) | uint64(1)
+                MV_4 = X2 & D0
+                PV_4 = (HN << uint64(1)) | ~(X2 | D0)
+                if (score_4 - (L - 1 - k)) >= threshold: break
 
     # ---------------------------------------------------------------------
     # Atomic Store (SPARSE)
@@ -198,13 +246,27 @@ def compute_chunk_kernel_binary(seq_packed,      # (N,) uint64 array
 # Host Code
 # -------------------------------------------------------------------------
 
+@njit(parallel=True)
+def fast_pack_binary(arr, packed, popcounts):
+    """ Numba-accelerated bit packing and popcount precomputation """
+    N, L = arr.shape
+    for i in prange(N):
+        p = uint64(0)
+        pop = uint8(0)
+        for j in range(L):
+            if arr[i, j]:
+                p |= uint64(1) << uint64(j)
+                pop += 1
+        packed[i] = p
+        popcounts[i] = pop
+
 def pack_binary_sequences(strings):
     """
-    Pack binary strings ('0' and '1') into a flat 1D uint64 array.
+    Pack binary strings ('0' and '1') into a flat 1D uint64 array and popcounts.
     """
     N = len(strings)
     if N == 0:
-        return np.array([], dtype=np.uint64), 0
+        return np.array([], dtype=np.uint64), np.array([], dtype=np.uint8), 0
     L = len(strings[0])
     
     if L > 64:
@@ -214,31 +276,44 @@ def pack_binary_sequences(strings):
     arr = np.frombuffer(huge_string, dtype=np.uint8).reshape(N, L) - 48
     
     packed = np.zeros(N, dtype=np.uint64)
-    for pos in range(L):
-        packed |= arr[:, pos].astype(np.uint64) << np.uint64(pos)
+    popcounts = np.zeros(N, dtype=np.uint8)
+    
+    fast_pack_binary(arr, packed, popcounts)
         
-    return packed, L
+    return packed, popcounts, L
 
-def solve_edit_distance_cuda_binary(strings, threshold, tile_size=16384):
+def solve_edit_distance_cuda_binary(strings, threshold, output_file, tile_size=None, max_gpu_memory_gb=9.0):
     N = len(strings)
-    if N == 0: return []
+    if N == 0: return 0
 
-    print("[Python GPU] Preprocessing binary codes for 64-bit uint packing...")
-    seq_packed, L = pack_binary_sequences(strings)
+    # Auto-tune tile_size based on GPU memory if not explicitly provided
+    if tile_size is None:
+        # Each row/col in a tile uses ~8 bytes (uint64) on GPU
+        # Allow ~25% of GPU memory for tile data, rest for buffers/overhead
+        available_bytes = max_gpu_memory_gb * 1024**3 * 0.25
+        # tile_size^2 pairs processed per tile, but data is tile_size uint64 values
+        # Main constraint: tile_size * 8 bytes for packed sequences on GPU
+        # Larger tiles = fewer kernel launches = less overhead
+        tile_size = min(int(available_bytes / 8), N)
+        tile_size = max(16384, ((tile_size + 63) // 64) * 64)  # Align to 64, min 16384
+        tile_size = min(tile_size, 65536)  # Cap at 64K to avoid excessive shared mem
+
+    print("[Python GPU] Preprocessing binary codes for 64-bit uint packing and popcounts...")
+    seq_packed, popcounts, L = pack_binary_sequences(strings)
     
     if L == 64:
         mask = np.uint64(-1)
     else:
         mask = np.uint64((1 << L) - 1)
         
-    print(f"[Python GPU] Transferring packed dataset (N={N}, size={seq_packed.nbytes / (1024*1024):.2f} MB) to GPU...")
+    print(f"[Python GPU] Transferring packed dataset (N={N}, size={seq_packed.nbytes / (1024*1024):.2f} MB + popcounts) to GPU...")
     d_seq = cuda.to_device(seq_packed)
+    d_pop = cuda.to_device(popcounts)
 
     # Sparse output config
     MAX_EDGES_PER_BUFFER = 5_000_000 
     
-    print(f"[Python GPU] Allocating Adjacency List for N={N}...")
-    adj_list = [[] for _ in range(N)]
+    global_edge_count = [0]
 
     num_streams = 2
     streams = [cuda.stream() for _ in range(num_streams)]
@@ -265,11 +340,11 @@ def solve_edit_distance_cuda_binary(strings, threshold, tile_size=16384):
             tiles.append((t_r, t_c))
             
     if not tiles:
-        return adj_list
+        return 0
         
     active_tasks = [] 
     
-    def process_completed_tile(task_info):
+    def process_completed_tile(task_info, f_out):
         s_idx, _, _ = task_info
         streams[s_idx].synchronize()
         count = h_counters[s_idx][0]
@@ -277,38 +352,38 @@ def solve_edit_distance_cuda_binary(strings, threshold, tile_size=16384):
             count = MAX_EDGES_PER_BUFFER
         if count > 0:
             valid_edges = h_edges[s_idx][:count]
-            for i in range(count):
-                r, c = valid_edges[i]
-                adj_list[r].append(int(c))
-                adj_list[c].append(int(r))
+            f_out.write(valid_edges.tobytes())
+            global_edge_count[0] += count
 
     tile_idx = 0
-    while tile_idx < len(tiles) or len(active_tasks) > 0:
-        while len(active_tasks) < num_streams and tile_idx < len(tiles):
-            stream_id = tile_idx % num_streams
-            stream = streams[stream_id]
-            t_r, t_c = tiles[tile_idx]
-            
-            cur_r_len = min(t_r + tile_size, N) - t_r
-            cur_c_len = min(t_c + tile_size, N) - t_c
-            
-            if cur_r_len > 0 and cur_c_len > 0:
-                reset_counter_kernel[1, 1, stream](d_counters[stream_id])
+    with open(output_file, 'ab') as f_out:
+        while tile_idx < len(tiles) or len(active_tasks) > 0:
+            while len(active_tasks) < num_streams and tile_idx < len(tiles):
+                stream_id = tile_idx % num_streams
+                stream = streams[stream_id]
+                t_r, t_c = tiles[tile_idx]
                 
-                compute_chunk_kernel_binary[blockspergrid, threadsperblock, stream](
-                    d_seq, L, threshold, mask,
-                    t_r, t_c, cur_r_len, cur_c_len, N, 
-                    d_counters[stream_id], d_edges[stream_id], MAX_EDGES_PER_BUFFER
-                )
+                cur_r_len = min(t_r + tile_size, N) - t_r
+                cur_c_len = min(t_c + tile_size, N) - t_c
                 
-                d_counters[stream_id].copy_to_host(h_counters[stream_id], stream=stream)
-                d_edges[stream_id].copy_to_host(h_edges[stream_id], stream=stream)
-                active_tasks.append((stream_id, (t_r, t_c), stream_id))
-            
-            tile_idx += 1
+                if cur_r_len > 0 and cur_c_len > 0:
+                    reset_counter_kernel[1, 1, stream](d_counters[stream_id])
+                    
+                    compute_chunk_kernel_binary[blockspergrid, threadsperblock, stream](
+                        d_seq, d_pop, L, threshold, mask,
+                        t_r, t_c, cur_r_len, cur_c_len, N, 
+                        d_counters[stream_id], d_edges[stream_id], MAX_EDGES_PER_BUFFER
+                    )
+                    
+                    # Copy counter first to know how many edges to transfer
+                    d_counters[stream_id].copy_to_host(h_counters[stream_id], stream=stream)
+                    d_edges[stream_id].copy_to_host(h_edges[stream_id], stream=stream)
+                    active_tasks.append((stream_id, (t_r, t_c), stream_id))
+                
+                tile_idx += 1
 
-        if active_tasks:
-            task = active_tasks.pop(0)
-            process_completed_tile(task)
+            if active_tasks:
+                task = active_tasks.pop(0)
+                process_completed_tile(task, f_out)
             
-    return adj_list
+    return global_edge_count[0]

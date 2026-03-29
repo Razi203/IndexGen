@@ -57,7 +57,12 @@ class AdjList
      * @brief An optimization structure to quickly find nodes with the minimum degree.
      * Direct bucket lookup indexing by degree.
      */
-    std::vector<std::unordered_set<int>> rowsBySum;
+    std::vector<std::vector<int>> rowsBySum;
+
+    /**
+     * @brief Tracks each node's position within its degree bucket for O(1) swap-remove.
+     */
+    std::vector<int> pos_in_bucket;
 
     int min_degree_tracker; // Tracks the minimum populated bucket
     int num_active_nodes; // Tracks remaining nodes
@@ -149,7 +154,7 @@ class AdjList
      * @param matRow The index of the central node of the ball to delete.
      * @param remaining A set of all remaining candidate indices, which is updated by this function.
      */
-    void DelBall(const int matRow, std::unordered_set<int> &remaining);
+    void DelBall(const int matRow, std::vector<bool> &remaining);
 
     /**
      * @brief Finds the minimum-degree node and then deletes its corresponding ball.
@@ -158,7 +163,7 @@ class AdjList
      * @param delBallTime A double to accumulate the total seconds spent in `DelBall`.
      * @return The index of the minimum-degree node that was chosen and removed.
      */
-    int FindMinDel(std::unordered_set<int> &remaining, double &minSumRowTime, double &delBallTime);
+    int FindMinDel(std::vector<bool> &remaining, double &minSumRowTime, double &delBallTime);
 
     /**
      * @brief Finds the maximum-degree node and removes only that node (not its neighbors).
@@ -167,7 +172,7 @@ class AdjList
      * @param delRowColTime A double to accumulate the total seconds spent in `DelRowCol`.
      * @return The index of the maximum-degree node that was chosen and removed.
      */
-    int FindMaxDel(std::unordered_set<int> &remaining, double &maxSumRowTime, double &delRowColTime);
+    int FindMaxDel(std::vector<bool> &remaining, double &maxSumRowTime, double &delRowColTime);
 
     /**
      * @brief Serializes the adjacency list to a file.

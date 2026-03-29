@@ -600,6 +600,41 @@ void FileReadGenerator::readParams(std::ifstream &input_file, GenerationConstrai
 }
 
 // ============================================================================
+// BinaryFileReadGenerator Implementation
+// ============================================================================
+
+std::vector<std::string> BinaryFileReadGenerator::applyFilters(const std::vector<std::string> &unfiltered) const
+{
+    std::vector<std::string> filtered;
+
+    bool useMaxRunFilter = (params.maxRun > 0);
+    bool useContentFilter = (params.minGCCont > 0 || params.maxGCCont > 0);
+
+    if (!useMaxRunFilter && !useContentFilter)
+    {
+        return unfiltered;
+    }
+
+    for (const std::string &str : unfiltered)
+    {
+        bool passMaxRun = !useMaxRunFilter || (MaxRun(str) <= params.maxRun);
+        bool passContent = !useContentFilter || TestBinaryContent(str, params.minGCCont, params.maxGCCont);
+
+        if (passMaxRun && passContent)
+        {
+            filtered.push_back(str);
+        }
+    }
+
+    return filtered;
+}
+
+std::string BinaryFileReadGenerator::getMethodName() const
+{
+    return "BinaryFileRead";
+}
+
+// ============================================================================
 // LinearBinaryCodeGenerator Implementation
 // ============================================================================
 
@@ -965,6 +1000,17 @@ std::shared_ptr<CandidateGenerator> CreateGenerator(const Params &params)
             throw std::runtime_error("Invalid constraints provided for FILE_READ method.");
         }
         new_generator = std::make_shared<FileReadGenerator>(params, *constraints);
+        break;
+    }
+
+    case GenerationMethod::BINARY_FILE_READ:
+    {
+        auto *constraints = dynamic_cast<FileReadConstraints *>(params.constraints.get());
+        if (!constraints)
+        {
+            throw std::runtime_error("Invalid constraints provided for BINARY_FILE_READ method.");
+        }
+        new_generator = std::make_shared<BinaryFileReadGenerator>(params, *constraints);
         break;
     }
 

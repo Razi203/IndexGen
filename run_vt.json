@@ -1,0 +1,26 @@
+{
+    "core": {
+        "lenStart": 28,
+        "lenEnd": 28,
+        "editDist": 3
+    },
+    "constraints": {
+        "maxRun": 0,
+        "minGC": 0,
+        "maxGC": 0
+    },
+    "performance": {
+        "threads": 16,
+        "saveInterval": 3600,
+        "use_gpu": true,
+        "max_gpu_memory_gb": 10.0,
+        "do_clustering": false
+    },
+    "method": {
+        "name": "BinaryFileRead",
+        "fileRead": {
+            "input_file": "vt_codebook_n28_a0.txt"
+        }
+    },
+    "verify": true
+}

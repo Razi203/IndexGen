@@ -29,7 +29,8 @@ enum class GenerationMethod
     VT_CODE,              ///< Uses Varshamov-Tenengolts codes for candidate generation.
     DIFFERENTIAL_VT_CODE,  ///< Uses Differential Varshamov-Tenengolts codes for candidate generation.
     FILE_READ,             ///< Reads candidate strings from a file.
-    LINEAR_BINARY_CODE     ///< Uses binary linear codes over GF(2) with guaranteed Hamming distance.
+    LINEAR_BINARY_CODE,    ///< Uses binary linear codes over GF(2) with guaranteed Hamming distance.
+    BINARY_FILE_READ       ///< Reads candidate strings from a file and treats them as binary.
 };
 
 /**

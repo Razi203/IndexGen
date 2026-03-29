@@ -83,6 +83,7 @@ void AdjList::Init(int numNodes)
     m.resize(numNodes);
     deleted.assign(numNodes, false);
     degree.assign(numNodes, 0);
+    pos_in_bucket.assign(numNodes, -1);
     num_active_nodes = numNodes;
     min_degree_tracker = 0;
     // rowsBySum is allocated during RowsBySum() once degrees are known
@@ -103,6 +104,7 @@ void AdjList::RowsBySum()
     }
 
     rowsBySum.resize(max_d + 1);
+    pos_in_bucket.resize(m.size(), -1);
     min_degree_tracker = max_d + 1;
 
     for (int i = 0; i < (int)m.size(); ++i)
@@ -110,7 +112,8 @@ void AdjList::RowsBySum()
         if (deleted[i])
             continue;
         int d = degree[i];
-        rowsBySum[d].insert(i);
+        pos_in_bucket[i] = rowsBySum[d].size();
+        rowsBySum[d].push_back(i);
         if (d < min_degree_tracker)
             min_degree_tracker = d;
     }
@@ -120,7 +123,7 @@ int AdjList::MinSumRow() const
 {
     assert(min_degree_tracker >= 0 && min_degree_tracker < (int)rowsBySum.size());
     assert(!rowsBySum[min_degree_tracker].empty());
-    return *rowsBySum[min_degree_tracker].begin();
+    return rowsBySum[min_degree_tracker].back();
 }
 
 int AdjList::MaxSumRow() const
@@ -128,19 +131,21 @@ int AdjList::MaxSumRow() const
     for (int d = (int)rowsBySum.size() - 1; d >= 0; --d)
     {
         if (!rowsBySum[d].empty())
-            return *rowsBySum[d].begin();
+            return rowsBySum[d].back();
     }
     return -1;
 }
 
 void AdjList::DeleteRow(const int currentSum, const int row)
 {
-    rowsBySum[currentSum].erase(row);
-    // Note: min_degree_tracker may need to advance, but this is handled lazily in MinSumRow calls or explicitly in
-    // DecreaseSum
-    if (currentSum == min_degree_tracker && rowsBySum[currentSum].empty())
+    auto &bucket = rowsBySum[currentSum];
+    int pos = pos_in_bucket[row];
+    int last = bucket.back();
+    bucket[pos] = last;
+    pos_in_bucket[last] = pos;
+    bucket.pop_back();
+    if (currentSum == min_degree_tracker && bucket.empty())
     {
-        // Advance min_degree_tracker
         while (min_degree_tracker < (int)rowsBySum.size() && rowsBySum[min_degree_tracker].empty())
         {
             min_degree_tracker++;
@@ -153,7 +158,8 @@ void AdjList::DecreaseSum(const int currentSum, const int row)
     assert(currentSum > 0);
     DeleteRow(currentSum, row);
     degree[row] = currentSum - 1;
-    rowsBySum[currentSum - 1].insert(row);
+    pos_in_bucket[row] = rowsBySum[currentSum - 1].size();
+    rowsBySum[currentSum - 1].push_back(row);
     if (currentSum - 1 < min_degree_tracker)
     {
         min_degree_tracker = currentSum - 1;
@@ -165,15 +171,13 @@ int AdjList::RemoveEmptyRows()
     int removedRowsNum = 0;
     if (rowsBySum.size() > 0 && !rowsBySum[0].empty())
     {
-        // Make a copy since we will delete them
-        std::vector<int> zeros(rowsBySum[0].begin(), rowsBySum[0].end());
-        removedRowsNum = zeros.size();
-        for (int row : zeros)
+        removedRowsNum = rowsBySum[0].size();
+        for (int row : rowsBySum[0])
         {
             deleted[row] = true;
             num_active_nodes--;
-            rowsBySum[0].erase(row);
         }
+        rowsBySum[0].clear();
         while (min_degree_tracker < (int)rowsBySum.size() && rowsBySum[min_degree_tracker].empty())
         {
             min_degree_tracker++;
@@ -222,7 +226,7 @@ void AdjList::DelRowCol(int i)
     num_active_nodes--;
 }
 
-void AdjList::DelBall(const int matRow, unordered_set<int> &remaining)
+void AdjList::DelBall(const int matRow, vector<bool> &remaining)
 {
     if (deleted[matRow])
         return;
@@ -242,11 +246,11 @@ void AdjList::DelBall(const int matRow, unordered_set<int> &remaining)
     for (int num : toDel)
     {
         DelRowCol(num);
-        remaining.erase(num);
+        remaining[num] = false;
     }
 }
 
-int AdjList::FindMinDel(unordered_set<int> &remaining, double &minSumRowTime, double &delBallTime)
+int AdjList::FindMinDel(vector<bool> &remaining, double &minSumRowTime, double &delBallTime)
 {
     auto msr_start = chrono::steady_clock::now();
     int minSumRow = MinSumRow();
@@ -261,7 +265,7 @@ int AdjList::FindMinDel(unordered_set<int> &remaining, double &minSumRowTime, do
     return minSumRow;
 }
 
-int AdjList::FindMaxDel(unordered_set<int> &remaining, double &maxSumRowTime, double &delRowColTime)
+int AdjList::FindMaxDel(vector<bool> &remaining, double &maxSumRowTime, double &delRowColTime)
 {
     auto msr_start = chrono::steady_clock::now();
     int maxSumRow = MaxSumRow();
@@ -270,7 +274,7 @@ int AdjList::FindMaxDel(unordered_set<int> &remaining, double &maxSumRowTime, do
 
     auto drc_start = chrono::steady_clock::now();
     DelRowCol(maxSumRow);
-    remaining.erase(maxSumRow);
+    remaining[maxSumRow] = false;
     auto drc_end = chrono::steady_clock::now();
     delRowColTime += chrono::duration<double>(drc_end - drc_start).count();
 
@@ -355,6 +359,22 @@ void AdjList::FromBinaryFile(const string &filename, long long int &matrixOnesNu
     // Process buffer (format: u, v, u, v...)
     // Buffer contains only UNIQUE pairs (u < v). We must add symmetric edges.
     size_t numInts = buffer.size();
+
+    // Pass 1: Count degrees for reserve()
+    std::vector<int> deg(m.size(), 0);
+    for (size_t i = 0; i < numInts; i += 2)
+    {
+        int u = buffer[i];
+        int v = buffer[i + 1];
+        if (u >= (int)m.size() || v >= (int)m.size())
+            continue;
+        deg[u]++;
+        deg[v]++;
+    }
+    for (int i = 0; i < (int)m.size(); ++i)
+        m[i].reserve(deg[i]);
+
+    // Pass 2: Populate adjacency lists
     for (size_t i = 0; i < numInts; i += 2)
     {
         int u = buffer[i];
@@ -367,12 +387,6 @@ void AdjList::FromBinaryFile(const string &filename, long long int &matrixOnesNu
     matrixOnesNum = numInts;
     if (!silent)
         std::cout << "Loaded " << (numInts / 2) << " edges from binary file." << endl;
-
-    // Shrink memory instantly by freeing excess vector capacities
-    for (auto &vec : m)
-    {
-        vec.shrink_to_fit();
-    }
 }
 
 // *** Standalone Helper Functions ***
@@ -468,8 +482,10 @@ void FillAdjListGPU(AdjList &adjList, const vector<string> &candidates, const in
     const char *env_root = std::getenv("INDEXGEN_ROOT");
     string project_root = (env_root) ? string(env_root) : getProjectRoot();
     string script_path = project_root + (isBinary ? "/src/gpu_graph_generator_binary.py" : "/src/gpu_graph_generator.py");
+    const char* env_python = std::getenv("INDEXGEN_PYTHON");
+    std::string python_cmd = env_python ? std::string(env_python) : "python3";
 
-    string cmd = "python " + script_path + " " + fileToUse + " " + edgesFile + " " + to_string(minED) + " " +
+    string cmd = python_cmd + " " + script_path + " " + fileToUse + " " + edgesFile + " " + to_string(minED) + " " +
                  to_string(maxGPUMemoryGB);
 
     if (silent)
@@ -598,15 +614,12 @@ void FillAdjList(AdjList &adjList, const vector<string> &candidates, const int m
     adjList.RowsBySum();
 }
 
-void IndicesToSet(unordered_set<int> &remaining, int indexNum)
+void IndicesToSet(vector<bool> &remaining, int indexNum)
 {
-    for (int i = 0; i < indexNum; i++)
-    {
-        remaining.insert(i);
-    }
+    remaining.assign(indexNum, true);
 }
 
-void USetIntToFile(const unordered_set<int> &uSet, const string &filename)
+void VecBoolToFile(const vector<bool> &vb, const string &filename)
 {
     ofstream output;
     output.open(filename.c_str());
@@ -615,15 +628,17 @@ void USetIntToFile(const unordered_set<int> &uSet, const string &filename)
         std::cout << "Failed opening output file!" << std::endl;
         return;
     }
-    for (const int &num : uSet)
+    for (int i = 0; i < (int)vb.size(); i++)
     {
-        output << num << '\n';
+        if (vb[i])
+            output << i << '\n';
     }
     output.close();
 }
 
-void USetIntFromFile(unordered_set<int> &uSet, const string &filename)
+void VecBoolFromFile(vector<bool> &vb, const string &filename, int totalSize)
 {
+    vb.assign(totalSize, false);
     ifstream input;
     input.open(filename.c_str());
     if (!input.is_open())
@@ -634,21 +649,22 @@ void USetIntFromFile(unordered_set<int> &uSet, const string &filename)
     int a;
     while (input >> a)
     {
-        uSet.insert(a);
+        if (a >= 0 && a < totalSize)
+            vb[a] = true;
     }
     input.close();
 }
 
-void SaveProgressCodebook(const unordered_set<int> &remaining, const AdjList &adjList, const vector<string> &codebook)
+void SaveProgressCodebook(const vector<bool> &remaining, const AdjList &adjList, const vector<string> &codebook)
 {
-    USetIntToFile(remaining, "progress_remaining.txt");
+    VecBoolToFile(remaining, "progress_remaining.txt");
     StrVecToFile(codebook, "progress_codebook.txt");
     adjList.ToFile("progress_adj_list.txt");
 }
 
-void LoadProgressCodebook(unordered_set<int> &remaining, AdjList &adjList, vector<string> &codebook)
+void LoadProgressCodebook(vector<bool> &remaining, AdjList &adjList, vector<string> &codebook, int totalSize)
 {
-    USetIntFromFile(remaining, "progress_remaining.txt");
+    VecBoolFromFile(remaining, "progress_remaining.txt", totalSize);
     FileToStrVec(codebook, "progress_codebook.txt");
     adjList.FromFile("progress_adj_list.txt");
 }
@@ -666,7 +682,7 @@ void Codebook(AdjList &adjList, vector<string> &codebook, const vector<string> &
     codebook.clear();
     auto lastSaveTime = chrono::steady_clock::now();
 
-    unordered_set<int> remaining;
+    vector<bool> remaining;
     if (not resume)
     {
         IndicesToSet(remaining, candidates.size());
@@ -674,7 +690,7 @@ void Codebook(AdjList &adjList, vector<string> &codebook, const vector<string> &
     }
     else
     {
-        LoadProgressCodebook(remaining, adjList, codebook);
+        LoadProgressCodebook(remaining, adjList, codebook, candidates.size());
     }
 
     double minSumRowTime = 0.0, delBallTime = 0.0;
@@ -706,9 +722,10 @@ void Codebook(AdjList &adjList, vector<string> &codebook, const vector<string> &
     std::cout << "Del Ball Time:\t\t" << fixed << setprecision(2) << delBallTime << "\tseconds" << std::endl;
 
     // Once adjList is empty (no edges left), add all remaining vertices to codebook
-    for (int num : remaining)
+    for (int i = 0; i < (int)remaining.size(); i++)
     {
-        codebook.push_back(candidates[num]);
+        if (remaining[i])
+            codebook.push_back(candidates[i]);
     }
     DelProgressCodebook();
 }
@@ -809,7 +826,7 @@ std::vector<std::string> SolveIndependentSet(const std::vector<std::string> &can
 
     // Optimized memory-only version of "Codebook" function logic:
     std::vector<std::string> result_codebook;
-    unordered_set<int> remaining;
+    vector<bool> remaining;
     IndicesToSet(remaining, candidates.size());
 
     double d1 = 0, d2 = 0;
@@ -818,9 +835,10 @@ std::vector<std::string> SolveIndependentSet(const std::vector<std::string> &can
         int minEntry = adjList.FindMinDel(remaining, d1, d2);
         result_codebook.push_back(candidates[minEntry]);
     }
-    for (int num : remaining)
+    for (int i = 0; i < (int)remaining.size(); i++)
     {
-        result_codebook.push_back(candidates[num]);
+        if (remaining[i])
+            result_codebook.push_back(candidates[i]);
     }
 
     // Cleanup
@@ -891,7 +909,8 @@ void GenerateCodebookAdj(const Params &params)
     {
         // OLD BEHAVIOR: One pass
         std::cout << "Clustering disabled. Running standard generation..." << std::endl;
-        bool isBinary = (params.method == GenerationMethod::LINEAR_BINARY_CODE);
+        bool isBinary = (params.method == GenerationMethod::LINEAR_BINARY_CODE || 
+                         params.method == GenerationMethod::BINARY_FILE_READ);
         // Pass candFilename to the function
         CodebookAdjList(candidates, codebook, params.codeMinED, params.threadNum, params.saveInterval, matrixOnesNum,
                         fillAdjListTime, processMatrixTime, params.useGPU, params.maxGPUMemoryGB, candFilename, isBinary);
@@ -930,7 +949,8 @@ void GenerateCodebookAdj(const Params &params)
                           << " (max cluster size = " << MAX_CLUSTER_SIZE << ")" << std::endl;
             }
 
-            bool isBinary = (params.method == GenerationMethod::LINEAR_BINARY_CODE);
+            bool isBinary = (params.method == GenerationMethod::LINEAR_BINARY_CODE || 
+                             params.method == GenerationMethod::BINARY_FILE_READ);
             // Configure KMeansAdapter with user config method
             indexgen::clustering::KMeansAdapter adapter(effective_k, params.clustering.method, isBinary);
             std::vector<std::vector<std::string>> clusters = adapter.cluster(current_candidates);
@@ -1102,7 +1122,8 @@ void GenerateCodebookAdj(const Params &params)
            overAllTime, clusterK, clusterIterations);
     if (params.verify)
     {
-        bool isBinary = (params.method == GenerationMethod::LINEAR_BINARY_CODE);
+        bool isBinary = (params.method == GenerationMethod::LINEAR_BINARY_CODE || 
+                         params.method == GenerationMethod::BINARY_FILE_READ);
         VerifyDist(codebook, params.codeMinED, params.threadNum, params.useGPU, params.maxGPUMemoryGB, isBinary);
     }
     std::cout << "=====================================================" << std::endl;

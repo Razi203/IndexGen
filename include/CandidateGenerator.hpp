@@ -247,6 +247,20 @@ class FileReadGenerator : public CandidateGenerator
 };
 
 /**
+ * @class BinaryFileReadGenerator
+ * @brief Generator that reads binary candidates from a file.
+ * @details Overrides applyFilters to use binary-specific content filtering.
+ */
+class BinaryFileReadGenerator : public FileReadGenerator
+{
+  public:
+    using FileReadGenerator::FileReadGenerator; // Inherit constructor
+
+    std::vector<std::string> applyFilters(const std::vector<std::string> &unfiltered) const override;
+    std::string getMethodName() const override;
+};
+
+/**
  * @class LinearBinaryCodeGenerator
  * @brief Generator using binary linear codes over GF(2) with guaranteed minimum Hamming distance.
  * @details Generates codewords over {0,1} using Hamming codes (d=2-4) and BCH codes (d=5-7).

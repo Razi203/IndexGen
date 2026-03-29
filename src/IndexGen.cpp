@@ -291,14 +291,16 @@ int main(int argc, char *argv[])
             resolve_param("vt_synd", syndrome, {"method", "diffVtCode", "syndrome"});
             params.constraints = make_unique<DifferentialVTCodeConstraints>(syndrome);
         }
-        else if (method_str == "FileRead")
+        else if (method_str == "FileRead" || method_str == "BinaryFileRead")
         {
-            params.method = GenerationMethod::FILE_READ;
+            params.method = (method_str == "BinaryFileRead") ? 
+                            GenerationMethod::BINARY_FILE_READ : 
+                            GenerationMethod::FILE_READ;
             string input_file;
             resolve_param("input_file", input_file, {"method", "fileRead", "input_file"});
             
             if (input_file.empty()) {
-                throw std::runtime_error("--input_file (or method.fileRead.input_file) required when method=FileRead");
+                throw std::runtime_error("--input_file (or method.fileRead.input_file) required when method=" + method_str);
             }
             
             // Resolve relative paths against the initial working directory
